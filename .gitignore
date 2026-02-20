@@ -39,3 +39,22 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# IDE / Editor
+.vscode/
+.idea/
+
+# logs
+*.log
+
+# local env overrides (念のため明示)
+.env.local
+.env.development.local
+.env.production.local
+.env.test.local
+
+# turbopack / turbo (Next.js 13+ 以降の将来対策)
+.turbo/
+
+# OS
+Thumbs.db
