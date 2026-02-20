@@ -1,0 +1,86 @@
+// data/funds.ts
+
+import { Fund } from "@/lib/types";
+
+export const funds: Fund[] = [
+  {
+    id: "emaxis-slim-all-country",
+    name: "eMAXIS Slim 全世界株式（オール・カントリー）",
+    provider: "三菱UFJ",
+    tags: ["人気", "株式", "全世界", "低コスト"],
+    expense_ratio: 0.0005775,
+    ref_return: 0.10,
+  },
+  {
+    id: "emaxis-slim-sp500",
+    name: "eMAXIS Slim 米国株式（S&P500）",
+    provider: "三菱UFJ",
+    tags: ["人気", "株式", "米国"],
+    expense_ratio: 0.00093,
+    ref_return: 0.11,
+  },
+  {
+    id: "rakuten-plus-all-country",
+    name: "楽天・プラス・オールカントリー株式",
+    provider: "楽天",
+    tags: ["人気", "株式", "全世界", "低コスト"],
+    expense_ratio: 0.000561,
+    ref_return: 0.095,
+  },
+  {
+    id: "rakuten-plus-sp500",
+    name: "楽天・プラス・S&P500インデックス",
+    provider: "楽天",
+    tags: ["人気", "株式", "米国"],
+    expense_ratio: 0.00077,
+    ref_return: 0.105,
+  },
+  {
+    id: "nasdaq100",
+    name: "NASDAQ100（例）",
+    provider: "—",
+    tags: ["株式", "米国", "ハイリスク"],
+    expense_ratio: 0.001,
+    ref_return: 0.14,
+  },
+  {
+    id: "developed-markets",
+    name: "先進国株式（例）",
+    provider: "—",
+    tags: ["株式", "先進国"],
+    expense_ratio: 0.0006,
+    ref_return: 0.085,
+  },
+  {
+    id: "emerging-markets",
+    name: "新興国株式（例）",
+    provider: "—",
+    tags: ["株式", "新興国", "リスク高め"],
+    expense_ratio: 0.0012,
+    ref_return: 0.05,
+  },
+  {
+    id: "global-bond",
+    name: "全世界債券（例）",
+    provider: "—",
+    tags: ["債券", "低リスク"],
+    expense_ratio: 0.0007,
+    ref_return: 0.02,
+  },
+  {
+    id: "gold",
+    name: "ゴールド（例）",
+    provider: "—",
+    tags: ["コモディティ", "分散"],
+    expense_ratio: 0.004,
+    ref_return: 0.05,
+  },
+  {
+    id: "balanced",
+    name: "バランス（例）",
+    provider: "—",
+    tags: ["バランス", "分散", "低〜中リスク"],
+    expense_ratio: 0.001,
+    ref_return: 0.045,
+  },
+];
