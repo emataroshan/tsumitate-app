@@ -127,7 +127,7 @@ export default function FundPicker({
                     <div className="font-medium text-slate-900">{f.name}</div>
                     {f.provider && <div className="text-xs text-slate-600">{f.provider}</div>}
                   </td>
-                  <td className="px-3 py-2 text-slate-800">{formatPercent(f.expense_ratio, 4)}</td>
+                  <td className="px-3 py-2 text-slate-800">{formatPercent(f.expense_ratio, 5)}</td>
                   <td className="px-3 py-2 text-slate-800">{formatPercent(f.ref_return, 2)}</td>
                   <td className="px-3 py-2 text-xs text-slate-600">
                     {(f.tags ?? []).join(" / ")}

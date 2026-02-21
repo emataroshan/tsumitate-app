@@ -77,7 +77,7 @@ export default function ResultsTable({ selectedFunds, monthly, years, initial, r
                 <td className="px-3 py-2 text-slate-800">
                    {formatPercent(r.annualReturn, 2)}
                 </td>
-                <td className="px-3 py-2 text-slate-800">{formatPercent(r.expenseRatio, 4)}</td>
+                <td className="px-3 py-2 text-slate-800">{formatPercent(r.expenseRatio, 5)}</td>
                 <td className="px-3 py-2 text-slate-900">{formatJPY(r.finalValue)}</td>
                 <td className="px-3 py-2 text-slate-800">{formatJPY(r.principal)}</td>
                 <td className="px-3 py-2 text-slate-900">{formatJPY(r.profit)}</td>
