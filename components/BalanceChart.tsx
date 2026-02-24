@@ -2,7 +2,7 @@
 
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Fund } from "@/lib/types";
 import { simulateSeries } from "@/lib/calc";
 import {
@@ -33,33 +33,45 @@ export default function BalanceChart({
 }: Props) {
   const hasSelection = selectedFunds.length > 0;
 
-  // 初回ロード時に親要素サイズが未確定で Recharts が警告を出すことがあるため、
-  // 1フレーム待ってから描画する
+  // 1フレーム待ってから描画（初回レイアウト未確定対策）
   const [ready, setReady] = useState(false);
   useEffect(() => {
     const id = requestAnimationFrame(() => setReady(true));
     return () => cancelAnimationFrame(id);
   }, []);
 
-  // ResponsiveContainer の警告回避：自前でサイズ計測して ComposedChart に数値で渡す
-  const chartWrapRef = useRef<HTMLDivElement | null>(null);
+  // ✅ div サイズを計測して、ComposedChartに数値で渡す（ResponsiveContainerを使わない）
+  const chartHostRef = useRef<HTMLDivElement | null>(null);
   const [chartSize, setChartSize] = useState<{ w: number; h: number }>({ w: 0, h: 0 });
-  useEffect(() => {
-    if (!ready) return;
-    const el = chartWrapRef.current;
-    if (!el) return;
+  useLayoutEffect(() => {
+    // hasSelection=false のときは chartHostRef の div 自体が描画されないので
+    // hasSelection も dependency に含めて「表示された瞬間」に必ず計測を開始する
+    if (!ready || !hasSelection) return;
 
-    const update = () => {
-      const w = el.clientWidth;
-      const h = el.clientHeight;
-      setChartSize({ w, h });
-    };
-    update();
+    const el = chartHostRef.current;
+    if (!el) {
+      // 念のため：次フレームで再トライ（ref が遅れて入るケース）
+      const id = requestAnimationFrame(() => {
+        const el2 = chartHostRef.current;
+        if (!el2) return;
+        setChartSize({ w: el2.clientWidth, h: el2.clientHeight });
+      });
+      return () => cancelAnimationFrame(id);
+    }
 
-    const ro = new ResizeObserver(() => update());
+    const update = () => setChartSize({ w: el.clientWidth, h: el.clientHeight });
+    update(); // 初回
+
+    // レイアウト確定が遅いケース保険：2フレーム後にもう一度
+    const id1 = requestAnimationFrame(() => requestAnimationFrame(update));
+
+    const ro = new ResizeObserver(update);
     ro.observe(el);
-    return () => ro.disconnect();
-  }, [ready]);
+    return () => {
+      cancelAnimationFrame(id1);
+      ro.disconnect();
+    };
+  }, [ready, hasSelection]);
 
   // ⚠️ Hooks は条件分岐より前で必ず同じ順序で呼ぶ
   const [hoveredFundId, setHoveredFundId] = useState<string | null>(null);
@@ -296,91 +308,72 @@ export default function BalanceChart({
         </div>
       </div>
 
-      <div ref={chartWrapRef} className="h-[360px] w-full min-w-0">
-        {chartSize.w <= 0 || chartSize.h <= 0 ? (
-          <div className="h-full w-full rounded-xl bg-gray-50" />
-        ) : (
+      <div ref={chartHostRef} className="h-[360px] w-full min-w-0">
+        {chartSize.w > 0 && chartSize.h > 0 ? (
           <ComposedChart
             width={chartSize.w}
             height={chartSize.h}
             data={data}
             margin={{ top: 10, right: 20, bottom: 0, left: 10 }}
             onMouseMove={(state: any) => {
-              // PC: hoverで更新（Tooltip無しでも activeLabel は取れる）
               const m = state?.activeLabel;
               if (typeof m === "number") setActiveIndex(m);
             }}
             onClick={(state: any) => {
-              // スマホ: タップで固定（hoverがないため）
               const m = state?.activeLabel;
               if (typeof m === "number") setActiveIndex(m);
             }}
           >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis
-                dataKey="month"
-                ticks={xTicks}
-                tickFormatter={(m) => `${Math.round(m / 12)}年`}
-                interval={0}
-              />
-              <YAxis
-                tickFormatter={(v) => `${Math.round(v / 1_0000)}万`}
-                width={70}
-              />
-              {/* ✅ 元本（下地） */}
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis
+              dataKey="month"
+              ticks={xTicks}
+              tickFormatter={(m) => `${Math.round(m / 12)}年`}
+              interval={0}
+            />
+            <YAxis
+              tickFormatter={(v) => `${Math.round(v / 1_0000)}万`}
+              width={70}
+            />
+            <Area
+              type="monotone"
+              dataKey="principal"
+              name="元本"
+              stackId="base"
+              strokeWidth={0}
+              fillOpacity={0.12}
+            />
+
+            {profitFillKey && (
               <Area
                 type="monotone"
-                dataKey="principal"
-                name="元本"
+                dataKey={profitFillKey}
+                name={maxFundName ? `利益（最大：${shortName(maxFundName)}）` : "利益"}
                 stackId="base"
                 strokeWidth={0}
-                fillOpacity={0.12}
+                fill={maxFundColor}
+                stroke={maxFundColor}
+                fillOpacity={0.25}
+                isAnimationActive={false}
               />
+            )}
 
-              {/* ✅ 利益（最終年で最大評価額のファンドで固定して塗る） */}
-              {profitFillKey && (
-                <Area
-                  type="monotone"
-                  dataKey={profitFillKey}
-                  name={maxFundName ? `利益（最大：${shortName(maxFundName)}）` : "利益"}
-                  stackId="base"
-                  strokeWidth={0}
-                  fill={maxFundColor}
-                  stroke={maxFundColor}
-                  fillOpacity={0.25}
-                  isAnimationActive={false}
-                />
-              )}
-
-              {/* （任意）損失エリアも出すならON：元本より下に行くケース用 */}
-              {/* 
-              {activeLossKey && (
-                <Area
-                  type="monotone"
-                  dataKey={activeLossKey}
-                  name={activeFundName ? `損失（${shortName(activeFundName)}）` : "損失"}
-                  stackId="loss"
-                  strokeWidth={0}
-                  fillOpacity={0.18}
-                  isAnimationActive={false}
-                />
-              )}
-              */}
-
-              {series.map((s) => (
-                <Line
-                  key={s.fund.id}
-                  type="monotone"
-                  dataKey={s.fund.id}
-                  name={shortName(s.fund.name)}
-                  dot={false}
-                  strokeWidth={2}
-                  stroke={colorByFundId[s.fund.id]}
-                  onMouseEnter={() => setHoveredFundId(s.fund.id)}
-                  onMouseLeave={() => setHoveredFundId(null)}
-                />
-              ))}
+            {series.map((s) => (
+              <Line
+                key={s.fund.id}
+                type="monotone"
+                dataKey={s.fund.id}
+                name={shortName(s.fund.name)}
+                dot={false}
+                strokeWidth={2}
+                stroke={colorByFundId[s.fund.id]}
+                onMouseEnter={() => setHoveredFundId(s.fund.id)}
+                onMouseLeave={() => setHoveredFundId(null)}
+              />
+            ))}
           </ComposedChart>
+        ) : (
+          <div className="h-full w-full rounded-xl bg-gray-50" />
         )}
       </div>
     </div>
