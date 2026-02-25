@@ -37,7 +37,7 @@ export default function CompareApp() {
   return (
     <div className="grid gap-4">
       <div className="rounded-2xl border bg-white p-4 shadow-sm">
-        <div className="text-2xl font-bold">積立ファンド比較（v1）</div>
+        <div className="text-2xl font-bold">NISA積立ファンド比較（v1）</div>
         <div className="mt-1 text-sm text-slate-600">
           まずは「共通条件」でサクッと比較。v2で個別条件を追加します。
         </div>
