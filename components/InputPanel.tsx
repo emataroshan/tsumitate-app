@@ -75,23 +75,7 @@ export default function InputPanel({
 
         <div className="grid gap-2 rounded-xl border bg-slate-50 p-3">
           <div className="text-sm font-medium text-slate-800">年率（計算方法）</div>
-
-          <label className="flex items-center gap-2 text-sm text-slate-800">
-            <input
-              type="radio"
-              name="rateMode"
-              value="fund"
-              checked={rateMode === "fund"}
-              onChange={() => setRateMode("fund")}
-            />
-            <span>参考年率（ファンドごと）で計算</span>
-          </label>
-
-          <div className="pl-6 text-xs text-slate-600">
-            ※参考年率は過去の実績（主に5年、未満の場合は3年・1年など）をもとにした値です。<br />
-            ※将来の成果を保証するものではありません。
-          </div>
-
+          
           <div className="grid gap-1">
             <label className="flex items-center gap-2 text-sm text-slate-800">
               <input
@@ -101,7 +85,19 @@ export default function InputPanel({
                 checked={rateMode === "custom"}
                 onChange={() => setRateMode("custom")}
               />
-              <span>想定年率（共通）で計算</span>
+              <span className="flex items-center gap-2">
+                想定年率（共通）で計算
+
+                {/* ? アイコン（ツールチップ） */}
+                <span className="relative inline-flex group cursor-help">
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full border border-slate-300 text-xs text-slate-400 hover:border-slate-500 hover:text-slate-600">
+                    ?
+                  </span>
+                  <span className="pointer-events-none absolute left-1/2 top-7 z-10 w-64 -translate-x-1/2 rounded-lg border bg-white p-2 text-xs text-slate-600 shadow-md opacity-0 transition-opacity group-hover:opacity-100">
+                    すべてのファンドを同じ条件で比較するための年率です
+                  </span>
+                </span>
+              </span>
             </label>
 
             <div className="flex items-center gap-2 pl-6">
@@ -123,15 +119,32 @@ export default function InputPanel({
               />
               <span className={`text-sm ${rateMode !== "custom" ? "text-slate-500" : "text-slate-700"}`}>%</span>
             </div>
-
-            <div className="pl-6 text-xs text-slate-600">
-              ※ 想定年率は全ファンドに同じ値を適用します（比較用シナリオ）
-            </div>
           </div>
-        </div>
 
-        <div className="rounded-xl border bg-slate-50 p-3 text-sm text-slate-700">
-          Day6以降でここに「増額率・ボーナス月」などを追加していきます。
+          <label className="flex items-center gap-2 text-sm text-slate-800">
+            <input
+              type="radio"
+              name="rateMode"
+              value="fund"
+              checked={rateMode === "fund"}
+              onChange={() => setRateMode("fund")}
+            />
+            <span className="flex items-center gap-2">
+              参考年率（ファンドごと）で計算
+
+              {/* ? アイコン（ツールチップ） */}
+              <span className="relative inline-flex group cursor-help">
+                <span className="flex h-5 w-5 items-center justify-center rounded-full border border-slate-300 text-xs text-slate-400 hover:border-slate-500 hover:text-slate-600">
+                  ?
+                </span>
+
+                <span className="pointer-events-none absolute left-1/2 top-7 z-10 w-72 -translate-x-1/2 rounded-lg border bg-white p-2 text-xs text-slate-600 shadow-md opacity-0 transition-opacity group-hover:opacity-100">
+                  各ファンドの過去の実績（主に5年、未満の場合は3年・1年など）をもとにした参考値です。
+                </span>
+
+              </span>
+            </span>
+          </label>
         </div>
       </div>
     </div>
