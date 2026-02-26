@@ -7,37 +7,122 @@ import { formatJPY } from "@/lib/format";
 
 type Props = {
   fund: Fund;
-  benefit: number;
+  finalValue: number;
+  principal: number;
+  profit: number;
+  benefit: number; // NISAで払わずに済む税金（目安）
+  monthly: number;
+  years: number;
+  rateMode: "fund" | "custom";
+  annualReturn: number; // 小数 (例: 0.05)
+  effectiveAnnualReturn: number; // 概算: annualReturn - expenseRatio
+  expenseRatio: number; // 小数 (例: 0.000814)
+  feeDrag: number; // 管理費用が最終評価額に与える差分（概算）
 };
 
-export default function BestFundCard({ fund, benefit }: Props) {
+export default function BestFundCard({
+  fund,
+  finalValue,
+  principal,
+  profit,
+  benefit,
+  monthly,
+  years,
+  rateMode,
+  annualReturn,
+  effectiveAnnualReturn,
+  expenseRatio,
+  feeDrag,
+}: Props) {
+  const profitIsPositive = profit >= 0;
+  const profitText = `${profitIsPositive ? "+" : ""}${formatJPY(profit)}`;
+  const expenseRatioPct = (expenseRatio * 100).toFixed(3);
+  const annualReturnPct = (annualReturn * 100).toFixed(1);
+  const showFeeStory = rateMode === "custom";
+
   return (
     <div className="rounded-2xl border-2 border-emerald-500 bg-emerald-50 p-4 shadow-sm">
+      <div className="flex flex-wrap items-start justify-between gap-2">
+        <div className="min-w-0">
+          <div className="text-sm font-medium text-emerald-800">
+            この条件で最も資産が増えるファンド
+          </div>
+          <div className="mt-0.5 text-lg font-semibold text-emerald-950">
+            {fund.name}
+          </div>
+          <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-slate-600">
+            <span className="rounded-full bg-white/70 px-2 py-0.5 ring-1 ring-emerald-200">
+              毎月 {formatJPY(monthly)} 
+            </span>
+            <span className="rounded-full bg-white/70 px-2 py-0.5 ring-1 ring-emerald-200">
+              想定年率 {annualReturnPct}%
+            </span>
+          </div>
+        </div>
 
-      <div className="text-sm text-emerald-800">
-        この条件で最も有利なファンド
+        {/* 税金差額は“補助”として右上に */}
+        {benefit > 0 && (
+          <div className="rounded-full bg-white/70 px-3 py-1 text-xs font-semibold text-emerald-800 ring-1 ring-emerald-200">
+            NISAメリット（節税推定額）：{formatJPY(benefit)}
+          </div>
+        )}
       </div>
 
-      <div className="text-lg font-semibold text-emerald-900">
-        {fund.name}
+      {/* 主役：最終評価額 */}
+      <div className="mt-4">
+        <div className="text-sm text-emerald-900">{years}年後の資産総額</div>
+        <div className="text-4xl font-extrabold text-emerald-700 tracking-tight">
+          {formatJPY(finalValue)}
+        </div>
+        <div className="mt-1 text-xs text-slate-600">
+          {showFeeStory
+            ? "共通年率のため、手数料が低いほど将来の資産総額が増えやすいです"
+            : "参考年率と手数料を加味した結果、このファンドが最も増える試算です"}
+        </div>
       </div>
 
-      <div className="mt-3 text-sm text-emerald-800">
-        NISAで払わずに済む税金
+      {/* 補助：元本と損益（安心材料＋増えた実感） */}
+      <div className="mt-3 grid grid-cols-2 gap-2 rounded-xl bg-white/70 p-3 ring-1 ring-emerald-200">
+        <div>
+          <div className="text-xs text-slate-600">積立元本</div>
+          <div className="mt-0.5 font-semibold tabular-nums text-slate-900">
+            {formatJPY(principal)}
+          </div>
+        </div>
+        <div>
+          <div className="text-xs text-slate-600">増えた額</div>
+          <div
+            className={`mt-0.5 font-semibold tabular-nums ${
+              profitIsPositive ? "text-emerald-700" : "text-rose-700"
+            }`}
+          >
+            {profitIsPositive ? "+" : ""}
+            {formatJPY(profit)}
+          </div>
+        </div>
       </div>
 
-      <div className="text-3xl font-bold text-emerald-600">
-        {formatJPY(benefit)}
-      </div>
+      {feeDrag > 0 && (
+        <div className="mt-2 rounded-xl bg-white/70 p-3 ring-1 ring-emerald-200">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="text-xs text-slate-600">手数料で減る金額（{years}年間・概算）</div>
+            <div className="rounded-full bg-white/80 px-2 py-0.5 text-[11px] font-medium text-slate-700 ring-1 ring-emerald-200">
+              管理費用 {expenseRatioPct}%/年
+            </div>
+          </div>
+          <div className="mt-0.5 font-semibold tabular-nums text-slate-900">
+            −{formatJPY(feeDrag)}
+          </div>
+          <div className="mt-1 text-[11px] text-slate-500">
+            ※手数料は毎年かかるため、長期ほど差が広がります
+          </div>
+          <div className="mt-1 text-[11px] text-slate-500">※「管理費用0%」のケースとの差（概算）</div>
+        </div>
+      )}
 
-      <div className="text-xs text-emerald-700">
-        ※課税口座との差分の目安
+      <div className="mt-2 text-xs text-slate-500">
+        ※非課税枠（1800万円）内での運用を前提とした試算です（将来のリターンを保証するものではありません）
       </div>
-      
-      <div className="text-xs text-slate-500 mt-1">
-        ※非課税枠（1800万円）内での運用を前提とした試算です
-      </div>
-
     </div>
   );
 }
