@@ -5,6 +5,7 @@
 import { Fund } from "@/lib/types";
 import { formatJPY, formatPercent } from "@/lib/format";
 import { simulate, compareNisaVsTaxable } from "@/lib/calc";
+import BestFundCard from "@/components/BestFundCard";
 
 type Row = {
   fund: Fund;
@@ -82,11 +83,6 @@ export default function ResultsTable({
     };
   });
 
-  const best =
-    rows.length > 0
-      ? [...rows].sort((a, b) => b.nisaBenefit - a.nisaBenefit)[0]
-      : null;
-
   return (
     <div className="rounded-2xl border bg-white p-4 shadow-sm">
       <div className="mb-3">
@@ -155,19 +151,6 @@ export default function ResultsTable({
         </table>
       </div>
 
-      {/* 初心者向けの補助：最大の「得」を一言で */}
-      {best && (
-        <div className="mt-3 rounded-xl bg-slate-50 px-3 py-2 text-sm text-slate-700">
-          <div className="text-slate-700">
-            この条件では、{" "}
-            <span className="font-semibold text-slate-900">{best.fund.name}</span>{" "}
-            が最も有利です
-          </div>
-          <div className="font-semibold text-emerald-700">
-            NISAで払わずに済む税金：{formatJPY(best.nisaBenefit)}
-          </div>
-        </div>
-      )}
     </div>
   );
 }

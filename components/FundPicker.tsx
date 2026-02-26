@@ -124,7 +124,15 @@ export default function FundPicker({
                     />
                   </td>
                   <td className="px-3 py-2">
-                    <div className="font-medium text-slate-900">{f.name}</div>
+                    <div className="font-medium text-slate-900">
+                      {f.name}
+
+                      {selected && (
+                        <span className="ml-2 rounded bg-emerald-100 px-2 py-0.5 text-xs text-emerald-700">
+                          選択中
+                        </span>
+                      )}
+                    </div>
                     {f.provider && <div className="text-xs text-slate-600">{f.provider}</div>}
                   </td>
                   <td className="px-3 py-2 text-slate-800">{formatPercent(f.expense_ratio, 5)}</td>
@@ -144,10 +152,6 @@ export default function FundPicker({
             )}
           </tbody>
         </table>
-      </div>
-
-      <div className="mt-3 rounded-xl border bg-slate-50 p-3 text-sm text-slate-700">
-        Day6以降で、選択ファンドに対して「最終評価額」などの計算結果を出します。
       </div>
     </div>
   );
