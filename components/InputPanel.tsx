@@ -2,6 +2,8 @@
 
 "use client";
 
+import { useEffect, useState } from "react";
+
 type Props = {
   monthly: number;
   setMonthly: (v: number) => void;
@@ -29,6 +31,32 @@ export default function InputPanel({
   customAnnualReturn,
   setCustomAnnualReturn,
 }: Props) {
+
+  // iOS/Android の number input は「先頭だけ消しても 0 が残る」等の挙動が出やすいので、
+  // monthly は文字列として扱い、確定（blur）時に数値へ正規化する。
+  const [monthlyText, setMonthlyText] = useState<string>(String(monthly));
+
+  useEffect(() => {
+    // 外部から monthly が変わった場合（リセット等）に同期
+    setMonthlyText(String(monthly));
+  }, [monthly]);
+
+  function normalizeIntText(raw: string) {
+    // 数字以外を除去
+    const digits = raw.replace(/[^\d]/g, "");
+    if (digits === "") return "";
+    // 先頭ゼロを除去（ただし "0" は許容）
+    const trimmed = digits.replace(/^0+(?=\d)/, "");
+    return trimmed;
+  }
+
+  function commitMonthly(raw: string) {
+    const n = raw === "" ? 0 : Number(raw);
+    const safe = Number.isFinite(n) ? Math.max(0, Math.trunc(n)) : 0;
+    setMonthly(safe);
+    setMonthlyText(String(safe));
+  }
+
   return (
     <div className="rounded-2xl border bg-white p-4 shadow-sm">
       <div className="mb-3">
@@ -40,11 +68,18 @@ export default function InputPanel({
         <label className="grid gap-1">
           <span className="text-sm text-slate-700">毎月の積立額（円）</span>
           <input
-            type="number"
-            min={0}
-            step={1000}
-            value={monthly}
-            onChange={(e) => setMonthly(Number(e.target.value))}
+            type="text"
+            inputMode="numeric"
+            pattern="\d*"
+            value={monthlyText}
+            onFocus={(e) => {
+              // ワンタップで全選択 → 入れ直しが楽（スマホで特に効く）
+              e.currentTarget.select();
+            }}
+            onChange={(e) => {
+              setMonthlyText(normalizeIntText(e.target.value));
+            }}
+            onBlur={() => commitMonthly(monthlyText)}
             className="rounded-xl border px-3 py-2 text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200"
           />
         </label>
