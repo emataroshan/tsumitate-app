@@ -34,3 +34,22 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+/* --- Recharts: タップ/クリック時に出るフォーカス枠（大小が変わるノイズ）を抑制 ---
+   グローバルに outline を消すとアクセシビリティを壊すので、Recharts 領域に限定。
+   (iOS/Androidで path/svg が focus されて枠が出るケースの対策)
+*/
+.recharts-wrapper:focus,
+.recharts-wrapper:focus-visible,
+.recharts-surface:focus,
+.recharts-surface:focus-visible {
+  outline: none;
+}
+
+/* SVG 内要素がフォーカスされて枠が出るケース（Areaの塗りなど） */
+.recharts-wrapper svg:focus,
+.recharts-wrapper svg:focus-visible,
+.recharts-wrapper svg *:focus,
+.recharts-wrapper svg *:focus-visible {
+  outline: none;
+}

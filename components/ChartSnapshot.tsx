@@ -21,6 +21,8 @@ export default function ChartSnapshot({
   fmtYen,
   snapshot,
   maxFundSnapshot,
+  hoveredFundId,
+  isPinned,
 }: {
   isCompact: boolean;
   showDetails: boolean;
@@ -32,19 +34,30 @@ export default function ChartSnapshot({
   fmtYen: (v: any) => string;
   snapshot: SnapshotRow[];
   maxFundSnapshot: SnapshotRow | null;
+  hoveredFundId: string | null;
+  isPinned: boolean;
 }) {
   return (
     <div className="mb-3 rounded-xl border bg-slate-50 p-3 text-sm">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <div className="font-medium text-slate-900">
-          {activePointLabel}
-          {maxFundName ? (
-            <span className="ml-2 text-slate-600">
-              （利益エリア：最大 {shortName(maxFundName)}）
-            </span>
-          ) : null}
+      {/* ✅ ここはチラつきが最も不快なので「2段固定」で安定させる */}
+      <div className="min-w-0">
+        <div className="flex min-w-0 items-center gap-2">
+          <div className="min-w-0 truncate font-medium text-slate-900">
+            {activePointLabel}
+            {maxFundName ? (
+              <span className="ml-2 text-slate-600">
+                （利益エリア：最大 {shortName(maxFundName)}）
+              </span>
+            ) : null}
+          </div>
         </div>
-        <div className="text-xs text-slate-600">PC：ホバー / スマホ：タップ</div>
+        <div className="mt-1 text-xs text-slate-600">
+          {isCompact
+            ? "タップで時点を固定"
+            : isPinned
+              ? "固定中（クリックで解除）"
+              : "ホバーで確認 / クリックで固定"}
+        </div>
       </div>
 
       <div className="mt-2 flex flex-wrap items-center gap-x-6 gap-y-2">
@@ -61,6 +74,7 @@ export default function ChartSnapshot({
               row={maxFundSnapshot}
               fmtYen={fmtYen}
               badge="最大"
+              isEmphasis={hoveredFundId ? hoveredFundId === maxFundSnapshot.id : false}
             />
           ) : null}
 
@@ -82,6 +96,7 @@ export default function ChartSnapshot({
                   row={s}
                   fmtYen={fmtYen}
                   badge={s.id === maxFundIdAtFinal ? "最大" : null}
+                  isEmphasis={hoveredFundId ? hoveredFundId === s.id : false}
                 />
               ))}
             </div>
@@ -95,6 +110,7 @@ export default function ChartSnapshot({
               row={s}
               fmtYen={fmtYen}
               badge={s.id === maxFundIdAtFinal ? "最大" : null}
+              isEmphasis={hoveredFundId ? hoveredFundId === s.id : false}
             />
           ))}
         </div>
@@ -107,13 +123,20 @@ function Row({
   row,
   fmtYen,
   badge,
+  isEmphasis,
 }: {
   row: SnapshotRow;
   fmtYen: (v: any) => string;
   badge: string | null;
+  isEmphasis: boolean;
 }) {
   return (
-    <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+    <div
+      className={[
+        "flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 rounded-lg px-2 py-1",
+        isEmphasis ? "bg-white ring-1 ring-slate-200" : "",
+      ].join(" ")}
+    >
       <div className="flex min-w-0 items-center gap-2">
         <span
           className="h-2.5 w-2.5 shrink-0 rounded-full"
