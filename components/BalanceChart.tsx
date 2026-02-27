@@ -12,6 +12,7 @@ import {
   CartesianGrid,
   XAxis,
   YAxis,
+  ReferenceLine,
 } from "recharts";
 
 type Props = {
@@ -32,6 +33,24 @@ export default function BalanceChart({
   customAnnualReturn,
 }: Props) {
   const hasSelection = selectedFunds.length > 0;
+
+  // ---- mobile 判定（結論を早く見せるため：スマホは情報を畳む）----
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 767px)");
+    const update = () => setIsMobile(mq.matches);
+    update();
+    // Safari 対応
+    if (typeof mq.addEventListener === "function") {
+      mq.addEventListener("change", update);
+      return () => mq.removeEventListener("change", update);
+    } else {
+      // @ts-ignore
+      mq.addListener(update);
+      // @ts-ignore
+      return () => mq.removeListener(update);
+    }
+  }, []);
 
   // 1フレーム待ってから描画（初回レイアウト未確定対策）
   const [ready, setReady] = useState(false);
@@ -80,6 +99,12 @@ export default function BalanceChart({
   useEffect(() => {
     setActiveIndex(years * 12);
   }, [years]);
+
+  // スマホは「結論まで最短」：スナップショットはデフォルト折りたたみ
+  const [showSnapshotDetails, setShowSnapshotDetails] = useState(true);
+  useEffect(() => {
+    setShowSnapshotDetails(!isMobile);
+  }, [isMobile]);
 
   // 各ファンドのシリーズを計算（ready/未選択でも Hook は毎回呼ぶので、空配列で返す）
   const series = useMemo(() => {
@@ -210,6 +235,11 @@ export default function BalanceChart({
     });
   }, [activePrincipal, activeRow, colorByFundId, series]);
 
+  const maxFundSnapshot = useMemo(() => {
+    if (!maxFundIdAtFinal) return null;
+    return snapshot.find((s) => s.id === maxFundIdAtFinal) ?? null;
+  }, [maxFundIdAtFinal, snapshot]);
+
   // X軸（年表示）の間引きルール：〜15y=1年、〜30y=2年、以降=5年
   const yearStep = years <= 15 ? 1 : years <= 30 ? 2 : 5;
   const xTicks = useMemo(() => {
@@ -236,7 +266,7 @@ export default function BalanceChart({
       <div className="rounded-2xl border bg-white p-4 shadow-sm">
         <div className="text-lg font-semibold">資産推移（グラフ）</div>
         <div className="mt-2 text-sm text-gray-600">読み込み中…</div>
-        <div className="mt-3 h-[360px] w-full rounded-xl bg-gray-50" />
+        <div className="mt-3 h-[260px] w-full rounded-xl bg-gray-50 md:h-[340px]" />
       </div>
     );
   }
@@ -277,44 +307,122 @@ export default function BalanceChart({
           </div>
         </div>
 
-        <div className="mt-3 grid gap-2">
-          {snapshot.map((s) => (
-            <div key={s.id} className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-              <div className="flex min-w-0 items-center gap-2">
-                <span
-                  className="h-2.5 w-2.5 shrink-0 rounded-full"
-                  style={{ backgroundColor: s.color }}
-                  aria-hidden
-                />
-                <div className="min-w-0 truncate font-medium text-slate-900">
-                  {shortName(s.name)}
-                  {s.id === maxFundIdAtFinal ? (
+        {/* スマホは結論まで最短：要点だけ → 必要なら展開 */}
+        {isMobile ? (
+          <div className="mt-3">
+            {maxFundSnapshot ? (
+              <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+                <div className="flex min-w-0 items-center gap-2">
+                  <span
+                    className="h-2.5 w-2.5 shrink-0 rounded-full"
+                    style={{ backgroundColor: maxFundSnapshot.color }}
+                    aria-hidden
+                  />
+                  <div className="min-w-0 truncate font-medium text-slate-900">
+                    {shortName(maxFundSnapshot.name)}
                     <span className="ml-2 rounded-full bg-white px-2 py-0.5 text-xs font-semibold text-slate-600 ring-1 ring-slate-200">
                       最大
                     </span>
-                  ) : null}
+                  </div>
+                </div>
+                <div className="flex items-baseline gap-4">
+                  <div className="tabular-nums text-slate-900">{fmtYen(maxFundSnapshot.balance)}</div>
+                  <div className="tabular-nums text-slate-700">
+                    {typeof maxFundSnapshot.profit === "number"
+                      ? `${maxFundSnapshot.profit >= 0 ? "+" : ""}${Math.round(maxFundSnapshot.profit).toLocaleString()}円`
+                      : "-"}
+                  </div>
                 </div>
               </div>
-              <div className="flex items-baseline gap-4">
-                <div className="tabular-nums text-slate-900">{fmtYen(s.balance)}</div>
-                <div className="tabular-nums text-slate-700">
-                  {typeof s.profit === "number"
-                    ? `${s.profit >= 0 ? "+" : ""}${Math.round(s.profit).toLocaleString()}円`
-                    : "-"}
-                </div>
-              </div>
+            ) : null}
+
+            <div className="mt-2">
+              <button
+                type="button"
+                onClick={() => setShowSnapshotDetails((v) => !v)}
+                className="rounded-lg bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 ring-1 ring-slate-200"
+              >
+                {showSnapshotDetails ? "詳細を閉じる" : "詳細を表示"}
+              </button>
             </div>
-          ))}
-        </div>
+
+            {showSnapshotDetails ? (
+              <div className="mt-3 grid gap-2">
+                {snapshot.map((s) => (
+                  <div key={s.id} className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+                    <div className="flex min-w-0 items-center gap-2">
+                      <span
+                        className="h-2.5 w-2.5 shrink-0 rounded-full"
+                        style={{ backgroundColor: s.color }}
+                        aria-hidden
+                      />
+                      <div className="min-w-0 truncate font-medium text-slate-900">
+                        {shortName(s.name)}
+                        {s.id === maxFundIdAtFinal ? (
+                          <span className="ml-2 rounded-full bg-white px-2 py-0.5 text-xs font-semibold text-slate-600 ring-1 ring-slate-200">
+                            最大
+                          </span>
+                        ) : null}
+                      </div>
+                    </div>
+                    <div className="flex items-baseline gap-4">
+                      <div className="tabular-nums text-slate-900">{fmtYen(s.balance)}</div>
+                      <div className="tabular-nums text-slate-700">
+                        {typeof s.profit === "number"
+                          ? `${s.profit >= 0 ? "+" : ""}${Math.round(s.profit).toLocaleString()}円`
+                          : "-"}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : null}
+          </div>
+        ) : (
+          <div className="mt-3 grid gap-2">
+            {snapshot.map((s) => (
+              <div key={s.id} className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+                <div className="flex min-w-0 items-center gap-2">
+                  <span
+                    className="h-2.5 w-2.5 shrink-0 rounded-full"
+                    style={{ backgroundColor: s.color }}
+                    aria-hidden
+                  />
+                  <div className="min-w-0 truncate font-medium text-slate-900">
+                    {shortName(s.name)}
+                    {s.id === maxFundIdAtFinal ? (
+                      <span className="ml-2 rounded-full bg-white px-2 py-0.5 text-xs font-semibold text-slate-600 ring-1 ring-slate-200">
+                        最大
+                      </span>
+                    ) : null}
+                  </div>
+                </div>
+                <div className="flex items-baseline gap-4">
+                  <div className="tabular-nums text-slate-900">{fmtYen(s.balance)}</div>
+                  <div className="tabular-nums text-slate-700">
+                    {typeof s.profit === "number"
+                      ? `${s.profit >= 0 ? "+" : ""}${Math.round(s.profit).toLocaleString()}円`
+                      : "-"}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
-      <div ref={chartHostRef} className="h-[360px] w-full min-w-0">
+      <div ref={chartHostRef} className="h-[260px] w-full min-w-0 md:h-[340px]">
         {chartSize.w > 0 && chartSize.h > 0 ? (
           <ComposedChart
             width={chartSize.w}
             height={chartSize.h}
             data={data}
-            margin={{ top: 10, right: 20, bottom: 0, left: 10 }}
+            margin={{
+              top: 10,
+              right: isMobile ? 10 : 20,
+              bottom: 0,
+              left: isMobile ? 4 : 10,
+            }}
             onMouseMove={(state: any) => {
               const m = state?.activeLabel;
               if (typeof m === "number") setActiveIndex(m);
@@ -325,6 +433,8 @@ export default function BalanceChart({
             }}
           >
             <CartesianGrid strokeDasharray="3 3" />
+            {/* スマホの納得感：どこを見ているか縦線で明示 */}
+            <ReferenceLine x={activeIndex} stroke="#94a3b8" strokeDasharray="4 4" />
             <XAxis
               dataKey="month"
               ticks={xTicks}
@@ -333,7 +443,7 @@ export default function BalanceChart({
             />
             <YAxis
               tickFormatter={(v) => `${Math.round(v / 1_0000)}万`}
-              width={70}
+              width={isMobile ? 48 : 70}
             />
             <Area
               type="monotone"
