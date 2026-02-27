@@ -2,7 +2,7 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 type Props = {
   monthly: number;
@@ -57,16 +57,76 @@ export default function InputPanel({
     setMonthlyText(String(safe));
   }
 
+  // tooltip open state (mobile tap対応)
+  const [openTip, setOpenTip] = useState<null | "custom" | "fund">(null);
+  const tipRootRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (openTip === null) return;
+
+    function onPointerDown(e: PointerEvent) {
+      const root = tipRootRef.current;
+      if (!root) return;
+      const target = e.target as Node | null;
+      if (target && !root.contains(target)) setOpenTip(null);
+    }
+
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") setOpenTip(null);
+    }
+
+    document.addEventListener("pointerdown", onPointerDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [openTip]);
+
+  function Tooltip({
+    id,
+    text,
+  }: {
+    id: "custom" | "fund";
+    text: string;
+  }) {
+    const open = openTip === id;
+    return (
+      <span className="relative inline-flex group">
+        <button
+          type="button"
+          onClick={() => setOpenTip(open ? null : id)}
+          className="flex h-5 w-5 items-center justify-center rounded-full border border-slate-300 text-xs text-slate-400 active:border-slate-500 active:text-slate-600"
+          aria-label="説明を表示"
+          aria-expanded={open}
+        >
+          i
+        </button>
+
+        {/* 1つの吹き出しで統一：スマホはclick、PCはhover/focusでも表示 */}
+        <span
+          className={[
+            "absolute left-1/2 top-7 z-20 w-72 -translate-x-1/2 rounded-lg border bg-white p-2 text-xs text-slate-600 shadow-md transition-opacity",
+            open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none",
+            "sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100",
+          ].join(" ")}
+        >
+          {text}
+        </span>
+      </span>
+    );
+  }
+
   return (
     <div className="rounded-2xl border bg-white p-4 shadow-sm">
       <div className="mb-3">
-        <div className="text-lg font-semibold">条件（共通）</div>
-        <div className="text-sm text-slate-600">まずはここだけで比較できます</div>
+        <div className="text-lg font-semibold">積立条件</div>
+        <div className="text-sm text-slate-600">共通の条件で比較できます</div>
       </div>
 
-      <div className="grid gap-3">
+      <div className="grid gap-3" ref={tipRootRef}>
         <label className="grid gap-1">
-          <span className="text-sm text-slate-700">毎月の積立額（円）</span>
+          <span className="text-sm text-slate-700">毎月積立額（円）</span>
           <input
             type="text"
             inputMode="numeric"
@@ -85,7 +145,7 @@ export default function InputPanel({
         </label>
 
         <label className="grid gap-1">
-          <span className="text-sm text-slate-700">期間（年）</span>
+          <span className="text-sm text-slate-700">積立期間（年）</span>
           <input
             type="number"
             min={1}
@@ -97,7 +157,7 @@ export default function InputPanel({
         </label>
 
         <label className="grid gap-1">
-          <span className="text-sm text-slate-700">初期投資（円・任意）</span>
+          <span className="text-sm text-slate-700">初期投資（円）</span>
           <input
             type="number"
             min={0}
@@ -109,7 +169,7 @@ export default function InputPanel({
         </label>
 
         <div className="grid gap-2 rounded-xl border bg-slate-50 p-3">
-          <div className="text-sm font-medium text-slate-800">年率（計算方法）</div>
+          <div className="text-sm font-medium text-slate-800">年率</div>
           
           <div className="grid gap-1">
             <label className="flex items-center gap-2 text-sm text-slate-800">
@@ -123,15 +183,7 @@ export default function InputPanel({
               <span className="flex items-center gap-2">
                 想定年率（共通）で計算
 
-                {/* ? アイコン（ツールチップ） */}
-                <span className="relative inline-flex group cursor-help">
-                  <span className="flex h-5 w-5 items-center justify-center rounded-full border border-slate-300 text-xs text-slate-400 hover:border-slate-500 hover:text-slate-600">
-                    ?
-                  </span>
-                  <span className="pointer-events-none absolute left-1/2 top-7 z-10 w-64 -translate-x-1/2 rounded-lg border bg-white p-2 text-xs text-slate-600 shadow-md opacity-0 transition-opacity group-hover:opacity-100">
-                    すべてのファンドを同じ条件で比較するための年率です
-                  </span>
-                </span>
+                <Tooltip id="custom" text="すべてのファンドを同じ条件で比較するための年率です" />
               </span>
             </label>
 
@@ -167,17 +219,10 @@ export default function InputPanel({
             <span className="flex items-center gap-2">
               参考年率（ファンドごと）で計算
 
-              {/* ? アイコン（ツールチップ） */}
-              <span className="relative inline-flex group cursor-help">
-                <span className="flex h-5 w-5 items-center justify-center rounded-full border border-slate-300 text-xs text-slate-400 hover:border-slate-500 hover:text-slate-600">
-                  ?
-                </span>
-
-                <span className="pointer-events-none absolute left-1/2 top-7 z-10 w-72 -translate-x-1/2 rounded-lg border bg-white p-2 text-xs text-slate-600 shadow-md opacity-0 transition-opacity group-hover:opacity-100">
-                  各ファンドの過去の実績（主に5年、未満の場合は3年・1年など）をもとにした参考値です。
-                </span>
-
-              </span>
+              <Tooltip
+                id="fund"
+                text="各ファンドの過去の実績（主に5年、未満の場合は3年・1年など）をもとにした参考値です。"
+              />
             </span>
           </label>
         </div>
