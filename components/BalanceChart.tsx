@@ -2,9 +2,10 @@
 
 "use client";
 
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Fund } from "@/lib/types";
 import { useBalanceChartData } from "@/hooks/useBalanceChartData";
+import { useBalanceChartViewModel } from "@/hooks/useBalanceChartViewModel";
 import ChartSnapshot from "@/components/ChartSnapshot";
 import BalanceComposedChart from "@/components/BalanceComposedChart";
 
@@ -26,24 +27,6 @@ export default function BalanceChart({
   customAnnualReturn,
 }: Props) {
   const hasSelection = selectedFunds.length > 0;
-
-  // ---- mobile 判定（結論を早く見せるため：スマホは情報を畳む）----
-  const [isMobile, setIsMobile] = useState(false);
-  useEffect(() => {
-    const mq = window.matchMedia("(max-width: 767px)");
-    const update = () => setIsMobile(mq.matches);
-    update();
-    // Safari 対応
-    if (typeof mq.addEventListener === "function") {
-      mq.addEventListener("change", update);
-      return () => mq.removeEventListener("change", update);
-    } else {
-      // @ts-ignore
-      mq.addListener(update);
-      // @ts-ignore
-      return () => mq.removeListener(update);
-    }
-  }, []);
 
   // 1フレーム待ってから描画（初回レイアウト未確定対策）
   const [ready, setReady] = useState(false);
@@ -96,6 +79,13 @@ export default function BalanceChart({
     setActiveIndex(years * 12);
   }, [years]);
 
+  // ✅ PC：クリックで時点を固定（ピン留め）/ もう一度クリックで解除
+  const [isPinned, setIsPinned] = useState(false);
+  // 条件やレイアウトが変わったら固定は解除（意図せず残ると不親切）
+  useEffect(() => {
+    setIsPinned(false);
+  }, [years, monthly, initial, rateMode, customAnnualReturn, isCompact, selectedFunds]);
+
   // スマホ(狭い)は「結論まで最短」：スナップショットはデフォルト折りたたみ
   const [showSnapshotDetails, setShowSnapshotDetails] = useState<boolean>(true);
   useEffect(() => {
@@ -123,35 +113,19 @@ export default function BalanceChart({
     isCompact,
   });
 
-  const activeRow = data[Math.min(Math.max(activeIndex, 0), data.length - 1)];
-  const activeYears = Math.floor(activeIndex / 12);
-  const activeMonths = activeIndex % 12;
-  const activePointLabel = `${activeYears}年${activeMonths === 0 ? "" : `${activeMonths}ヶ月`}時点`;
-  const activePrincipal = activeRow?.principal;
-
-  const fmtYen = (v: any) => (typeof v === "number" ? `${Math.round(v).toLocaleString()}円` : "-");
-
-  // 上部一覧（全ファンドの評価額/損益を一気に表示）
-  const snapshot = useMemo(() => {
-    const p = activePrincipal;
-    return series.map((s) => {
-      const bal = activeRow?.[s.fund.id];
-      const profit =
-        typeof bal === "number" && typeof p === "number" ? bal - p : null;
-      return {
-        id: s.fund.id,
-        name: s.fund.name,
-        color: colorByFundId[s.fund.id],
-        balance: bal,
-        profit,
-      };
-    });
-  }, [activePrincipal, activeRow, colorByFundId, series]);
-
-  const maxFundSnapshot = useMemo(() => {
-    if (!maxFundIdAtFinal) return null;
-    return snapshot.find((s) => s.id === maxFundIdAtFinal) ?? null;
-  }, [maxFundIdAtFinal, snapshot]);
+  const {
+    activePointLabel,
+    activePrincipal,
+    fmtYen,
+    snapshot,
+    maxFundSnapshot,
+  } = useBalanceChartViewModel({
+    series,
+    data,
+    colorByFundId,
+    activeIndex,
+    maxFundIdAtFinal,
+  });
 
   // ---- ここから描画（return は最後に統一） ----
   if (!hasSelection) {
@@ -198,9 +172,15 @@ export default function BalanceChart({
         fmtYen={fmtYen}
         snapshot={snapshot}
         maxFundSnapshot={maxFundSnapshot}
+        hoveredFundId={hoveredFundId}
+        isPinned={isPinned}
       />
 
-      <div ref={chartHostRef} className="h-[260px] w-full min-w-0 md:h-[340px]">
+      <div
+        ref={chartHostRef}
+        className="h-[260px] w-full min-w-0 overflow-hidden rounded-xl bg-white ring-1 ring-slate-200 md:h-[340px]"
+        style={{ WebkitTapHighlightColor: "transparent" } as any}
+      >
         <BalanceComposedChart
           chartSize={chartSize}
           isCompact={isCompact}
@@ -208,9 +188,12 @@ export default function BalanceChart({
           xTicks={xTicks}
           activeIndex={activeIndex}
           setActiveIndex={setActiveIndex}
+          isPinned={isPinned}
+          setIsPinned={setIsPinned}
           series={series}
           colorByFundId={colorByFundId}
           setHoveredFundId={setHoveredFundId}
+          hoveredFundId={hoveredFundId}
           profitFillKey={profitFillKey}
           maxFundName={maxFundName}
           maxFundColor={maxFundColor}
