@@ -1,12 +1,19 @@
 //app/layout.tsx
 
 import type { Metadata } from "next";
+import type { Viewport } from "next";
 import Link from "next/link";
 import "./globals.css";
 
 export const metadata: Metadata = {
   title: "積立ファンド比較",
   description: "手数料込みで将来資産を比較するツール（v1）",
+};
+
+// ✅ スマホの viewport を正しく扱う（matchMedia / CSS breakpoint 判定の前提）
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({
