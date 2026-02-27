@@ -59,16 +59,16 @@ export default function InputPanel({
 
   // tooltip open state (mobile tap対応)
   const [openTip, setOpenTip] = useState<null | "custom" | "fund">(null);
-  const tipRootRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (openTip === null) return;
 
     function onPointerDown(e: PointerEvent) {
-      const root = tipRootRef.current;
-      if (!root) return;
       const target = e.target as Node | null;
-      if (target && !root.contains(target)) setOpenTip(null);
+      if (!(target instanceof Node)) return;
+      if (!document.querySelector(`[data-tip-root="${openTip}"]`)?.contains(target)) {
+        setOpenTip(null);
+      }
     }
 
     function onKeyDown(e: KeyboardEvent) {
@@ -91,11 +91,20 @@ export default function InputPanel({
     text: string;
   }) {
     const open = openTip === id;
+    const ref = useRef<HTMLSpanElement | null>(null);
+
     return (
-      <span className="relative inline-flex group">
+      <span
+        ref={ref}
+        data-tip-root={id}
+        className="relative inline-flex group"
+      >
         <button
           type="button"
-          onClick={() => setOpenTip(open ? null : id)}
+          onClick={(e) => {
+            e.stopPropagation();
+            setOpenTip(open ? null : id);
+          }}
           className="flex h-5 w-5 items-center justify-center rounded-full border border-slate-300 text-xs text-slate-400 active:border-slate-500 active:text-slate-600"
           aria-label="説明を表示"
           aria-expanded={open}
@@ -124,7 +133,7 @@ export default function InputPanel({
         <div className="text-sm text-slate-600">共通の条件で比較できます</div>
       </div>
 
-      <div className="grid gap-3" ref={tipRootRef}>
+      <div className="grid gap-3">
         <label className="grid gap-1">
           <span className="text-sm text-slate-700">毎月積立額（円）</span>
           <input
@@ -172,7 +181,7 @@ export default function InputPanel({
           <div className="text-sm font-medium text-slate-800">年率</div>
           
           <div className="grid gap-1">
-            <label className="flex items-center gap-2 text-sm text-slate-800">
+            <div className="flex items-center gap-2 text-sm text-slate-800">
               <input
                 type="radio"
                 name="rateMode"
@@ -180,12 +189,18 @@ export default function InputPanel({
                 checked={rateMode === "custom"}
                 onChange={() => setRateMode("custom")}
               />
-              <span className="flex items-center gap-2">
+              <label
+                htmlFor="rateMode-custom"
+                className="flex items-center gap-2 cursor-pointer"
+              >
                 想定年率（共通）で計算
+              </label>
 
-                <Tooltip id="custom" text="すべてのファンドを同じ条件で比較するための年率です" />
-              </span>
-            </label>
+              <Tooltip
+                id="custom"
+                text="すべてのファンドを同じ条件で比較するための年率です"
+              />
+            </div>
 
             <div className="flex items-center gap-2 pl-6">
               <input
@@ -208,7 +223,7 @@ export default function InputPanel({
             </div>
           </div>
 
-          <label className="flex items-center gap-2 text-sm text-slate-800">
+          <div className="flex items-center gap-2 text-sm text-slate-800">
             <input
               type="radio"
               name="rateMode"
@@ -216,15 +231,18 @@ export default function InputPanel({
               checked={rateMode === "fund"}
               onChange={() => setRateMode("fund")}
             />
-            <span className="flex items-center gap-2">
+            <label
+              htmlFor="rateMode-fund"
+              className="flex items-center gap-2 cursor-pointer"
+            >
               参考年率（ファンドごと）で計算
+            </label>
 
-              <Tooltip
-                id="fund"
-                text="各ファンドの過去の実績（主に5年、未満の場合は3年・1年など）をもとにした参考値です。"
-              />
-            </span>
-          </label>
+            <Tooltip
+              id="fund"
+              text="各ファンドの過去の実績（主に5年、未満の場合は3年・1年など）をもとにした参考値です。"
+            />
+          </div>
         </div>
       </div>
     </div>
