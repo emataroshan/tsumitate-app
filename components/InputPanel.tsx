@@ -2,7 +2,7 @@
 
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 type Props = {
   monthly: number;
@@ -66,7 +66,13 @@ export default function InputPanel({
     function onPointerDown(e: PointerEvent) {
       const target = e.target as Node | null;
       if (!(target instanceof Node)) return;
-      if (!document.querySelector(`[data-tip-root="${openTip}"]`)?.contains(target)) {
+      const root = document.querySelector(`[data-tip-root="${openTip}"]`);
+      // root が取れない場合は安全側で閉じる
+      if (!root) {
+        setOpenTip(null);
+        return;
+      }
+      if (!root.contains(target)) {
         setOpenTip(null);
       }
     }
@@ -91,11 +97,9 @@ export default function InputPanel({
     text: string;
   }) {
     const open = openTip === id;
-    const ref = useRef<HTMLSpanElement | null>(null);
 
     return (
       <span
-        ref={ref}
         data-tip-root={id}
         className="relative inline-flex group"
       >
@@ -119,6 +123,7 @@ export default function InputPanel({
             open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none",
             "sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100",
           ].join(" ")}
+          role="tooltip"
         >
           {text}
         </span>
@@ -188,6 +193,7 @@ export default function InputPanel({
                 value="custom"
                 checked={rateMode === "custom"}
                 onChange={() => setRateMode("custom")}
+                id="rateMode-custom"
               />
               <label
                 htmlFor="rateMode-custom"
@@ -230,6 +236,7 @@ export default function InputPanel({
               value="fund"
               checked={rateMode === "fund"}
               onChange={() => setRateMode("fund")}
+              id="rateMode-fund"
             />
             <label
               htmlFor="rateMode-fund"
