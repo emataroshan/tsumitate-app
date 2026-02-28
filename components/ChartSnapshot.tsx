@@ -12,8 +12,10 @@ type SnapshotRow = {
 
 export default function ChartSnapshot({
   isCompact,
+  canHover,
   showDetails,
   onToggleDetails,
+  onClearPin,
   activePointLabel,
   maxFundName,
   maxFundIdAtFinal,
@@ -25,8 +27,10 @@ export default function ChartSnapshot({
   isPinned,
 }: {
   isCompact: boolean;
+  canHover: boolean;
   showDetails: boolean;
   onToggleDetails: () => void;
+  onClearPin: () => void;
   activePointLabel: string;
   maxFundName: string;
   maxFundIdAtFinal: string | null;
@@ -50,13 +54,29 @@ export default function ChartSnapshot({
               </span>
             ) : null}
           </div>
+          {isPinned ? (
+            <div className="ml-auto flex shrink-0 items-center gap-2">
+              <span className="rounded-full bg-white px-2 py-0.5 text-xs font-semibold text-slate-700 ring-1 ring-slate-200">
+                固定中
+              </span>
+              <button
+                type="button"
+                onClick={onClearPin}
+                className="rounded-lg bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 ring-1 ring-slate-200"
+              >
+                解除
+              </button>
+            </div>
+          ) : null}
         </div>
         <div className="mt-1 text-xs text-slate-600">
-          {isCompact
-            ? "タップで時点を固定"
+          {canHover
+            ? isPinned
+              ? "固定中（解除で戻せます）"
+              : "ホバーで確認 / クリックで固定"
             : isPinned
-              ? "固定中（クリックで解除）"
-              : "ホバーで確認 / クリックで固定"}
+              ? "固定中（解除で戻せます）"
+              : "なぞって確認 / タップで固定"}
         </div>
       </div>
 

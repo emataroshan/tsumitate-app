@@ -25,86 +25,71 @@ export default function BalanceComposedChart({
     data,
     xTicks,
     activeIndex,
-    setActiveIndex,
     isPinned,
-    setIsPinned,
     series,
     colorByFundId,
-    setHoveredFundId,
     hoveredFundId,
     profitFillKey,
     maxFundName,
     maxFundColor,
+    handlers,
 }: {
     chartSize: { w: number; h: number };
     isCompact: boolean;
     data: any[];
     xTicks: number[];
     activeIndex: number;
-    setActiveIndex: (n: number) => void;
     isPinned: boolean;
-    setIsPinned: (v: boolean | ((prev: boolean) => boolean)) => void;
     series: Series[];
     colorByFundId: Record<string, string>;
-    setHoveredFundId: (id: string | null) => void;
     hoveredFundId: string | null;
     profitFillKey: string | null;
     maxFundName: string;
     maxFundColor: string;
+    handlers: {
+        onMouseMove?: ((state: any) => void) | undefined;
+        onClick: (state: any) => void;
+        onTouchStart: (state: any) => void;
+        onTouchMove: (state: any) => void;
+        onTouchEnd: () => void;
+        onLineEnter: (id: string) => void;
+        onLineLeave: () => void;
+    };
 }) {
 
-    // ✅ viewport を超えない width に制限（根治）
-    const safeWidth =
-        typeof window !== "undefined"
-            ? Math.min(chartSize.w, document.documentElement.clientWidth)
-            : chartSize.w;
+    // ✅ 横スクロール根治（2カラム/DevTools切替でも再発させない）
+    // Recharts は「指定 width をそのままDOM幅として扱う」ため、
+    // 計測のブレや丸め誤差があっても “絶対に親幅を超えない” ことを保証する。
+    const parentW = Math.floor(chartSize.w);
+    const viewportW =
+        typeof window !== "undefined" ? Math.floor(document.documentElement.clientWidth) : parentW;
+    // 親幅から数px引いておく（1pxガードだと環境によって再発することがある）
+    const safeWidth = Math.max(0, Math.min(parentW - 2, viewportW - 2));
 
     if (!(chartSize.w > 0 && chartSize.h > 0)) {
         return <div className="h-full w-full rounded-xl bg-gray-50" />;
     }
-
-  // ✅ スマホ（狭い）はホバー概念なし。PCは「固定していない間だけ」ホバー追従。
-  const handleMouseMove = isCompact || isPinned
-    ? undefined
-    : (state: any) => {
-        const idx =
-          typeof state?.activeTooltipIndex === "number"
-            ? state.activeTooltipIndex
-            : typeof state?.activeLabel === "number"
-              ? state.activeLabel
-              : null;
-        if (typeof idx === "number") setActiveIndex(idx);
-      };
 
     return (
         <ComposedChart
             width={safeWidth}
             height={chartSize.h}
             data={data}
+            // 念のため wrapper も max-width を強制
+            style={{ maxWidth: "100%", overflow: "hidden" } as any}
             margin={{
                 top: 10,
                 right: 0,
                 bottom: 0,
                 left: isCompact ? 4 : 10,
             }}
-            onMouseMove={handleMouseMove}
-            onClick={(state: any) => {
-                const idx =
-                typeof state?.activeTooltipIndex === "number"
-                    ? state.activeTooltipIndex
-                    : typeof state?.activeLabel === "number"
-                    ? state.activeLabel
-                    : null;
-                if (typeof idx === "number") {
-                setActiveIndex(idx);
-                // ✅ PC：クリックで固定/解除。スマホは「タップで固定」なので固定ONに寄せる。
-                if (isCompact) {
-                    setIsPinned(true);
-                } else {
-                    setIsPinned((v) => !v);
-                }
-                }
-            }}
+            // ✅ Recharts側が「関数であること」を前提に扱う箇所があるため
+            //    undefined を渡さず、常に関数を渡す（no-op込み）で安全化
+            onMouseMove={(state: any) => handlers.onMouseMove?.(state)}
+            onClick={(state: any) => handlers.onClick(state)}
+            onTouchStart={(state: any) => handlers.onTouchStart(state)}
+            onTouchMove={(state: any) => handlers.onTouchMove(state)}
+            onTouchEnd={() => handlers.onTouchEnd()}
         >
             {/* ✅ activeTooltipIndex を安定して取るために Tooltip を配置（表示はしない） */}
             <Tooltip content={() => null} cursor={false} />
@@ -167,8 +152,14 @@ export default function BalanceComposedChart({
                 strokeWidth={hoveredFundId ? (hoveredFundId === s.fund.id ? 3 : 2) : 2}
                 stroke={colorByFundId[s.fund.id]}
                 strokeOpacity={hoveredFundId ? (hoveredFundId === s.fund.id ? 1 : 0.25) : 1}
-                onMouseEnter={() => setHoveredFundId(s.fund.id)}
-                onMouseLeave={() => setHoveredFundId(null)}
+                onMouseEnter={() => {
+                    if (isCompact) return;
+                    handlers.onLineEnter(s.fund.id);
+                }}
+                onMouseLeave={() => {
+                    if (isCompact) return;
+                    handlers.onLineLeave();
+                }}
                 />
             ))}
         </ComposedChart>

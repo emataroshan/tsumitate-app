@@ -23,8 +23,6 @@ const PALETTE = [
 ] as const;
 
 export function useBalanceChartData({
-  ready,
-  hasSelection,
   selectedFunds,
   monthly,
   years,
@@ -33,8 +31,6 @@ export function useBalanceChartData({
   customAnnualReturn,
   isCompact,
 }: {
-  ready: boolean;
-  hasSelection: boolean;
   selectedFunds: Fund[];
   monthly: number;
   years: number;
@@ -44,7 +40,7 @@ export function useBalanceChartData({
   isCompact: boolean;
 }) {
   const series: Series[] = useMemo(() => {
-    if (!hasSelection || !ready) return [];
+    if (selectedFunds.length === 0) return [];
     return selectedFunds
       .map((f) => {
         const annualReturn = rateMode === "custom" ? customAnnualReturn : f.ref_return;
@@ -58,7 +54,7 @@ export function useBalanceChartData({
         return { fund: f, points: s.points };
       })
       .filter(Boolean) as Series[];
-  }, [customAnnualReturn, hasSelection, initial, monthly, rateMode, ready, selectedFunds, years]);
+  }, [customAnnualReturn, initial, monthly, rateMode, selectedFunds, years]);
 
   const colorByFundId = useMemo(() => {
     const map: Record<string, string> = {};
