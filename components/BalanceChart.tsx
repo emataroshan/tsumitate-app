@@ -2,10 +2,13 @@
 
 "use client";
 
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Fund } from "@/lib/types";
 import { useBalanceChartData } from "@/hooks/useBalanceChartData";
 import { useBalanceChartViewModel } from "@/hooks/useBalanceChartViewModel";
+import { useElementSize } from "@/hooks/useElementSize";
+import { useChartInteraction } from "@/hooks/useChartInteraction";
+import { usePointerCapabilities } from "@/hooks/usePointerCapabilities";
 import ChartSnapshot from "@/components/ChartSnapshot";
 import BalanceComposedChart from "@/components/BalanceComposedChart";
 
@@ -28,77 +31,31 @@ export default function BalanceChart({
 }: Props) {
   const hasSelection = selectedFunds.length > 0;
 
-  // ✅ isCompact 初期判定：chartSize が取れる前でもスマホはスマホ扱いにする（折り畳みチラつき防止）
-  const [isNarrowMedia, setIsNarrowMedia] = useState(false);
-  useEffect(() => {
-    const mq = window.matchMedia("(max-width: 639px)");
-    const update = () => setIsNarrowMedia(mq.matches);
-    update();
-    if (typeof mq.addEventListener === "function") {
-      mq.addEventListener("change", update);
-      return () => mq.removeEventListener("change", update);
-    } else {
-      // Safari fallback
-      // @ts-ignore
-      mq.addListener(update);
-      // @ts-ignore
-      return () => mq.removeListener(update);
-    }
-  }, []);
-
   // ✅ div サイズを計測して、ComposedChartに数値で渡す（ResponsiveContainerを使わない）
   const chartHostRef = useRef<HTMLDivElement | null>(null);
-  const [chartSize, setChartSize] = useState<{ w: number; h: number }>({ w: 0, h: 0 });
-  useLayoutEffect(() => {
-    // hasSelection=false のときは chartHostRef の div 自体が描画されないので
-    // hasSelection も dependency に含めて「表示された瞬間」に必ず計測を開始する
-    if (!hasSelection) return;
+  const { size: chartSize, isCompact, ready } = useElementSize({
+    ref: chartHostRef,
+    enabled: hasSelection,
+    compactBreakpoint: 640,
+  });
+  const { canHover } = usePointerCapabilities();
 
-    const el = chartHostRef.current;
-    if (!el) {
-      // 念のため：次フレームで再トライ（ref が遅れて入るケース）
-      const id = requestAnimationFrame(() => {
-        const el2 = chartHostRef.current;
-        if (!el2) return;
-        setChartSize({ w: el2.clientWidth, h: el2.clientHeight });
-      });
-      return () => cancelAnimationFrame(id);
-    }
+  const months = years * 12;
+  const interaction = useChartInteraction({
+    months,
+    canHover,
+    initialIndex: months, // 初期は最終月
+  });
 
-    const update = () => setChartSize({ w: el.clientWidth, h: el.clientHeight });
-    update(); // 初回
-
-    // レイアウト確定が遅いケース保険：2フレーム後にもう一度
-    const id1 = requestAnimationFrame(() => requestAnimationFrame(update));
-
-    const ro = new ResizeObserver(update);
-    ro.observe(el);
-    return () => {
-      cancelAnimationFrame(id1);
-      ro.disconnect();
-    };
-  }, [hasSelection]);
-
-  // ✅ 実表示幅ベース + 初期は matchMedia（折り畳みが初回から正しく効く）
-  const isCompact = chartSize.w > 0 ? chartSize.w < 640 : isNarrowMedia;
-
-  // ✅ ready は「1フレーム待ち」ではなく「サイズが取れたら」にする（カード切替のチラつき減）
-  const ready = chartSize.w > 0 && chartSize.h > 0;
-
-  // ⚠️ Hooks は条件分岐より前で必ず同じ順序で呼ぶ
-  const [hoveredFundId, setHoveredFundId] = useState<string | null>(null);
-  // どの時点（month index）を見ているか：PCはホバーで更新 / スマホはタップで固定
-  const [activeIndex, setActiveIndex] = useState<number>(years * 12); // 初期は最終月
+  // ✅ 条件/レイアウトが変わったら固定は解除（意図せず残ると不親切）
   useEffect(() => {
-    setActiveIndex(years * 12);
-  }, [years]);
+    interaction.clearPin();
+  }, [customAnnualReturn, initial, isCompact, monthly, rateMode, selectedFunds, years, interaction.clearPin]);
 
-  // ✅ PC：クリックで時点を固定（ピン留め）/ もう一度クリックで解除
-  const [isPinned, setIsPinned] = useState(false);
-  // 条件やレイアウトが変わったら固定は解除（意図せず残ると不親切）
+  // ✅ years が変わったら「最終月」へ戻す（結論最短）
   useEffect(() => {
-    setIsPinned(false);
-  }, [years, monthly, initial, rateMode, customAnnualReturn, isCompact, selectedFunds]);
+    interaction.setActiveIndex(months);
+  }, [months, interaction.setActiveIndex]);
 
   // スマホ(狭い)は「結論まで最短」：スナップショットはデフォルト折りたたみ
   const [showSnapshotDetails, setShowSnapshotDetails] = useState<boolean>(() => !isCompact);
@@ -116,8 +73,6 @@ export default function BalanceChart({
     profitFillKey,
     xTicks,
   } = useBalanceChartData({
-    ready,
-    hasSelection,
     selectedFunds,
     monthly,
     years,
@@ -137,7 +92,7 @@ export default function BalanceChart({
     series,
     data,
     colorByFundId,
-    activeIndex,
+    activeIndex: interaction.activeIndex,
     maxFundIdAtFinal,
   });
 
@@ -152,7 +107,7 @@ export default function BalanceChart({
   }
 
   return (
-    <div className="rounded-2xl border bg-white p-4 shadow-sm">
+    <div className="max-w-full overflow-x-hidden rounded-2xl border bg-white p-4 shadow-sm">
       <div className="mb-2">
         <div className="text-lg font-semibold">資産推移（グラフ）</div>
         <div className="text-sm text-gray-600">
@@ -165,8 +120,10 @@ export default function BalanceChart({
 
       <ChartSnapshot
         isCompact={isCompact}
+        canHover={canHover}
         showDetails={showSnapshotDetails}
         onToggleDetails={() => setShowSnapshotDetails((v) => !v)}
+        onClearPin={interaction.clearPin}
         activePointLabel={activePointLabel}
         maxFundName={maxFundName}
         maxFundIdAtFinal={maxFundIdAtFinal}
@@ -174,13 +131,13 @@ export default function BalanceChart({
         fmtYen={fmtYen}
         snapshot={snapshot}
         maxFundSnapshot={maxFundSnapshot}
-        hoveredFundId={hoveredFundId}
-        isPinned={isPinned}
+        hoveredFundId={interaction.hoveredFundId}
+        isPinned={interaction.isPinned}
       />
 
       <div
         ref={chartHostRef}
-        className="h-[260px] w-full min-w-0 overflow-hidden rounded-xl bg-white ring-1 ring-slate-200 md:h-[340px]"
+        className="h-[260px] w-full max-w-full min-w-0 overflow-hidden overflow-x-hidden rounded-xl bg-white ring-1 ring-slate-200 md:h-[340px]"
         style={{ WebkitTapHighlightColor: "transparent" } as any}
       >
         {ready ? (
@@ -189,17 +146,15 @@ export default function BalanceChart({
             isCompact={isCompact}
             data={data}
             xTicks={xTicks}
-            activeIndex={activeIndex}
-            setActiveIndex={setActiveIndex}
-            isPinned={isPinned}
-            setIsPinned={setIsPinned}
+            activeIndex={interaction.activeIndex}
+            isPinned={interaction.isPinned}
             series={series}
             colorByFundId={colorByFundId}
-            setHoveredFundId={setHoveredFundId}
-            hoveredFundId={hoveredFundId}
+            hoveredFundId={interaction.hoveredFundId}
             profitFillKey={profitFillKey}
             maxFundName={maxFundName}
             maxFundColor={maxFundColor}
+            handlers={interaction.handlers}
           />
         ) : (
           <div className="h-full w-full rounded-xl bg-gray-50" />
