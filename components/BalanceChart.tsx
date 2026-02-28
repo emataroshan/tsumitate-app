@@ -2,7 +2,7 @@
 
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Fund } from "@/lib/types";
 import { useBalanceChartData } from "@/hooks/useBalanceChartData";
 import { useBalanceChartViewModel } from "@/hooks/useBalanceChartViewModel";
@@ -28,11 +28,22 @@ export default function BalanceChart({
 }: Props) {
   const hasSelection = selectedFunds.length > 0;
 
-  // 1フレーム待ってから描画（初回レイアウト未確定対策）
-  const [ready, setReady] = useState(false);
+  // ✅ isCompact 初期判定：chartSize が取れる前でもスマホはスマホ扱いにする（折り畳みチラつき防止）
+  const [isNarrowMedia, setIsNarrowMedia] = useState(false);
   useEffect(() => {
-    const id = requestAnimationFrame(() => setReady(true));
-    return () => cancelAnimationFrame(id);
+    const mq = window.matchMedia("(max-width: 639px)");
+    const update = () => setIsNarrowMedia(mq.matches);
+    update();
+    if (typeof mq.addEventListener === "function") {
+      mq.addEventListener("change", update);
+      return () => mq.removeEventListener("change", update);
+    } else {
+      // Safari fallback
+      // @ts-ignore
+      mq.addListener(update);
+      // @ts-ignore
+      return () => mq.removeListener(update);
+    }
   }, []);
 
   // ✅ div サイズを計測して、ComposedChartに数値で渡す（ResponsiveContainerを使わない）
@@ -41,7 +52,7 @@ export default function BalanceChart({
   useLayoutEffect(() => {
     // hasSelection=false のときは chartHostRef の div 自体が描画されないので
     // hasSelection も dependency に含めて「表示された瞬間」に必ず計測を開始する
-    if (!ready || !hasSelection) return;
+    if (!hasSelection) return;
 
     const el = chartHostRef.current;
     if (!el) {
@@ -66,10 +77,13 @@ export default function BalanceChart({
       cancelAnimationFrame(id1);
       ro.disconnect();
     };
-  }, [ready, hasSelection]);
+  }, [hasSelection]);
 
-  // ✅ 実表示幅ベースで「スマホ/狭い」を判定（本番/ローカル差が出ない）
-  const isCompact = chartSize.w > 0 ? chartSize.w < 640 : false;
+  // ✅ 実表示幅ベース + 初期は matchMedia（折り畳みが初回から正しく効く）
+  const isCompact = chartSize.w > 0 ? chartSize.w < 640 : isNarrowMedia;
+
+  // ✅ ready は「1フレーム待ち」ではなく「サイズが取れたら」にする（カード切替のチラつき減）
+  const ready = chartSize.w > 0 && chartSize.h > 0;
 
   // ⚠️ Hooks は条件分岐より前で必ず同じ順序で呼ぶ
   const [hoveredFundId, setHoveredFundId] = useState<string | null>(null);
@@ -87,7 +101,7 @@ export default function BalanceChart({
   }, [years, monthly, initial, rateMode, customAnnualReturn, isCompact, selectedFunds]);
 
   // スマホ(狭い)は「結論まで最短」：スナップショットはデフォルト折りたたみ
-  const [showSnapshotDetails, setShowSnapshotDetails] = useState<boolean>(true);
+  const [showSnapshotDetails, setShowSnapshotDetails] = useState<boolean>(() => !isCompact);
   useEffect(() => {
     setShowSnapshotDetails(!isCompact);
   }, [isCompact]);
@@ -137,18 +151,6 @@ export default function BalanceChart({
     );
   }
 
-  if (!ready) {
-    return (
-      <div className="rounded-2xl border bg-white p-4 shadow-sm">
-        <div className="text-lg font-semibold">資産推移（グラフ）</div>
-        <div className="mt-2 text-sm text-gray-600">読み込み中…</div>
-        <div className="mt-3 h-[260px] w-full rounded-xl bg-gray-50 md:h-[340px]" />
-      </div>
-    );
-  }
-
-  // series.length === 0 は、現仕様では hasSelection && ready のとき基本起きない想定
-
   return (
     <div className="rounded-2xl border bg-white p-4 shadow-sm">
       <div className="mb-2">
@@ -181,23 +183,27 @@ export default function BalanceChart({
         className="h-[260px] w-full min-w-0 overflow-hidden rounded-xl bg-white ring-1 ring-slate-200 md:h-[340px]"
         style={{ WebkitTapHighlightColor: "transparent" } as any}
       >
-        <BalanceComposedChart
-          chartSize={chartSize}
-          isCompact={isCompact}
-          data={data}
-          xTicks={xTicks}
-          activeIndex={activeIndex}
-          setActiveIndex={setActiveIndex}
-          isPinned={isPinned}
-          setIsPinned={setIsPinned}
-          series={series}
-          colorByFundId={colorByFundId}
-          setHoveredFundId={setHoveredFundId}
-          hoveredFundId={hoveredFundId}
-          profitFillKey={profitFillKey}
-          maxFundName={maxFundName}
-          maxFundColor={maxFundColor}
-        />
+        {ready ? (
+          <BalanceComposedChart
+            chartSize={chartSize}
+            isCompact={isCompact}
+            data={data}
+            xTicks={xTicks}
+            activeIndex={activeIndex}
+            setActiveIndex={setActiveIndex}
+            isPinned={isPinned}
+            setIsPinned={setIsPinned}
+            series={series}
+            colorByFundId={colorByFundId}
+            setHoveredFundId={setHoveredFundId}
+            hoveredFundId={hoveredFundId}
+            profitFillKey={profitFillKey}
+            maxFundName={maxFundName}
+            maxFundColor={maxFundColor}
+          />
+        ) : (
+          <div className="h-full w-full rounded-xl bg-gray-50" />
+        )}
       </div>
     </div>
   );

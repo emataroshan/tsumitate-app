@@ -11,6 +11,12 @@ type Props = {
   selectedIds: string[];
   onToggle: (id: string) => void;
   maxSelect?: number;
+  /** デフォルト選択の意図をユーザーに明示する（中立性/信頼のため） */
+  defaultSelectionNote?: string;
+  /** 全解除ボタン（状態は CompareApp が唯一の管理者なので、ここでは呼ぶだけ） */
+  onClearAll?: () => void;
+  /** 例に戻す（デフォルト選択に戻す） */
+  onResetExample?: () => void;
 };
 
 export default function FundPicker({
@@ -18,6 +24,9 @@ export default function FundPicker({
   selectedIds,
   onToggle,
   maxSelect = 8,
+  defaultSelectionNote,
+  onClearAll,
+  onResetExample,
 }: Props) {
   const [q, setQ] = useState("");
   const [tag, setTag] = useState<string>("");
@@ -68,34 +77,65 @@ export default function FundPicker({
   const selectedCount = selectedIds.length;
 
   return (
-    <div className="rounded-2xl border bg-white p-4 shadow-sm">
-      <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <div className="text-lg font-semibold">ファンド選択</div>
+    <div className="rounded-2xl border bg-white p-4 shadow-sm overflow-hidden">
+      <div className="mb-3 grid gap-3 min-w-0">
+        <div className="min-w-0">
+          <div className="text-lg font-semibold whitespace-nowrap">ファンド選択</div>
           <div className="text-sm text-slate-600">
             最大 {maxSelect} 本まで（今：{selectedCount} 本）
           </div>
+          {defaultSelectionNote && (
+            <div className="mt-1 text-xs text-slate-500">
+              {defaultSelectionNote}
+            </div>
+          )}
         </div>
 
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-          <input
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            placeholder="検索（例：オルカン / 楽天 / S&P）"
-            className="w-full rounded-xl border px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200 sm:w-56"
-          />
-          <select
-            value={tag}
-            onChange={(e) => setTag(e.target.value)}
-            className="w-full rounded-xl border px-3 py-2 text-sm text-slate-900 focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200 sm:w-auto"
-          >
-            {tags.map((t) => (
-              <option key={t} value={t}>
-                {t === "" ? "タグ：すべて" : `タグ：${t}`}
-              </option>
-            ))}
-          </select>
-        </div>
+        <div className="grid gap-2 min-w-0">
+          {(onClearAll || onResetExample) && (
+            <div className="flex flex-wrap gap-2">
+              {onClearAll && (
+                <button
+                  type="button"
+                  onClick={onClearAll}
+                  className="rounded-xl bg-white px-3 py-2 text-sm font-semibold text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50"
+                >
+                  全解除
+                </button>
+              )}
+              {onResetExample && (
+                <button
+                  type="button"
+                  onClick={onResetExample}
+                  className="rounded-xl bg-slate-900 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-800"
+                >
+                  例に戻す
+                </button>
+              )}
+            </div>
+          )}
+
+          {/* ✅ サイドバー幅でも崩れない：基本は縦、十分広い時だけ2列 */}
+          <div className="grid gap-2 xl:grid-cols-2 min-w-0">
+            <input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="検索（例：オルカン / 楽天 / S&P）"
+              className="w-full min-w-0 rounded-xl border px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200"
+            />
+            <select
+              value={tag}
+              onChange={(e) => setTag(e.target.value)}
+              className="w-full min-w-0 rounded-xl border px-3 py-2 text-sm text-slate-900 focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200"
+            >
+              {tags.map((t) => (
+                <option key={t} value={t}>
+                  {t === "" ? "タグ：すべて" : `タグ：${t}`}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div> 
       </div>
 
       {/* Mobile: Card list (tap-friendly) */}
@@ -190,7 +230,7 @@ export default function FundPicker({
       </div>
 
       {/* Desktop/Tablet: Table */}
-      <div className="hidden max-h-[520px] overflow-auto rounded-xl border sm:block">
+      <div className="hidden max-h-[520px] overflow-auto rounded-xl border sm:block lg:max-h-[calc(100vh-220px)]">
         <table className="w-full text-sm">
           <thead className="sticky top-0 bg-slate-50">
             <tr className="text-left text-slate-700">

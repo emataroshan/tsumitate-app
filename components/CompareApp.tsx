@@ -108,6 +108,14 @@ export default function CompareApp() {
     });
   }
 
+  function clearAll() {
+    setSelectedIds([]);
+  }
+
+  function resetExample() {
+    setSelectedIds(DEFAULT_SELECTED_IDS);
+  }
+
   return (
     <div className="grid gap-4">
       <div className="rounded-2xl border bg-white p-4 shadow-sm">
@@ -119,73 +127,79 @@ export default function CompareApp() {
         </div>
       </div>
 
-      <div className="grid min-w-0 grid-cols-1 gap-4 lg:grid-cols-12">
-        <div className="lg:col-span-4 min-w-0">
-          <InputPanel
-            monthly={monthly}
-            setMonthly={setMonthly}
-            years={years}
-            setYears={setYears}
-            initial={initial}
-            setInitial={setInitial}
-            rateMode={rateMode}
-            setRateMode={setRateMode}
-            customAnnualReturn={customAnnualReturn}
-            setCustomAnnualReturn={setCustomAnnualReturn}
-          />
-        </div>
+      {/* ✅ 積立条件は全幅で固定表示（“右寄せ感”を消す） */}
+      <InputPanel
+        monthly={monthly}
+        setMonthly={setMonthly}
+        years={years}
+        setYears={setYears}
+        initial={initial}
+        setInitial={setInitial}
+        rateMode={rateMode}
+        setRateMode={setRateMode}
+        customAnnualReturn={customAnnualReturn}
+        setCustomAnnualReturn={setCustomAnnualReturn}
+      />
 
-        <div className="lg:col-span-8 min-w-0">
-          <FundPicker
-            funds={allFunds}
-            selectedIds={selectedIds}
-            onToggle={toggle}
-            maxSelect={8}
-          />
-        </div>
-
-        {/* ★結論カード：推移グラフの直前に配置 */}
-        {best && (
-          <div className="lg:col-span-12 min-w-0">
-            <BestFundCard
-              fund={best.fund}
-              finalValue={best.finalValue}
-              principal={best.principal}
-              profit={best.profit}
-              benefit={best.benefit}
-              monthly={monthly}
-              years={years}
-              rateMode={rateMode}
-              annualReturn={best.annualReturn}
-              effectiveAnnualReturn={best.effectiveAnnualReturn}
-              expenseRatio={best.fund.expense_ratio}
-              feeDrag={best.feeDrag}
+      {/* 上段：比較の因果が見える（左=ファンド / 右=条件+結論+グラフ） */}
+      <div className="grid min-w-0 grid-cols-1 gap-4 xl:grid-cols-[minmax(440px,520px)_minmax(0,1fr)] xl:items-start">
+        {/* 左（PCでsticky） */}
+        <div className="order-1 min-w-0 xl:order-1">
+          <div className="xl:sticky xl:top-4">
+            <FundPicker
+              funds={allFunds}
+              selectedIds={selectedIds}
+              onToggle={toggle}
+              maxSelect={8}
+              defaultSelectionNote="※ 例として人気の2本を初期選択しています（いつでも変更できます）"
+              onClearAll={clearAll}
+              onResetExample={resetExample}
             />
           </div>
-        )}
-
-        <div className="lg:col-span-12 min-w-0">
-          <BalanceChart
-            selectedFunds={selectedFunds}
-            monthly={monthly}
-            years={years}
-            initial={initial}
-            rateMode={rateMode}
-            customAnnualReturn={customAnnualReturn}
-          />
         </div>
 
-        <div className="lg:col-span-12 min-w-0">
-          <ResultsTable
-            selectedFunds={selectedFunds}
-            monthly={monthly}
-            years={years}
-            initial={initial}
-            rateMode={rateMode}
-            customAnnualReturn={customAnnualReturn}
-          />
+        {/* 右（結果＋グラフ） */}
+        <div className="order-2 min-w-0 xl:order-2">
+          <div className="grid gap-4">
+            {/* ★結論カード：推移グラフの直前に配置 */}
+            {best && (
+              <BestFundCard
+                fund={best.fund}
+                finalValue={best.finalValue}
+                principal={best.principal}
+                profit={best.profit}
+                benefit={best.benefit}
+                monthly={monthly}
+                years={years}
+                rateMode={rateMode}
+                annualReturn={best.annualReturn}
+                effectiveAnnualReturn={best.effectiveAnnualReturn}
+                expenseRatio={best.fund.expense_ratio}
+                feeDrag={best.feeDrag}
+              />
+            )}
+
+            <BalanceChart
+              selectedFunds={selectedFunds}
+              monthly={monthly}
+              years={years}
+              initial={initial}
+              rateMode={rateMode}
+              customAnnualReturn={customAnnualReturn}
+            />
+          </div>
         </div>
       </div>
+
+      {/* 下段：比較結果は横幅が命なので全幅 */}
+      <ResultsTable
+        selectedFunds={selectedFunds}
+        monthly={monthly}
+        years={years}
+        initial={initial}
+        rateMode={rateMode}
+        customAnnualReturn={customAnnualReturn}
+      />
     </div>
   );
 }

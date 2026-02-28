@@ -53,3 +53,10 @@ body {
 .recharts-wrapper svg *:focus-visible {
   outline: none;
 }
+
+/* Recharts: SVG が viewport をはみ出して body の scrollWidth を押し広げるのを防ぐ（領域限定） */
+.recharts-wrapper,
+.recharts-surface {
+  max-width: 100%;
+  overflow-x: clip;
+}

@@ -35,35 +35,37 @@ export default function BestFundCard({
   feeDrag,
 }: Props) {
   const profitIsPositive = profit >= 0;
-  const profitText = `${profitIsPositive ? "+" : ""}${formatJPY(profit)}`;
   const expenseRatioPct = (expenseRatio * 100).toFixed(3);
   const annualReturnPct = (annualReturn * 100).toFixed(1);
   const showFeeStory = rateMode === "custom";
 
   return (
-    <div className="rounded-2xl border-2 border-emerald-500 bg-emerald-50 p-4 shadow-sm">
-      <div className="flex flex-wrap items-start justify-between gap-2">
+    <div className="max-w-full rounded-2xl border-2 border-emerald-500 bg-emerald-50 p-4 shadow-sm">
+      {/* Header: gridにして「横に押し出せない」構造へ */}
+      <div className="grid min-w-0 grid-cols-1 gap-2 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start">
         <div className="min-w-0">
           <div className="text-sm font-medium text-emerald-800">
             この条件で最も資産が増えるファンド
           </div>
-          <div className="mt-0.5 text-lg font-semibold text-emerald-950">
+          <div className="mt-0.5 text-lg font-semibold text-emerald-950 break-words">
             {fund.name}
           </div>
           <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-slate-600">
-            <span className="rounded-full bg-white/70 px-2 py-0.5 ring-1 ring-emerald-200">
-              毎月 {formatJPY(monthly)} 
+            <span className="max-w-full break-words rounded-full bg-white/70 px-2 py-0.5 ring-1 ring-emerald-200">
+              毎月 {formatJPY(monthly)}
             </span>
-            <span className="rounded-full bg-white/70 px-2 py-0.5 ring-1 ring-emerald-200">
+            <span className="max-w-full break-words rounded-full bg-white/70 px-2 py-0.5 ring-1 ring-emerald-200">
               想定年率 {annualReturnPct}%
             </span>
           </div>
         </div>
 
-        {/* 税金差額は“補助”として右上に */}
+        {/* 税金差額は“補助”として右上に（狭幅では必ず次行で全幅） */}
         {benefit > 0 && (
-          <div className="rounded-full bg-white/70 px-3 py-1 text-xs font-semibold text-emerald-800 ring-1 ring-emerald-200">
-            NISAメリット（節税推定額）：{formatJPY(benefit)}
+          <div className="min-w-0">
+            <div className="w-full max-w-full whitespace-normal break-all rounded-lg sm:rounded-full bg-white/70 px-3 py-1 text-xs font-semibold text-emerald-800 ring-1 ring-emerald-200 sm:w-auto">
+              NISAメリット（節税推定額）：{formatJPY(benefit)}
+            </div>
           </div>
         )}
       </div>
