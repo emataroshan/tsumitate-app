@@ -94,11 +94,11 @@ export default function ResultsTable({
         </div>
       </div>
 
-      <div className="overflow-auto rounded-xl border">
-        <table className="w-full text-sm">
+      <div className="overflow-x-auto rounded-xl border">
+        <table className="w-full text-sm table-fixed">
           <thead className="bg-slate-50 text-left text-slate-700">
             <tr>
-              <th className="px-3 py-2">ファンド</th>
+              <th className="px-3 py-2 w-[260px]">ファンド</th>
               <th className="px-3 py-2">使用年率</th>
               <th className="px-3 py-2">管理費用</th>
 
@@ -118,7 +118,9 @@ export default function ResultsTable({
 
               return (
                 <tr key={r.fund.id} className="border-t hover:bg-slate-50/60">
-                  <td className="px-3 py-2 font-medium text-slate-900">{r.fund.name}</td>
+                  <td className="px-3 py-2 font-medium text-slate-900 break-words">
+                    {r.fund.name}
+                  </td>
 
                   <td className="px-3 py-2 text-slate-800">{formatPercent(r.annualReturn, 2)}</td>
                   <td className="px-3 py-2 text-slate-800">{formatPercent(r.expenseRatio, 5)}</td>

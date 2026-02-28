@@ -119,11 +119,18 @@ export default function InputPanel({
         {/* 1つの吹き出しで統一：スマホはclick、PCはhover/focusでも表示 */}
         <span
           className={[
-            "absolute left-1/2 top-7 z-20 w-72 -translate-x-1/2 rounded-lg border bg-white p-2 text-xs text-slate-600 shadow-md transition-opacity",
-            open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none",
+            "absolute left-1/2 top-7 z-20",
+            "w-max max-w-[calc(100vw-32px)]",
+            "-translate-x-1/2",
+            "rounded-lg border bg-white p-2",
+            "text-xs text-slate-600 shadow-md",
+            "break-words",
+            "transition-opacity",
+            open
+              ? "opacity-100 pointer-events-auto"
+              : "opacity-0 pointer-events-none",
             "sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100",
           ].join(" ")}
-          role="tooltip"
         >
           {text}
         </span>

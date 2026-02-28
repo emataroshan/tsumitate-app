@@ -52,6 +52,13 @@ export default function BalanceComposedChart({
     maxFundName: string;
     maxFundColor: string;
 }) {
+
+    // ✅ viewport を超えない width に制限（根治）
+    const safeWidth =
+        typeof window !== "undefined"
+            ? Math.min(chartSize.w, document.documentElement.clientWidth)
+            : chartSize.w;
+
     if (!(chartSize.w > 0 && chartSize.h > 0)) {
         return <div className="h-full w-full rounded-xl bg-gray-50" />;
     }
@@ -71,12 +78,12 @@ export default function BalanceComposedChart({
 
     return (
         <ComposedChart
-            width={chartSize.w}
+            width={safeWidth}
             height={chartSize.h}
             data={data}
             margin={{
                 top: 10,
-                right: isCompact ? 10 : 20,
+                right: 0,
                 bottom: 0,
                 left: isCompact ? 4 : 10,
             }}
