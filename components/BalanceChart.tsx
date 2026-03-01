@@ -137,7 +137,7 @@ export default function BalanceChart({
 
       <div
         ref={chartHostRef}
-        className="h-[260px] w-full max-w-full min-w-0 overflow-hidden overflow-x-hidden rounded-xl bg-white ring-1 ring-slate-200 md:h-[340px]"
+        className="h-[260px] w-full max-w-full min-w-0 overflow-hidden overflow-x-hidden rounded-xl bg-white ring-1 ring-slate-200 md:h-[340px] touch-pan-y overscroll-x-contain select-none"
         style={{ WebkitTapHighlightColor: "transparent" } as any}
       >
         {ready ? (
