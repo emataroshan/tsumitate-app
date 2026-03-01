@@ -35,6 +35,18 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* --- App: 横方向のパン/オーバースクロールで「画面が横にズレる」挙動を抑止 ---
+   ✅ 縦スクロールは維持（pan-y）
+   ✅ 横スクロールは基本発生しない設計（overflow-x hidden）
+   ✅ 横のオーバースクロール連鎖を止める（overscroll-behavior-x）
+*/
+html,
+body {
+  overflow-x: hidden;
+  overscroll-behavior-x: none;
+  touch-action: pan-y;
+}
+
 /* --- Recharts: タップ/クリック時に出るフォーカス枠（大小が変わるノイズ）を抑制 ---
    グローバルに outline を消すとアクセシビリティを壊すので、Recharts 領域に限定。
    (iOS/Androidで path/svg が focus されて枠が出るケースの対策)
