@@ -76,7 +76,7 @@ export default function BalanceComposedChart({
             height={chartSize.h}
             data={data}
             // 念のため wrapper も max-width を強制
-            style={{ maxWidth: "100%", overflow: "hidden" } as any}
+            style={{ maxWidth: "100%", overflow: "hidden", touchAction: "pan-y" } as any}
             margin={{
                 top: 10,
                 right: 0,
