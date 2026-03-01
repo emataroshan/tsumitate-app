@@ -23,7 +23,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ja">
-      <body className="bg-gray-50 text-gray-900">
+      <body className="bg-gray-50 text-gray-900 overflow-x-hidden overscroll-x-none touch-pan-y">
         <div className="min-h-screen flex flex-col">
           <main className="flex-1">
             {children}
