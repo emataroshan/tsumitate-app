@@ -76,6 +76,14 @@ export default function RateDetails({
               value={annualReturnPercentText}
               onChange={(e) => setAnnualReturnPercentText(e.target.value)}
               onBlur={() => onCommitAnnualReturnPercentText(annualReturnPercentText)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === "NumpadEnter") {
+                  e.preventDefault();
+                  if (rateMode !== "custom") return;
+                  onCommitAnnualReturnPercentText(annualReturnPercentText);
+                  e.currentTarget.blur();
+                }
+              }}
               disabled={rateMode !== "custom"}
               className={[
                 "w-32 rounded-2xl border bg-white px-3 py-2 text-slate-900 placeholder:text-slate-400",

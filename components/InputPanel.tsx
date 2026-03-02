@@ -2,8 +2,9 @@
 
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useMonthlyText } from "@/hooks/useMonthlyText";
+import { useCommittedNumberText } from "@/hooks/useCommittedNumberText";
 import RateDetails from "@/components/input/RateDetails";
 import ResponsiveSheet from "@/components/input/ResponsiveSheet";
 import { formatJPY } from "@/lib/format";
@@ -36,43 +37,65 @@ export default function InputPanel({
   customAnnualReturn,
   setCustomAnnualReturn,
 }: Props) {
-  const { text: monthlyText, setText: setMonthlyText, normalize, commit } = useMonthlyText({
+  const initialInputRef = useRef<HTMLInputElement | null>(null);
+  // ✅ monthly は既存 hook を維持（モバイル癖対策の主戦場）
+  const {
+    text: monthlyText,
+    setText: setMonthlyText,
+    normalize,
+    commit: commitMonthly,
+  } = useMonthlyText({
     value: monthly,
     onCommit: setMonthly,
   });
 
-  // 年率（%）はクイックで直接編集したいので、表示用テキストを持つ
-  const [annualReturnPercentText, setAnnualReturnPercentText] = useState<string>(() => {
-    return Number.isFinite(customAnnualReturn) ? (customAnnualReturn * 100).toFixed(1) : "5.0";
+  // 初期投資：ステップ/Enter/blur を統一（責務をhookへ）
+  const initialField = useCommittedNumberText({
+    value: initial,
+    onCommit: setInitial,
+    kind: "int",
+    min: 0,
+    emptyValue: 0,
   });
 
-  // customAnnualReturn が外から変わったら同期（リセット/初期化用）
-  useMemo(() => {
-    if (!Number.isFinite(customAnnualReturn)) return;
-    const next = (customAnnualReturn * 100).toFixed(1);
-    if (next !== annualReturnPercentText) setAnnualReturnPercentText(next);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [customAnnualReturn]);
+  // 年数：text基準でstep/Enter/blurを統一
+  const yearsField = useCommittedNumberText({
+    value: years,
+    onCommit: setYears,
+    kind: "int",
+    min: 1,
+    max: 60,
+    emptyValue: 20,
+  });
+
+  // 年率（%）はクイックで直接編集したいので、表示用テキストを持つ
+  const annualReturnField = useCommittedNumberText({
+    value: Number.isFinite(customAnnualReturn) ? customAnnualReturn * 100 : NaN,
+    onCommit: (percent) => {
+      // Quickは共通モードとして扱う
+      if (rateMode !== "custom") setRateMode("custom");
+      // emptyValue が NaN のときはそのまま保持
+      if (!Number.isFinite(percent)) {
+        setCustomAnnualReturn(NaN);
+        return;
+      }
+      setCustomAnnualReturn(percent / 100);
+    },
+    kind: "decimal",
+    min: -100,
+    max: 100,
+    decimals: 1,
+    emptyValue: NaN,
+  });
+
+  // ※ annualReturn は hook 内で value 同期するので useMemo 同期は不要
 
   const [detailsOpen, setDetailsOpen] = useState(false);
 
   function commitAnnualReturnFromText(raw: string) {
-    const trimmed = raw.trim();
-    if (trimmed === "") {
-      setCustomAnnualReturn(NaN);
-      return;
-    }
-    const n = Number(trimmed);
-    if (!Number.isFinite(n)) {
-      setCustomAnnualReturn(NaN);
-      return;
-    }
-    // -100%〜100% の範囲で丸め（表示の暴走防止）
-    const clamped = Math.max(-100, Math.min(100, n));
-    const fixed = Math.round(clamped * 10) / 10;
-    setAnnualReturnPercentText(fixed.toFixed(1));
-    setCustomAnnualReturn(fixed / 100);
-  }
+    // 既存API（RateDetails）が raw を渡してくるので、hookへ委譲
+    annualReturnField.commit(raw);
+  }  
 
   function formatYenLite(v: number) {
     // formatJPY は "￥" になるので、UIのトーンに合わせて "¥" に寄せる
@@ -84,7 +107,7 @@ export default function InputPanel({
     parts.push(`毎月 ${formatYenLite(monthly)}`);
     parts.push(`${years}年`);
 
-    const r = annualReturnPercentText?.trim();
+    const r = annualReturnField.text?.trim();
     if (rateMode === "custom") {
       parts.push(`年率 ${r === "" ? "-" : `${r}%`}（共通）`);
     } else {
@@ -93,40 +116,7 @@ export default function InputPanel({
 
     if (initial > 0) parts.push(`初期 ${formatYenLite(initial)}`);
     return parts.join(" ・ ");
-  }, [monthly, years, rateMode, annualReturnPercentText, initial]);
-
-  function clampInt(v: number) {
-    if (!Number.isFinite(v)) return 0;
-    return Math.max(0, Math.trunc(v));
-  }
-
-  function stepMonthly(delta: number) {
-    const next = clampInt(monthly + delta);
-    // useMonthlyText の設計（blurで確定）を壊さず、ボタンは「確定操作」として扱う
-    commit(String(next));
-  }
-
-  function stepYears(delta: number) {
-    const next = Math.max(1, Math.min(60, Math.trunc(years + delta)));
-    setYears(next);
-  }
-
-  function stepAnnualReturnPercent(delta: number) {
-    // Quickは共通モードとして扱う
-    if (rateMode !== "custom") setRateMode("custom");
-
-    const current = Number(annualReturnPercentText);
-    const base = Number.isFinite(current) ? current : 0;
-    const next = Math.round((base + delta) * 10) / 10; // 0.1刻み
-    const fixed = next.toFixed(1);
-    setAnnualReturnPercentText(fixed);
-    commitAnnualReturnFromText(fixed);
-  }
-
-  function stepInitial(delta: number) {
-    const next = clampInt(initial + delta);
-    setInitial(next);
-  }
+  }, [monthly, years, rateMode, annualReturnField.text, initial]);
 
   return (
     <div className="grid gap-3">
@@ -161,7 +151,14 @@ export default function InputPanel({
                 value={monthlyText}
                 onFocus={(e) => e.currentTarget.select()}
                 onChange={(e) => setMonthlyText(normalize(e.target.value))}
-                onBlur={() => commit(monthlyText)}
+                onBlur={() => commitMonthly(monthlyText)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === "NumpadEnter") {
+                    e.preventDefault();
+                    commitMonthly(monthlyText);
+                    e.currentTarget.blur();
+                  }
+                }}
                 className={[
                   "min-w-0 flex-1",
                   // 見た目が崩れない最低幅（ただし小さめにして押し出しを防ぐ）
@@ -175,10 +172,68 @@ export default function InputPanel({
             </div>
             <div className="shrink-0">
               <StepperButtons
-                onDec={() => stepMonthly(-1000)}
-                onInc={() => stepMonthly(1000)}
+                onDec={() => {
+                  // monthly は既存 hook を使うので “見えてる値基準” をここで実装
+                  const digits = monthlyText.replace(/[^\d]/g, "");
+                  const base = digits === "" ? monthly : Number(digits);
+                  const next = Math.max(0, Math.trunc(base - 1000));
+                  setMonthlyText(String(next));
+                  commitMonthly(String(next));
+                }}
+                onInc={() => {
+                  const digits = monthlyText.replace(/[^\d]/g, "");
+                  const base = digits === "" ? monthly : Number(digits);
+                  const next = Math.max(0, Math.trunc(base + 1000));
+                  setMonthlyText(String(next));
+                  commitMonthly(String(next));
+                }}
                 decLabel="毎月の積立金額を1,000円減らす"
                 incLabel="毎月の積立金額を1,000円増やす"
+              />
+            </div>
+          </div>
+        </label>
+
+        {/* 期間 */}
+        <label className="rounded-2xl border bg-slate-50 p-3">
+          <div className="text-sm font-semibold text-slate-900">積立期間</div>
+          <div className="mt-2 flex items-center gap-1">
+            <div className="flex flex-1 items-center gap-1 min-w-0">
+              <input
+                type="text"
+                inputMode="numeric"
+                pattern="\d*"
+                value={yearsField.text}
+                onFocus={(e) => e.currentTarget.select()}
+                onChange={(e) => {
+                  yearsField.setText(yearsField.normalizeText(e.target.value));
+                }}
+                onBlur={() => {
+                  yearsField.commit(yearsField.text);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === "NumpadEnter") {
+                    e.preventDefault();
+                    yearsField.commit(yearsField.text);
+                    e.currentTarget.blur();
+                  }
+                }}
+                className={[
+                  "min-w-0 flex-1",
+                  "min-w-[90px]",
+                  "rounded-2xl border bg-white px-3 py-3 text-center text-lg font-semibold text-slate-900",
+                  "focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200",
+                ].join(" ")}
+                aria-label="積立期間（年）"
+              />
+              <div className="shrink-0 text-sm font-semibold text-slate-700">年</div>
+            </div>
+            <div className="shrink-0">
+              <StepperButtons
+                onDec={() => yearsField.step(-1, years)}
+                onInc={() => yearsField.step(1, years)}
+                decLabel="積立期間を1年減らす"
+                incLabel="積立期間を1年増やす"
               />
             </div>
           </div>
@@ -192,13 +247,21 @@ export default function InputPanel({
               <input
                 type="text"
                 inputMode="decimal"
-                value={annualReturnPercentText}
+                value={annualReturnField.text}
                 onFocus={(e) => e.currentTarget.select()}
-                onChange={(e) => setAnnualReturnPercentText(e.target.value)}
+                onChange={(e) => annualReturnField.setText(annualReturnField.normalizeText(e.target.value))}
                 onBlur={() => {
                   // Quickは「共通（custom）」の操作として扱う
                   if (rateMode !== "custom") setRateMode("custom");
-                  commitAnnualReturnFromText(annualReturnPercentText);
+                  commitAnnualReturnFromText(annualReturnField.text);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === "NumpadEnter") {
+                    e.preventDefault();
+                    if (rateMode !== "custom") setRateMode("custom");
+                    commitAnnualReturnFromText(annualReturnField.text);
+                    e.currentTarget.blur();
+                  }
                 }}
                 className={[
                   "min-w-0 flex-1",
@@ -212,8 +275,8 @@ export default function InputPanel({
             </div>
             <div className="shrink-0">
               <StepperButtons
-                onDec={() => stepAnnualReturnPercent(-0.1)}
-                onInc={() => stepAnnualReturnPercent(0.1)}
+                onDec={() => annualReturnField.step(-0.1, Number.isFinite(customAnnualReturn) ? customAnnualReturn * 100 : 0)}
+                onInc={() => annualReturnField.step(0.1, Number.isFinite(customAnnualReturn) ? customAnnualReturn * 100 : 0)}
                 decLabel="想定利回りを0.1%減らす"
                 incLabel="想定利回りを0.1%増やす"
               />
@@ -223,40 +286,6 @@ export default function InputPanel({
             {rateMode === "custom" ? "共通年率" : "現在：ファンド別"}
           </div>
         </label>
-
-        {/* 期間 */}
-        <label className="rounded-2xl border bg-slate-50 p-3">
-          <div className="text-sm font-semibold text-slate-900">積立期間</div>
-          <div className="mt-2 flex items-center gap-1">
-            <div className="flex flex-1 items-center gap-1 min-w-0">
-              <input
-                type="number"
-                min={1}
-                max={60}
-                value={years}
-                onChange={(e) => setYears(Number(e.target.value))}
-                className={[
-                  "min-w-0 flex-1",
-                  "min-w-[90px]",
-                  "rounded-2xl border bg-white px-3 py-3 text-center text-lg font-semibold text-slate-900",
-                  "focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200",
-                  // ネイティブ矢印は統一感を壊すので消す（Chrome/Safari）
-                  "[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none",
-                ].join(" ")}
-                aria-label="積立期間（年）"
-              />
-              <div className="shrink-0 text-sm font-semibold text-slate-700">年</div>
-            </div>
-            <div className="shrink-0">
-              <StepperButtons
-                onDec={() => stepYears(-1)}
-                onInc={() => stepYears(1)}
-                decLabel="積立期間を1年減らす"
-                incLabel="積立期間を1年増やす"
-              />
-            </div>
-          </div>
-        </label>
       </div>
 
       {/* 詳細：モバイルはBottomSheet / PCは右Drawer（押し下げない） */}
@@ -264,6 +293,7 @@ export default function InputPanel({
         open={detailsOpen}
         onClose={() => setDetailsOpen(false)}
         title="詳細設定"
+        initialFocusRef={initialInputRef}
       >
         <div className="grid gap-3">
           {/* 初期投資：メインと同じカード/入力形状に統一＋±1,000円 */}
@@ -271,11 +301,21 @@ export default function InputPanel({
             <div className="text-sm font-semibold text-slate-900">初期投資</div>
             <div className="mt-2 flex items-center gap-1">
               <input
-                type="number"
-                min={0}
-                step={1000}
-                value={initial}
-                onChange={(e) => setInitial(clampInt(Number(e.target.value)))}
+                type="text"
+                inputMode="numeric"
+                pattern="\d*"
+                value={initialField.text}
+                ref={initialInputRef}
+                onFocus={(e) => e.currentTarget.select()}
+                onChange={(e) => initialField.setText(initialField.normalizeText(e.target.value))}
+                onBlur={() => initialField.commit(initialField.text)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === "NumpadEnter") {
+                    e.preventDefault();
+                    initialField.commit(initialField.text);
+                    e.currentTarget.blur();
+                  }
+                }}
                 className={[
                   "flex-1 min-w-0",
                   "min-w-[140px]",
@@ -287,8 +327,8 @@ export default function InputPanel({
               />
               <div className="shrink-0 text-sm font-semibold text-slate-700">円</div>
               <StepperButtons
-                onDec={() => stepInitial(-1000)}
-                onInc={() => stepInitial(1000)}
+                onDec={() => initialField.step(-1000, initial)}
+                onInc={() => initialField.step(1000, initial)}
                 decLabel="初期投資を1,000円減らす"
                 incLabel="初期投資を1,000円増やす"
               />
@@ -298,8 +338,8 @@ export default function InputPanel({
           <RateDetails
             rateMode={rateMode}
             setRateMode={setRateMode}
-            annualReturnPercentText={annualReturnPercentText}
-            setAnnualReturnPercentText={setAnnualReturnPercentText}
+            annualReturnPercentText={annualReturnField.text}
+            setAnnualReturnPercentText={(v) => annualReturnField.setText(annualReturnField.normalizeText(v))}
             onCommitAnnualReturnPercentText={(raw) => {
               // 詳細側も blur 確定で統一（既存方針を維持）
               if (rateMode !== "custom") return;
