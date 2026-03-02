@@ -127,19 +127,21 @@ export default function CompareApp() {
         </div>
       </div>
 
-      {/* ✅ 積立条件は全幅で固定表示（“右寄せ感”を消す） */}
-      <InputPanel
-        monthly={monthly}
-        setMonthly={setMonthly}
-        years={years}
-        setYears={setYears}
-        initial={initial}
-        setInitial={setInitial}
-        rateMode={rateMode}
-        setRateMode={setRateMode}
-        customAnnualReturn={customAnnualReturn}
-        setCustomAnnualReturn={setCustomAnnualReturn}
-      />
+      {/* ✅ 入力はコンパクトに（PCは中央寄せ＆幅を抑える） */}
+      <div className="mx-auto w-full max-w-2xl">
+        <InputPanel
+          monthly={monthly}
+          setMonthly={setMonthly}
+          years={years}
+          setYears={setYears}
+          initial={initial}
+          setInitial={setInitial}
+          rateMode={rateMode}
+          setRateMode={setRateMode}
+          customAnnualReturn={customAnnualReturn}
+          setCustomAnnualReturn={setCustomAnnualReturn}
+        />
+      </div>
 
       {/* 上段：比較の因果が見える（左=ファンド / 右=条件+結論+グラフ） */}
       <div className="grid min-w-0 grid-cols-1 gap-4 xl:grid-cols-[minmax(440px,520px)_minmax(0,1fr)] xl:items-start">
