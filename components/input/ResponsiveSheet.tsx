@@ -9,6 +9,11 @@ type Props = {
   onClose: () => void;
   title: string;
   children: React.ReactNode;
+  /**
+   * Sheetを開いた瞬間にフォーカスしたい要素。
+   * 入力中の再レンダーではフォーカスを奪わない（重要）。
+   */
+  initialFocusRef?: React.RefObject<HTMLElement | null> | null;
 };
 
 /**
@@ -19,11 +24,23 @@ type Props = {
  *
  * NOTE: 既存プロジェクトにUI基盤（Dialog/Drawer）が無いので最小実装。
  */
-export default function ResponsiveSheet({ open, onClose, title, children }: Props) {
+export default function ResponsiveSheet({ 
+  open, 
+  onClose, 
+  title, 
+  children, 
+  initialFocusRef = null,
+}: Props) {
+
   const panelRef = useRef<HTMLDivElement | null>(null);
+  const wasOpenRef = useRef(false);
 
   useEffect(() => {
-    if (!open) return;
+    if (!open) {
+      // 次に開いたときだけ初期フォーカスを走らせる
+      wasOpenRef.current = false;
+      return;
+    }
 
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
@@ -34,21 +51,31 @@ export default function ResponsiveSheet({ open, onClose, title, children }: Prop
 
     document.addEventListener("keydown", onKeyDown);
 
-    // 初回フォーカス（中の最初のinput等へ）
-    requestAnimationFrame(() => {
-      const root = panelRef.current;
-      if (!root) return;
-      const el = root.querySelector<HTMLElement>(
-        'input, button, select, textarea, a[href], [tabindex]:not([tabindex="-1"])',
-      );
-      el?.focus();
-    });
+    // ✅ 初期フォーカスは「開いた瞬間」だけ（入力中の再レンダーで奪わない）
+    if (!wasOpenRef.current) {
+      wasOpenRef.current = true;
+      requestAnimationFrame(() => {
+        // 1) 指定があればそれを最優先（例：初期投資input）
+        const preferred = initialFocusRef?.current ?? null;
+        if (preferred) {
+          preferred.focus();
+          return;
+        }
+        // 2) なければパネル内の先頭フォーカス可能要素
+        const root = panelRef.current;
+        if (!root) return;
+        const el = root.querySelector<HTMLElement>(
+          'input, button, select, textarea, a[href], [tabindex]:not([tabindex="-1"])',
+        );
+        el?.focus();
+      });
+    }
 
     return () => {
       document.body.style.overflow = prevOverflow;
       document.removeEventListener("keydown", onKeyDown);
     };
-  }, [open, onClose]);
+  }, [open, onClose, initialFocusRef]);
 
   if (!open) return null;
 
