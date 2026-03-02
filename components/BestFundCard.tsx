@@ -64,7 +64,7 @@ export default function BestFundCard({
         {benefit > 0 && (
           <div className="min-w-0">
             <div className="w-full max-w-full whitespace-normal break-all rounded-lg sm:rounded-full bg-white/70 px-3 py-1 text-xs font-semibold text-emerald-800 ring-1 ring-emerald-200 sm:w-auto">
-              NISAメリット（節税推定額）：{formatJPY(benefit)}
+              NISAの節税額：{formatJPY(benefit)}
             </div>
           </div>
         )}
