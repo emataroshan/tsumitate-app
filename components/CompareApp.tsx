@@ -2,7 +2,7 @@
 
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import InputPanel from "@/components/InputPanel";
 import FundPicker from "@/components/FundPicker";
 import ResultsTable from "@/components/ResultsTable";
@@ -10,6 +10,8 @@ import { funds as allFunds } from "@/data/funds";
 import BalanceChart from "@/components/BalanceChart";
 import BestFundCard from "@/components/BestFundCard";
 import { simulate, compareNisaVsTaxable } from "@/lib/calc";
+import ResponsiveSheet from "@/components/input/ResponsiveSheet";
+import { formatJPY } from "@/lib/format";
 
 export default function CompareApp() {
   const [monthly, setMonthly] = useState<number>(50000);
@@ -19,6 +21,9 @@ export default function CompareApp() {
   const [rateMode, setRateMode] = useState<"fund" | "custom">("custom");
   // 想定年率（小数、例：0.07 = 7%）
   const [customAnnualReturn, setCustomAnnualReturn] = useState<number>(0.05);
+
+  const [inputOpen, setInputOpen] = useState(false);
+  const monthlyInputRef = useRef<HTMLInputElement | null>(null);
   const DEFAULT_SELECTED_IDS = useMemo(
     () => ["emaxis-slim-全世界株式ｵｰﾙ-ｶﾝﾄﾘｰ", "emaxis-slim-米国株式sandp500"],
     []
@@ -116,6 +121,28 @@ export default function CompareApp() {
     setSelectedIds(DEFAULT_SELECTED_IDS);
   }
 
+  function formatYenLite(v: number) {
+    // formatJPY は "￥" になるので、UIのトーンに合わせて "¥" に寄せる
+    return formatJPY(v).replace("￥", "¥");
+  }
+
+  const summary = useMemo(() => {
+    const parts: string[] = [];
+    parts.push(`毎月 ${formatYenLite(monthly)}`);
+    parts.push(`${years}年`);
+
+    if (rateMode === "custom") {
+      const percent = Number.isFinite(customAnnualReturn) ? customAnnualReturn * 100 : NaN;
+      const text = Number.isFinite(percent) ? percent.toFixed(1) : "-";
+      parts.push(`年率 ${text}%（共通）`);
+    } else {
+      parts.push("年率（ファンド別）");
+    }
+
+    if (initial > 0) parts.push(`初期 ${formatYenLite(initial)}`);
+    return parts.join(" ・ ");
+  }, [monthly, years, rateMode, customAnnualReturn, initial]);
+
   return (
     <div className="grid gap-4">
       <div className="rounded-2xl border bg-white p-4 shadow-sm">
@@ -127,21 +154,56 @@ export default function CompareApp() {
         </div>
       </div>
 
-      {/* ✅ 入力はコンパクトに（PCは中央寄せ＆幅を抑える） */}
-      <div className="mx-auto w-full max-w-2xl">
-        <InputPanel
-          monthly={monthly}
-          setMonthly={setMonthly}
-          years={years}
-          setYears={setYears}
-          initial={initial}
-          setInitial={setInitial}
-          rateMode={rateMode}
-          setRateMode={setRateMode}
-          customAnnualReturn={customAnnualReturn}
-          setCustomAnnualReturn={setCustomAnnualReturn}
-        />
+      {/* ✅ Summaryは唯一の入口（sticky） */}
+      <div className="sticky top-3 z-20">
+        <button
+          type="button"
+          onClick={() => setInputOpen(true)}
+          className={[
+            "w-full rounded-2xl border bg-white/90 px-3 py-2 text-left shadow-sm backdrop-blur",
+            "focus:outline-none focus:ring-2 focus:ring-slate-200",
+          ].join(" ")}
+          aria-haspopup="dialog"
+          aria-expanded={inputOpen}
+        >
+          <div className="flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <div className="truncate text-sm font-semibold text-slate-900">{summary}</div>
+              <div className="mt-0.5 text-xs text-slate-600">タップして条件を調整</div>
+            </div>
+            <div className="shrink-0 rounded-xl bg-slate-50 px-3 py-2 text-sm font-semibold text-slate-700 ring-1 ring-slate-200">
+              変更
+              <span aria-hidden="true" className="ml-1 inline-block align-middle text-slate-500">
+                ›
+              </span>
+            </div>
+          </div>
+        </button>
       </div>
+
+      {/* ✅ 入力はSheetに集約 */}
+      <ResponsiveSheet
+        open={inputOpen}
+        onClose={() => setInputOpen(false)}
+        title="条件の調整"
+        initialFocusRef={monthlyInputRef}
+      >
+        <div className="mx-auto w-full max-w-2xl">
+          <InputPanel
+            monthly={monthly}
+            setMonthly={setMonthly}
+            years={years}
+            setYears={setYears}
+            initial={initial}
+            setInitial={setInitial}
+            rateMode={rateMode}
+            setRateMode={setRateMode}
+            customAnnualReturn={customAnnualReturn}
+            setCustomAnnualReturn={setCustomAnnualReturn}
+            monthlyInputRef={monthlyInputRef}
+          />
+        </div>
+      </ResponsiveSheet>
 
       {/* 上段：比較の因果が見える（左=ファンド / 右=条件+結論+グラフ） */}
       <div className="grid min-w-0 grid-cols-1 gap-4 xl:grid-cols-[minmax(440px,520px)_minmax(0,1fr)] xl:items-start">
