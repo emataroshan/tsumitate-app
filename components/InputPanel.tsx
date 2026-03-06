@@ -96,18 +96,19 @@ export default function InputPanel({
     annualReturnField.commit(raw);
   }  
 
+  // iOS設定画面型：入力幅はラベル長に影響されない（完全固定）
+  const CONTROL_W = "w-[12.5rem]"; // 200px
+
   return (
-    <div className="grid gap-4">
-      {/* Apple品質：viewportではなく「実際の表示幅」に追従して列が増減する（重なりゼロ） */}
-      <div className="grid gap-3 items-start grid-cols-[repeat(auto-fit,minmax(280px,1fr))]">
-        {/* 1列目：毎月 + 期間 */}
-        <div className="grid gap-3 min-w-0">
-          {/* 毎月 */}
-          <label className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
-          <div className="text-sm font-semibold text-slate-900">毎月の積立金額</div>
-          <div className="mt-2 flex flex-wrap items-center gap-2">
-            {/* 入力＋単位を1つのグループにして、ステッパーを押し出さない */}
-            <div className="flex flex-1 items-center gap-2 min-w-0">
+    <div className="rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <div className="divide-y divide-slate-200">
+        {/* 毎月 */}
+        <label className="block px-4 py-3">
+          <div className="grid grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-x-3 gap-y-2">
+            <div className="min-w-0 text-sm font-semibold text-slate-900">
+              毎月の積立金額
+            </div>
+            <div className="flex items-center justify-end gap-2">
               <input
                 type="text"
                 inputMode="numeric"
@@ -125,8 +126,8 @@ export default function InputPanel({
                   }
                 }}
                 className={[
-                  "min-w-0 flex-1",
-                  "rounded-2xl border border-slate-200 bg-white px-3 py-3 text-center text-lg font-semibold text-slate-900",
+                  CONTROL_W,
+                  "rounded-xl border border-slate-200 bg-white px-3 py-2 text-right text-base font-semibold tabular-nums text-slate-900",
                   "focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200",
                 ].join(" ")}
                 aria-label="毎月の積立金額（円）"
@@ -136,7 +137,6 @@ export default function InputPanel({
             <div className="shrink-0">
               <StepperButtons
                 onDec={() => {
-                  // monthly は既存 hook を使うので “見えてる値基準” をここで実装
                   const digits = monthlyText.replace(/[^\d]/g, "");
                   const base = digits === "" ? monthly : Number(digits);
                   const next = Math.max(0, Math.trunc(base - 1000));
@@ -155,25 +155,21 @@ export default function InputPanel({
               />
             </div>
           </div>
-          </label>
+        </label>
 
-          {/* 期間 */}
-          <label className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
-          <div className="text-sm font-semibold text-slate-900">積立期間</div>
-          <div className="mt-2 flex flex-wrap items-center gap-2">
-            <div className="flex flex-1 items-center gap-2 min-w-0">
+        {/* 期間 */}
+        <label className="block px-4 py-3">
+          <div className="grid grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-x-3 gap-y-2">
+            <div className="min-w-0 text-sm font-semibold text-slate-900">積立期間</div>
+            <div className="flex items-center justify-end gap-2">
               <input
                 type="text"
                 inputMode="numeric"
                 pattern="\d*"
                 value={yearsField.text}
                 onFocus={(e) => e.currentTarget.select()}
-                onChange={(e) => {
-                  yearsField.setText(yearsField.normalizeText(e.target.value));
-                }}
-                onBlur={() => {
-                  yearsField.commit(yearsField.text);
-                }}
+                onChange={(e) => yearsField.setText(yearsField.normalizeText(e.target.value))}
+                onBlur={() => yearsField.commit(yearsField.text)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === "NumpadEnter") {
                     e.preventDefault();
@@ -182,8 +178,8 @@ export default function InputPanel({
                   }
                 }}
                 className={[
-                  "min-w-0 flex-1",
-                  "rounded-2xl border border-slate-200 bg-white px-3 py-3 text-center text-lg font-semibold text-slate-900",
+                  CONTROL_W,
+                  "rounded-xl border border-slate-200 bg-white px-3 py-2 text-right text-base font-semibold tabular-nums text-slate-900",
                   "focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200",
                 ].join(" ")}
                 aria-label="積立期間（年）"
@@ -199,11 +195,10 @@ export default function InputPanel({
               />
             </div>
           </div>
-          </label>
-        </div>
+        </label>
 
-        {/* 2列目：年率（sm+で右側に来る） */}
-        <div className="min-w-0">
+        {/* 年率 */}
+        <div className="px-4 py-3">
           <RateDetails
             rateMode={rateMode}
             setRateMode={setRateMode}
@@ -227,46 +222,51 @@ export default function InputPanel({
                 Number.isFinite(customAnnualReturn) ? customAnnualReturn * 100 : 0
               )
             }
+            controlWidthClass={CONTROL_W}
           />
         </div>
 
-        {/* 3列目：初期投資 */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm min-w-0">
-          <div className="text-sm font-semibold text-slate-900">初期投資</div>
-          <div className="mt-2 flex flex-wrap items-center gap-2">
-            <input
-              type="text"
-              inputMode="numeric"
-              pattern="\d*"
-              value={initialField.text}
-              ref={initialInputRef}
-              onFocus={(e) => e.currentTarget.select()}
-              onChange={(e) => initialField.setText(initialField.normalizeText(e.target.value))}
-              onBlur={() => initialField.commit(initialField.text)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === "NumpadEnter") {
-                  e.preventDefault();
-                  initialField.commit(initialField.text);
-                  e.currentTarget.blur();
-                }
-              }}
-              className={[
-                "flex-1 min-w-0",
-                "rounded-2xl border border-slate-200 bg-white px-3 py-3 text-center text-lg font-semibold text-slate-900",
-                "focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200",
-                "[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none",
-              ].join(" ")}
-              aria-label="初期投資（円）"
-            />
-            <div className="shrink-0 text-sm font-semibold text-slate-700">円</div>
-            <StepperButtons
-              onDec={() => initialField.step(-1000, initial)}
-              onInc={() => initialField.step(1000, initial)}
-              decLabel="初期投資を1,000円減らす"
-              incLabel="初期投資を1,000円増やす"
-            />
+        {/* 初期投資 */}
+        <label className="block px-4 py-3">
+          <div className="grid grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-x-3 gap-y-2">
+            <div className="min-w-0 text-sm font-semibold text-slate-900">初期投資</div>
+            <div className="flex items-center justify-end gap-2">
+              <input
+                type="text"
+                inputMode="numeric"
+                pattern="\d*"
+                value={initialField.text}
+                ref={initialInputRef}
+                onFocus={(e) => e.currentTarget.select()}
+                onChange={(e) => initialField.setText(initialField.normalizeText(e.target.value))}
+                onBlur={() => initialField.commit(initialField.text)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === "NumpadEnter") {
+                    e.preventDefault();
+                    initialField.commit(initialField.text);
+                    e.currentTarget.blur();
+                  }
+                }}
+                className={[
+                  CONTROL_W,
+                  "rounded-xl border border-slate-200 bg-white px-3 py-2 text-right text-base font-semibold tabular-nums text-slate-900",
+                  "focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200",
+                  "[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none",
+                ].join(" ")}
+                aria-label="初期投資（円）"
+              />
+              <div className="shrink-0 text-sm font-semibold text-slate-700">円</div>
+            </div>
+            <div className="shrink-0">
+              <StepperButtons
+                onDec={() => initialField.step(-1000, initial)}
+                onInc={() => initialField.step(1000, initial)}
+                decLabel="初期投資を1,000円減らす"
+                incLabel="初期投資を1,000円増やす"
+              />
+            </div>
           </div>
-        </div>
+        </label>
       </div>
     </div>
   );
