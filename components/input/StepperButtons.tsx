@@ -32,17 +32,18 @@ export default function StepperButtons({
 }: Props) {
   const incTimer = useRef<number | null>(null);
   const decTimer = useRef<number | null>(null);
-  // pointer操作時は、後続の click を抑止（1タップ2回発火を防ぐ）
-  const suppressIncClick = useRef(false);
-  const suppressDecClick = useRef(false);
+  const incPressDelay = useRef<number | null>(null);
+  const decPressDelay = useRef<number | null>(null);
+  const suppressIncClick = useRef(false); // 長押し開始後の click を抑止
+  const suppressDecClick = useRef(false); // 長押し開始後の click を抑止
 
-  const startRepeat = useCallback((fn: () => void, ref: React.MutableRefObject<number | null>) => {
-    if (disabled) return;
-
-    fn(); // 初回即実行
-
-    ref.current = window.setInterval(fn, 120); // Apple近似速度
-  }, [disabled]);
+  const startRepeat = useCallback(
+    (fn: () => void, ref: React.MutableRefObject<number | null>) => {
+      if (disabled) return;
+      ref.current = window.setInterval(fn, 120);
+    },
+    [disabled]
+  );
 
   const stopRepeat = useCallback((ref: React.MutableRefObject<number | null>) => {
     if (ref.current !== null) {
@@ -51,12 +52,38 @@ export default function StepperButtons({
     }
   }, []);
 
+  const clearPressDelay = useCallback((ref: React.MutableRefObject<number | null>) => {
+    if (ref.current !== null) {
+      clearTimeout(ref.current);
+      ref.current = null;
+    }
+  }, []);
+
+  const startLongPress = useCallback((
+    fn: () => void,
+    timerRef: React.MutableRefObject<number | null>,
+    delayRef: React.MutableRefObject<number | null>,
+    suppressClickRef: React.MutableRefObject<boolean>,
+  ) => {
+    if (disabled) return;
+
+    suppressClickRef.current = false;
+    clearPressDelay(delayRef);
+    delayRef.current = window.setTimeout(() => {
+      suppressClickRef.current = true;
+      fn(); // 長押し成立時に初回実行
+      startRepeat(fn, timerRef);
+    }, 300);
+  }, [clearPressDelay, disabled, startRepeat]);
+
   useEffect(() => {
     return () => {
       stopRepeat(incTimer);
       stopRepeat(decTimer);
+      clearPressDelay(incPressDelay);
+      clearPressDelay(decPressDelay);
     };
-  }, [stopRepeat]);
+  }, [clearPressDelay, stopRepeat]);
 
   function handleKey(e: React.KeyboardEvent) {
     if (disabled) return;
@@ -81,7 +108,6 @@ export default function StepperButtons({
       <button
         type="button"
         onClick={() => {
-          // pointerタップ後に発火する click を抑止（2回増えるのを防ぐ）
           if (suppressIncClick.current) {
             suppressIncClick.current = false;
             return;
@@ -89,16 +115,20 @@ export default function StepperButtons({
           onInc();
         }}
         onPointerDown={() => {
-          suppressIncClick.current = true;
-          startRepeat(onInc, incTimer);
+          startLongPress(onInc, incTimer, incPressDelay, suppressIncClick);
         }}
-        onPointerUp={() => stopRepeat(incTimer)}
+        onPointerUp={() => {
+          clearPressDelay(incPressDelay);
+          stopRepeat(incTimer);
+        }}
         onPointerLeave={() => {
+          clearPressDelay(incPressDelay);
           stopRepeat(incTimer);
           // leave/cancelは click が来ないケースが多いのでここで解除
           suppressIncClick.current = false;
         }}
         onPointerCancel={() => {
+          clearPressDelay(incPressDelay);
           stopRepeat(incTimer);
           suppressIncClick.current = false;
         }}
@@ -126,15 +156,19 @@ export default function StepperButtons({
           onDec();
         }}
         onPointerDown={() => {
-          suppressDecClick.current = true;
-          startRepeat(onDec, decTimer);
+          startLongPress(onDec, decTimer, decPressDelay, suppressDecClick);
         }}
-        onPointerUp={() => stopRepeat(decTimer)}
+        onPointerUp={() => {
+          clearPressDelay(decPressDelay);
+          stopRepeat(decTimer);
+        }}
         onPointerLeave={() => {
+          clearPressDelay(decPressDelay);
           stopRepeat(decTimer);
           suppressDecClick.current = false;
         }}
         onPointerCancel={() => {
+          clearPressDelay(decPressDelay);
           stopRepeat(decTimer);
           suppressDecClick.current = false;
         }}
