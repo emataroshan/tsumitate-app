@@ -215,32 +215,37 @@ export default function CompareApp() {
         >
           <div className="flex items-center justify-between gap-3">
             <div className="flex flex-wrap items-center gap-2 text-sm">
-              <span className="rounded-full bg-slate-50 px-3 py-1 font-semibold text-slate-800 ring-1 ring-slate-200">
+              <span className="rounded-full bg-slate-100/70 px-3 py-1 font-semibold text-slate-700">
                 積立月額 {monthly}円
               </span>
 
-              <span className="rounded-full bg-slate-50 px-3 py-1 font-semibold text-slate-800 ring-1 ring-slate-200">
+              <span className="rounded-full bg-slate-100/70 px-3 py-1 font-semibold text-slate-700">
                 期間{years}年
               </span>
 
               {initial > 0 && (
-                <span className="rounded-full bg-slate-50 px-3 py-1 font-semibold text-slate-800 ring-1 ring-slate-200">
+                <span className="rounded-full bg-slate-100/70 px-3 py-1 font-semibold text-slate-700">
                   初期投資 {formatYenLite(initial)}
                 </span>
               )}
 
               {rateMode === "custom" ? (
-                <span className="rounded-full bg-slate-50 px-3 py-1 font-semibold text-slate-800 ring-1 ring-slate-200">
+                <span className="rounded-full bg-slate-100/70 px-3 py-1 font-semibold text-slate-700">
                   年率 {(customAnnualReturn * 100).toFixed(1)}%
                 </span>
               ) : (
-                <span className="rounded-full bg-slate-50 px-3 py-1 font-semibold text-slate-800 ring-1 ring-slate-200">
+                <span className="rounded-full bg-slate-100/70 px-3 py-1 font-semibold text-slate-700">
                   年率 ファンド別
                 </span>
               )}
             </div>
 
-            <div className="shrink-0 rounded-xl bg-slate-50 px-3 py-2 text-sm font-semibold text-slate-700 ring-1 ring-slate-200">
+            <div
+              className={[
+                "shrink-0 rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-900 shadow-sm transition-colors",
+                "hover:bg-slate-50",
+              ].join(" ")}
+            >
               変更
             </div>
           </div>
