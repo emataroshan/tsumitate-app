@@ -306,11 +306,8 @@ export default function CompareApp() {
                 principal={best.principal}
                 profit={best.profit}
                 benefit={best.benefit}
-                monthly={monthly}
                 years={years}
                 rateMode={rateMode}
-                annualReturn={best.annualReturn}
-                effectiveAnnualReturn={best.effectiveAnnualReturn}
                 expenseRatio={best.fund.expense_ratio}
                 feeDrag={best.feeDrag}
               />
