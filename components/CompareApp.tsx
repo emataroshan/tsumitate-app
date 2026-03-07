@@ -2,7 +2,7 @@
 
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import InputPanel from "@/components/InputPanel";
 import FundPicker from "@/components/FundPicker";
 import ResultsTable from "@/components/ResultsTable";
@@ -28,7 +28,6 @@ export default function CompareApp() {
  const [rateModeDraft, setRateModeDraft] = useState<"fund" | "custom">(rateMode);
 
   const [inputOpen, setInputOpen] = useState(false);
-  const monthlyInputRef = useRef<HTMLInputElement | null>(null);
   const DEFAULT_SELECTED_IDS = useMemo(
     () => ["emaxis-slim-全世界株式ｵｰﾙ-ｶﾝﾄﾘｰ", "emaxis-slim-米国株式sandp500"],
     []
@@ -237,7 +236,6 @@ export default function CompareApp() {
         onApply={applyInput}
         canApply={hasChanges}
         title="条件の調整"
-        initialFocusRef={monthlyInputRef}
       >
         <div className="mx-auto w-full max-w-2xl">
           <InputPanel
@@ -251,7 +249,6 @@ export default function CompareApp() {
             setRateMode={setRateModeDraft}
             customAnnualReturn={customReturnDraft}
             setCustomAnnualReturn={setCustomReturnDraft}
-            monthlyInputRef={monthlyInputRef}
           />
         </div>
       </ResponsiveSheet>
