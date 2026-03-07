@@ -2,7 +2,11 @@
 
 "use client";
 
-import { useCallback, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
+import type {
+  KeyboardEvent as ReactKeyboardEvent,
+  PointerEvent as ReactPointerEvent,
+} from "react";
 
 type Props = {
   onDec: () => void;
@@ -12,17 +16,6 @@ type Props = {
   incLabel?: string;
 };
 
-/**
- * Apple品質 Stepper
- *
- * 責務：
- * 数値の増減操作UIのみ提供（状態は持たない）
- *
- * 提供機能：
- * - click
- * - keyboard
- * - long press repeat（iOS標準）
-*/
 export default function StepperButtons({
   onDec,
   onInc,
@@ -30,62 +23,83 @@ export default function StepperButtons({
   decLabel = "減らす",
   incLabel = "増やす",
 }: Props) {
-  const incTimer = useRef<number | null>(null);
-  const decTimer = useRef<number | null>(null);
-  const incPressDelay = useRef<number | null>(null);
-  const decPressDelay = useRef<number | null>(null);
-  const suppressIncClick = useRef(false); // 長押し開始後の click を抑止
-  const suppressDecClick = useRef(false); // 長押し開始後の click を抑止
+  const repeatTimer = useRef<number | null>(null);
+  const delayTimer = useRef<number | null>(null);
+  const activeFnRef = useRef<(() => void) | null>(null);
+  const longPressTriggeredRef = useRef(false);
+  const isPressed = useRef(false);
 
-  const startRepeat = useCallback(
-    (fn: () => void, ref: React.MutableRefObject<number | null>) => {
-      if (disabled) return;
-      ref.current = window.setInterval(fn, 120);
-    },
-    [disabled]
-  );
-
-  const stopRepeat = useCallback((ref: React.MutableRefObject<number | null>) => {
-    if (ref.current !== null) {
-      clearInterval(ref.current);
-      ref.current = null;
+  function clearTimers() {
+    if (delayTimer.current !== null) {
+      window.clearTimeout(delayTimer.current);
+      delayTimer.current = null;
     }
-  }, []);
 
-  const clearPressDelay = useCallback((ref: React.MutableRefObject<number | null>) => {
-    if (ref.current !== null) {
-      clearTimeout(ref.current);
-      ref.current = null;
+    if (repeatTimer.current !== null) {
+      window.clearInterval(repeatTimer.current);
+      repeatTimer.current = null;
     }
-  }, []);
+  }
 
-  const startLongPress = useCallback((
+  function startPress(fn: () => void) {
+    if (disabled) return;
+    if (isPressed.current) return;
+
+    isPressed.current = true;
+    activeFnRef.current = fn;
+    longPressTriggeredRef.current = false;
+
+    delayTimer.current = window.setTimeout(() => {
+      longPressTriggeredRef.current = true;
+      fn();
+      repeatTimer.current = window.setInterval(fn, 120);
+    }, 300);
+  }
+
+  function stopPress() {
+    if (!isPressed.current) return;
+    isPressed.current = false;
+    activeFnRef.current = null;
+    clearTimers();
+  }
+
+  function handlePointerDown(
+    e: ReactPointerEvent<HTMLButtonElement>,
     fn: () => void,
-    timerRef: React.MutableRefObject<number | null>,
-    delayRef: React.MutableRefObject<number | null>,
-    suppressClickRef: React.MutableRefObject<boolean>,
-  ) => {
+  ) {
+    if (disabled) return;
+    if (e.button !== 0) return;
+    e.preventDefault();
+    startPress(fn);
+  }
+
+  function handleClick(fn: () => void) {
     if (disabled) return;
 
-    suppressClickRef.current = false;
-    clearPressDelay(delayRef);
-    delayRef.current = window.setTimeout(() => {
-      suppressClickRef.current = true;
-      fn(); // 長押し成立時に初回実行
-      startRepeat(fn, timerRef);
-    }, 300);
-  }, [clearPressDelay, disabled, startRepeat]);
+    if (longPressTriggeredRef.current) {
+      longPressTriggeredRef.current = false;
+      return;
+    }
+
+    fn();
+  }
 
   useEffect(() => {
-    return () => {
-      stopRepeat(incTimer);
-      stopRepeat(decTimer);
-      clearPressDelay(incPressDelay);
-      clearPressDelay(decPressDelay);
-    };
-  }, [clearPressDelay, stopRepeat]);
+    function handleWindowPointerUp() {
+      stopPress();
+    }
 
-  function handleKey(e: React.KeyboardEvent) {
+    window.addEventListener("pointerup", handleWindowPointerUp);
+    window.addEventListener("pointercancel", handleWindowPointerUp);
+
+    return () => {
+      window.removeEventListener("pointerup", handleWindowPointerUp);
+      window.removeEventListener("pointercancel", handleWindowPointerUp);
+      clearTimers();
+    };
+  }, []);
+
+  function handleKey(e: ReactKeyboardEvent) {
     if (disabled) return;
 
     if (e.key === "ArrowUp") {
@@ -107,82 +121,30 @@ export default function StepperButtons({
     >
       <button
         type="button"
-        onClick={() => {
-          if (suppressIncClick.current) {
-            suppressIncClick.current = false;
-            return;
-          }
-          onInc();
-        }}
-        onPointerDown={() => {
-          startLongPress(onInc, incTimer, incPressDelay, suppressIncClick);
-        }}
-        onPointerUp={() => {
-          clearPressDelay(incPressDelay);
-          stopRepeat(incTimer);
-        }}
-        onPointerLeave={() => {
-          clearPressDelay(incPressDelay);
-          stopRepeat(incTimer);
-          // leave/cancelは click が来ないケースが多いのでここで解除
-          suppressIncClick.current = false;
-        }}
-        onPointerCancel={() => {
-          clearPressDelay(incPressDelay);
-          stopRepeat(incTimer);
-          suppressIncClick.current = false;
-        }}
-        onKeyDown={handleKey}
-        disabled={disabled}
-        className={[
-          "h-10 w-10 rounded-xl",
-          "bg-transparent text-slate-500",
-          "hover:bg-slate-50 active:bg-slate-100",
-          "focus:outline-none focus:ring-2 focus:ring-slate-200",
-          "transition-colors",
-          "disabled:opacity-30",
-        ].join(" ")}
         aria-label={incLabel}
+        disabled={disabled}
+        onClick={() => handleClick(onInc)}
+        onPointerDown={(e) => handlePointerDown(e, onInc)}
+        onPointerLeave={stopPress}
+        onPointerCancel={stopPress}
+        onContextMenu={(e) => e.preventDefault()}
+        onKeyDown={handleKey}
+        className="h-10 w-10 touch-manipulation select-none rounded-xl bg-transparent text-slate-500 hover:bg-slate-50 active:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-200 disabled:opacity-30"
       >
         ▲
       </button>
+
       <button
         type="button"
-        onClick={() => {
-          if (suppressDecClick.current) {
-            suppressDecClick.current = false;
-            return;
-          }
-          onDec();
-        }}
-        onPointerDown={() => {
-          startLongPress(onDec, decTimer, decPressDelay, suppressDecClick);
-        }}
-        onPointerUp={() => {
-          clearPressDelay(decPressDelay);
-          stopRepeat(decTimer);
-        }}
-        onPointerLeave={() => {
-          clearPressDelay(decPressDelay);
-          stopRepeat(decTimer);
-          suppressDecClick.current = false;
-        }}
-        onPointerCancel={() => {
-          clearPressDelay(decPressDelay);
-          stopRepeat(decTimer);
-          suppressDecClick.current = false;
-        }}
-        onKeyDown={handleKey}
-        disabled={disabled}
-        className={[
-          "h-10 w-10 rounded-xl",
-          "bg-transparent text-slate-500",
-          "hover:bg-slate-50 active:bg-slate-100",
-          "focus:outline-none focus:ring-2 focus:ring-slate-200",
-          "transition-colors",
-          "disabled:opacity-30",
-        ].join(" ")}
         aria-label={decLabel}
+        disabled={disabled}
+        onClick={() => handleClick(onDec)}
+        onPointerDown={(e) => handlePointerDown(e, onDec)}
+        onPointerLeave={stopPress}
+        onPointerCancel={stopPress}
+        onContextMenu={(e) => e.preventDefault()}
+        onKeyDown={handleKey}
+        className="h-10 w-10 touch-manipulation select-none rounded-xl bg-transparent text-slate-500 hover:bg-slate-50 active:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-200 disabled:opacity-30"
       >
         ▼
       </button>
