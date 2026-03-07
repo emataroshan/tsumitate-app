@@ -7,6 +7,9 @@ import { useEffect, useRef } from "react";
 type Props = {
   open: boolean;
   onClose: () => void;
+  onApply?: () => void;
+  onCancel?: () => void;
+  canApply?: boolean;
   title: string;
   children: React.ReactNode;
   /**
@@ -27,6 +30,9 @@ type Props = {
 export default function ResponsiveSheet({ 
   open, 
   onClose, 
+  onApply,
+  onCancel,
+  canApply = true,
   title, 
   children, 
   initialFocusRef = null,
@@ -110,21 +116,30 @@ export default function ResponsiveSheet({
         ].join(" ")}
       >
         <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <div id={titleId.current} className="text-base font-semibold text-slate-900">
-              {title}
-            </div>
-            <div className="mt-0.5 text-xs text-slate-600">
-              必要なときだけ細かい前提を調整できます
-            </div>
-          </div>
           <button
             type="button"
-            onClick={onClose}
-            className="rounded-xl bg-slate-50 px-3 py-2 text-sm font-semibold text-slate-700 ring-1 ring-slate-200"
-            aria-label="閉じる"
+            onClick={onCancel ?? onClose}
+            className="rounded-lg bg-slate-50 px-3 py-1.5 text-sm font-semibold text-slate-700 ring-1 ring-slate-200"
           >
-            閉じる
+            キャンセル
+          </button>
+
+          <div className="text-base font-semibold text-slate-900">
+            {title}
+          </div>
+
+          <button
+            type="button"
+            onClick={canApply ? (onApply ?? onClose) : undefined}
+            disabled={!canApply}
+            className={[
+              "rounded-lg px-3 py-1.5 text-sm font-semibold",
+              canApply
+                ? "bg-slate-900 text-white shadow-sm"
+                : "bg-slate-100 text-slate-400 cursor-not-allowed",
+            ].join(" ")}
+          >
+            適用
           </button>
         </div>
 

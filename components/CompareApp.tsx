@@ -14,13 +14,18 @@ import ResponsiveSheet from "@/components/input/ResponsiveSheet";
 import { formatJPY } from "@/lib/format";
 
 export default function CompareApp() {
-  const [monthly, setMonthly] = useState<number>(50000);
+  const [monthly, setMonthly] = useState<number>(30000);
   const [years, setYears] = useState<number>(20);
   const [initial, setInitial] = useState<number>(0);
   // 年率モード：参考（ファンドごと） or 想定（共通）
   const [rateMode, setRateMode] = useState<"fund" | "custom">("custom");
   // 想定年率（小数、例：0.07 = 7%）
   const [customAnnualReturn, setCustomAnnualReturn] = useState<number>(0.05);
+  const [monthlyDraft, setMonthlyDraft] = useState<number>(monthly);
+ const [yearsDraft, setYearsDraft] = useState<number>(years);
+ const [initialDraft, setInitialDraft] = useState<number>(initial);
+ const [customReturnDraft, setCustomReturnDraft] = useState<number>(customAnnualReturn);
+ const [rateModeDraft, setRateModeDraft] = useState<"fund" | "custom">(rateMode);
 
   const [inputOpen, setInputOpen] = useState(false);
   const monthlyInputRef = useRef<HTMLInputElement | null>(null);
@@ -121,6 +126,28 @@ export default function CompareApp() {
     setSelectedIds(DEFAULT_SELECTED_IDS);
   }
 
+  function openInput() {
+    setMonthlyDraft(monthly);
+    setYearsDraft(years);
+    setInitialDraft(initial);
+    setCustomReturnDraft(customAnnualReturn);
+    setRateModeDraft(rateMode);
+    setInputOpen(true);
+  }
+
+  function applyInput() {
+    setMonthly(monthlyDraft);
+    setYears(yearsDraft);
+    setInitial(initialDraft);
+    setCustomAnnualReturn(customReturnDraft);
+    setRateMode(rateModeDraft);
+    setInputOpen(false);
+  }
+
+  function cancelInput() {
+    setInputOpen(false);
+  }
+
   function formatYenLite(v: number) {
     // formatJPY は "￥" になるので、UIのトーンに合わせて "¥" に寄せる
     return formatJPY(v).replace("￥", "¥");
@@ -143,6 +170,27 @@ export default function CompareApp() {
     return parts.join(" ・ ");
   }, [monthly, years, rateMode, customAnnualReturn, initial]);
 
+  const hasChanges = useMemo(() => {
+    return (
+      monthlyDraft !== monthly ||
+      yearsDraft !== years ||
+      initialDraft !== initial ||
+      customReturnDraft !== customAnnualReturn ||
+      rateModeDraft !== rateMode
+    );
+  }, [
+    monthlyDraft,
+    yearsDraft,
+    initialDraft,
+    customReturnDraft,
+    rateModeDraft,
+    monthly,
+    years,
+    initial,
+    customAnnualReturn,
+    rateMode,
+  ]);
+
   return (
     <div className="grid gap-4">
       <div className="rounded-2xl border bg-white p-4 shadow-sm">
@@ -158,7 +206,7 @@ export default function CompareApp() {
       <div className="sticky top-3 z-20">
         <button
           type="button"
-          onClick={() => setInputOpen(true)}
+          onClick={openInput}
           className={[
             "w-full rounded-2xl border bg-white/90 px-3 py-2 text-left shadow-sm backdrop-blur",
             "focus:outline-none focus:ring-2 focus:ring-slate-200",
@@ -184,22 +232,25 @@ export default function CompareApp() {
       {/* ✅ 入力はSheetに集約 */}
       <ResponsiveSheet
         open={inputOpen}
-        onClose={() => setInputOpen(false)}
+        onClose={cancelInput}
+        onCancel={cancelInput}
+        onApply={applyInput}
+        canApply={hasChanges}
         title="条件の調整"
         initialFocusRef={monthlyInputRef}
       >
         <div className="mx-auto w-full max-w-2xl">
           <InputPanel
-            monthly={monthly}
-            setMonthly={setMonthly}
-            years={years}
-            setYears={setYears}
-            initial={initial}
-            setInitial={setInitial}
-            rateMode={rateMode}
-            setRateMode={setRateMode}
-            customAnnualReturn={customAnnualReturn}
-            setCustomAnnualReturn={setCustomAnnualReturn}
+            monthly={monthlyDraft}
+            setMonthly={setMonthlyDraft}
+            years={yearsDraft}
+            setYears={setYearsDraft}
+            initial={initialDraft}
+            setInitial={setInitialDraft}
+            rateMode={rateModeDraft}
+            setRateMode={setRateModeDraft}
+            customAnnualReturn={customReturnDraft}
+            setCustomAnnualReturn={setCustomReturnDraft}
             monthlyInputRef={monthlyInputRef}
           />
         </div>
