@@ -214,15 +214,34 @@ export default function CompareApp() {
           aria-expanded={inputOpen}
         >
           <div className="flex items-center justify-between gap-3">
-            <div className="min-w-0">
-              <div className="truncate text-sm font-semibold text-slate-900">{summary}</div>
-              <div className="mt-0.5 text-xs text-slate-600">タップして条件を調整</div>
+            <div className="flex flex-wrap items-center gap-2 text-sm">
+              <span className="rounded-full bg-slate-50 px-3 py-1 font-semibold text-slate-800 ring-1 ring-slate-200">
+                積立月額 {monthly}円
+              </span>
+
+              <span className="rounded-full bg-slate-50 px-3 py-1 font-semibold text-slate-800 ring-1 ring-slate-200">
+                期間{years}年
+              </span>
+
+              {initial > 0 && (
+                <span className="rounded-full bg-slate-50 px-3 py-1 font-semibold text-slate-800 ring-1 ring-slate-200">
+                  初期投資 {formatYenLite(initial)}
+                </span>
+              )}
+
+              {rateMode === "custom" ? (
+                <span className="rounded-full bg-slate-50 px-3 py-1 font-semibold text-slate-800 ring-1 ring-slate-200">
+                  年率 {(customAnnualReturn * 100).toFixed(1)}%
+                </span>
+              ) : (
+                <span className="rounded-full bg-slate-50 px-3 py-1 font-semibold text-slate-800 ring-1 ring-slate-200">
+                  年率 ファンド別
+                </span>
+              )}
             </div>
+
             <div className="shrink-0 rounded-xl bg-slate-50 px-3 py-2 text-sm font-semibold text-slate-700 ring-1 ring-slate-200">
               変更
-              <span aria-hidden="true" className="ml-1 inline-block align-middle text-slate-500">
-                ›
-              </span>
             </div>
           </div>
         </button>
