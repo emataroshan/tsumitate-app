@@ -41,64 +41,70 @@ export default function ChartSnapshot({
   hoveredFundId: string | null;
   isPinned: boolean;
 }) {
+  const summaryTarget = maxFundSnapshot;
+
   return (
     <div className="mb-3 rounded-xl border bg-slate-50 p-3 text-sm">
-      {/* ✅ ここはチラつきが最も不快なので「2段固定」で安定させる */}
       <div className="min-w-0">
         <div className="flex min-w-0 items-center gap-2">
           <div className="min-w-0 truncate font-medium text-slate-900">
             {activePointLabel}
-            {maxFundName ? (
-              <span className="ml-2 text-slate-600">
-                （利益エリア：最大 {shortName(maxFundName)}）
-              </span>
-            ) : null}
           </div>
           {isPinned ? (
-            <div className="ml-auto flex shrink-0 items-center gap-2">
-              <span className="rounded-full bg-white px-2 py-0.5 text-xs font-semibold text-slate-700 ring-1 ring-slate-200">
-                固定中
-              </span>
+            <div className="ml-auto shrink-0">
               <button
                 type="button"
                 onClick={onClearPin}
-                className="rounded-lg bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 ring-1 ring-slate-200"
+                className={[
+                  "rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-900 shadow-sm transition-colors",
+                  "hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-200",
+                ].join(" ")}
               >
-                解除
+                固定を解除
               </button>
             </div>
           ) : null}
         </div>
-        <div className="mt-1 text-xs text-slate-600">
+        <div className="mt-1 text-[11px] text-slate-500">
           {canHover
             ? isPinned
-              ? "固定中（解除で戻せます）"
+              ? "固定中"
               : "ホバーで確認 / クリックで固定"
             : isPinned
-              ? "固定中（解除で戻せます）"
+              ? "固定中"
               : "なぞって確認 / タップで固定"}
         </div>
       </div>
 
-      <div className="mt-2 flex flex-wrap items-center gap-x-6 gap-y-2">
-        <div className="text-slate-600">
-          元本 <span className="ml-1 font-medium text-slate-900">{fmtYen(activePrincipal)}</span>
+      <div className="mt-2 rounded-lg bg-white/70 px-3 py-2 ring-1 ring-slate-200">
+        <div className="text-sm leading-6 text-slate-700">
+          <span className="text-slate-500">元本</span>
+          <span className="ml-1 font-semibold text-slate-900">{fmtYen(activePrincipal)}</span>
+          {summaryTarget ? (
+            <>
+              <span className="mx-2 text-slate-300">/</span>
+              <span className="text-slate-500">最大</span>
+              <span className="ml-1 font-semibold text-slate-900">
+                {shortName(summaryTarget.name)}
+              </span>
+              <span className="ml-2 font-semibold tabular-nums text-slate-900">
+                {fmtYen(summaryTarget.balance)}
+              </span>
+              <span className="ml-2 tabular-nums text-slate-700">
+                {typeof summaryTarget.profit === "number"
+                  ? `${summaryTarget.profit >= 0 ? "+" : ""}${Math.round(
+                      summaryTarget.profit
+                    ).toLocaleString()}円`
+                  : "-"}
+              </span>
+            </>
+          ) : null}
         </div>
       </div>
 
-      {/* ✅ 結論まで最短：狭い画面は要点→必要なら詳細 */}
       {isCompact ? (
         <div className="mt-3">
-          {maxFundSnapshot ? (
-            <Row
-              row={maxFundSnapshot}
-              fmtYen={fmtYen}
-              badge="最大"
-              isEmphasis={hoveredFundId ? hoveredFundId === maxFundSnapshot.id : false}
-            />
-          ) : null}
-
-          <div className="mt-2">
+          <div>
             <button
               type="button"
               onClick={onToggleDetails}
@@ -123,17 +129,23 @@ export default function ChartSnapshot({
           ) : null}
         </div>
       ) : (
-        <div className="mt-3 grid gap-2">
-          {snapshot.map((s) => (
-            <Row
-              key={s.id}
-              row={s}
-              fmtYen={fmtYen}
-              badge={s.id === maxFundIdAtFinal ? "最大" : null}
-              isEmphasis={hoveredFundId ? hoveredFundId === s.id : false}
-            />
-          ))}
-        </div>
+        <details className="mt-3 group">
+          <summary className="cursor-pointer list-none text-xs font-semibold text-slate-700 marker:content-none">
+            詳細を表示
+            <span className="ml-1 inline-block transition group-open:rotate-180">⌄</span>
+          </summary>
+          <div className="mt-3 grid gap-2">
+            {snapshot.map((s) => (
+              <Row
+                key={s.id}
+                row={s}
+                fmtYen={fmtYen}
+                badge={s.id === maxFundIdAtFinal ? "最大" : null}
+                isEmphasis={hoveredFundId ? hoveredFundId === s.id : false}
+              />
+            ))}
+          </div>
+        </details>
       )}
     </div>
   );
