@@ -147,7 +147,7 @@ export default function CompareApp() {
     <div className="grid gap-4">
       <div className="rounded-2xl border bg-white p-4 shadow-sm">
         <div className="text-2xl font-bold text-slate-900">
-          つみたて投資シミュレーター｜NISAの非課税額も比較
+          管理費用込みで比較できる積立投資シミュレーター
         </div>
         <div className="mt-1 text-sm text-slate-600">
           ファンドごとの将来資産と、NISAで払わずに済む税金の目安を比較できます

@@ -6,7 +6,6 @@ import type { RefObject } from "react";
 import { useRef } from "react";
 import { useMonthlyText } from "@/hooks/useMonthlyText";
 import { useCommittedNumberText } from "@/hooks/useCommittedNumberText";
-import RateDetails from "@/components/input/RateDetails";
 import StepperButtons from "@/components/input/StepperButtons";
 
 type Props = {
@@ -39,6 +38,10 @@ export default function InputPanel({
   monthlyInputRef,
 }: Props) {
   const initialInputRef = useRef<HTMLInputElement | null>(null);
+  const monthlyInputId = "monthly-input";
+  const yearsInputId = "years-input";
+  const initialInputId = "initial-input";
+  const annualReturnInputId = "annual-return-input";
   // ✅ monthly は既存 hook を維持（モバイル癖対策の主戦場）
   const {
     text: monthlyText,
@@ -97,19 +100,47 @@ export default function InputPanel({
   }  
 
   // iOS設定画面型：入力幅はラベル長に影響されない（完全固定）
-  const CONTROL_W = "w-[12.5rem]"; // 200px
+  const CONTROL_W = "w-[10.5rem] sm:w-[11rem]";
+  const ANNUAL_RETURN_W = "w-[5.5rem]";
+
+  const rowGridClass = 
+    "grid grid-cols-[5rem_minmax(0,1fr)_auto] items-center gap-x-3 gap-y-2";
+  const textInputClass = [
+    CONTROL_W,
+    "rounded-xl border border-slate-200 bg-white px-3 py-2 text-right text-base font-semibold tabular-nums text-slate-900",
+    "focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200",
+  ].join(" ");
+  const sectionTitleClass = "px-4 pb-2 pt-4 text-xs font-semibold tracking-[0.08em] text-slate-500";
+  const annualReturnInputClass = [
+    ANNUAL_RETURN_W,
+    "rounded-xl border px-3 py-2 text-right text-base font-semibold tabular-nums transition",
+    rateMode === "custom"
+      ? "border-slate-200 bg-white text-slate-900 focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200"
+      : "border-slate-200 bg-slate-100 text-slate-400",
+  ].join(" ");
+  const radioBaseClass =
+    "h-5 w-5 rounded-full border border-slate-300 bg-white ring-offset-2 transition";
+  const radioCheckedClass =
+    "border-slate-900 bg-slate-900 shadow-[inset_0_0_0_4px_white]";
+  const radioUncheckedClass = "bg-white";
 
   return (
     <div className="rounded-2xl border border-slate-200 bg-white shadow-sm">
-      <div className="divide-y divide-slate-200">
+      <div>
+        <div className={sectionTitleClass}>投資条件</div>
+
         {/* 毎月 */}
-        <label className="block px-4 py-3">
-          <div className="grid grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-x-3 gap-y-2">
-            <div className="min-w-0 text-sm font-semibold text-slate-900">
-              毎月の積立金額
-            </div>
+        <div className="px-4 py-3">
+          <div className={rowGridClass}>
+            <label
+              htmlFor={monthlyInputId}
+              className="min-w-0 text-sm font-semibold text-slate-900"
+            >
+              積立月額
+            </label>
             <div className="flex items-center justify-end gap-2">
               <input
+                id={monthlyInputId}
                 type="text"
                 inputMode="numeric"
                 pattern="\d*"
@@ -125,11 +156,7 @@ export default function InputPanel({
                     e.currentTarget.blur();
                   }
                 }}
-                className={[
-                  CONTROL_W,
-                  "rounded-xl border border-slate-200 bg-white px-3 py-2 text-right text-base font-semibold tabular-nums text-slate-900",
-                  "focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200",
-                ].join(" ")}
+                className={textInputClass}
                 aria-label="毎月の積立金額（円）"
               />
               <div className="shrink-0 text-sm font-semibold text-slate-700">円</div>
@@ -155,14 +182,21 @@ export default function InputPanel({
               />
             </div>
           </div>
-        </label>
+        </div>
 
-        {/* 期間 */}
-        <label className="block px-4 py-3">
-          <div className="grid grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-x-3 gap-y-2">
-            <div className="min-w-0 text-sm font-semibold text-slate-900">積立期間</div>
+        <div className="mx-4 border-t border-slate-200" />
+
+        <div className="px-4 py-3">
+          <div className={rowGridClass}>
+            <label
+              htmlFor={yearsInputId}
+              className="min-w-0 text-sm font-semibold text-slate-900"
+            >
+              積立期間
+            </label>
             <div className="flex items-center justify-end gap-2">
               <input
+                id={yearsInputId}
                 type="text"
                 inputMode="numeric"
                 pattern="\d*"
@@ -177,11 +211,7 @@ export default function InputPanel({
                     e.currentTarget.blur();
                   }
                 }}
-                className={[
-                  CONTROL_W,
-                  "rounded-xl border border-slate-200 bg-white px-3 py-2 text-right text-base font-semibold tabular-nums text-slate-900",
-                  "focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200",
-                ].join(" ")}
+                className={textInputClass}
                 aria-label="積立期間（年）"
               />
               <div className="shrink-0 text-sm font-semibold text-slate-700">年</div>
@@ -195,43 +225,21 @@ export default function InputPanel({
               />
             </div>
           </div>
-        </label>
-
-        {/* 年率 */}
-        <div className="px-4 py-3">
-          <RateDetails
-            rateMode={rateMode}
-            setRateMode={setRateMode}
-            annualReturnPercentText={annualReturnField.text}
-            setAnnualReturnPercentText={(v) =>
-              annualReturnField.setText(annualReturnField.normalizeText(v))
-            }
-            onCommitAnnualReturnPercentText={(raw) => {
-              if (rateMode !== "custom") return;
-              commitAnnualReturnFromText(raw);
-            }}
-            onDecAnnualReturn={() =>
-              annualReturnField.step(
-                -0.1,
-                Number.isFinite(customAnnualReturn) ? customAnnualReturn * 100 : 0
-              )
-            }
-            onIncAnnualReturn={() =>
-              annualReturnField.step(
-                0.1,
-                Number.isFinite(customAnnualReturn) ? customAnnualReturn * 100 : 0
-              )
-            }
-            controlWidthClass={CONTROL_W}
-          />
         </div>
 
-        {/* 初期投資 */}
-        <label className="block px-4 py-3">
-          <div className="grid grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-x-3 gap-y-2">
-            <div className="min-w-0 text-sm font-semibold text-slate-900">初期投資</div>
+        <div className="mx-4 border-t border-slate-200" />
+
+        <div className="px-4 py-3">
+          <div className={rowGridClass}>
+            <label
+              htmlFor={initialInputId}
+              className="min-w-0 text-sm font-semibold text-slate-900"
+            >
+              初期投資
+            </label>
             <div className="flex items-center justify-end gap-2">
               <input
+                id={initialInputId}
                 type="text"
                 inputMode="numeric"
                 pattern="\d*"
@@ -248,9 +256,7 @@ export default function InputPanel({
                   }
                 }}
                 className={[
-                  CONTROL_W,
-                  "rounded-xl border border-slate-200 bg-white px-3 py-2 text-right text-base font-semibold tabular-nums text-slate-900",
-                  "focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200",
+                  textInputClass,
                   "[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none",
                 ].join(" ")}
                 aria-label="初期投資（円）"
@@ -266,7 +272,151 @@ export default function InputPanel({
               />
             </div>
           </div>
-        </label>
+        </div>
+
+        <div className="border-t border-slate-200" />
+
+        <div className={sectionTitleClass}>運用条件</div>
+
+        <div className="px-4 pb-4">
+          <div className="rounded-2xl border border-slate-200 bg-slate-50/50">
+            <div className="px-4 py-3">
+              <div
+                role="radio"
+                aria-checked={rateMode === "custom"}
+                tabIndex={0}
+                onClick={() => setRateMode("custom")}
+                onKeyDown={(e) => {
+                  if (e.key === " " || e.key === "Enter") {
+                    e.preventDefault();
+                    setRateMode("custom");
+                  }
+                }}
+                className="w-full cursor-pointer rounded-xl text-left outline-none focus-visible:ring-2 focus-visible:ring-slate-200"
+              >
+                <div className="annual-rate-row grid grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-x-3 gap-y-2">
+                  <div
+                    aria-hidden="true"
+                    className={[
+                      radioBaseClass,
+                      rateMode === "custom" ? radioCheckedClass : radioUncheckedClass,
+                      "mt-2",
+                    ].join(" ")}
+                  />
+
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <div className="text-sm font-semibold text-slate-900">共通年率</div>
+                      <span className="rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-semibold text-slate-500">
+                        想定
+                      </span>
+                    </div>
+                    <div className="mt-1 pr-2 text-xs leading-5 text-slate-600">
+                      すべてのファンドを同じ年率で比較
+                    </div>
+                  </div>
+
+                  <div
+                    className="flex items-center gap-2"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <input
+                      id={annualReturnInputId}
+                      type="text"
+                      inputMode="decimal"
+                      value={annualReturnField.text}
+                      disabled={rateMode !== "custom"}
+                      onFocus={(e) => {
+                        if (rateMode !== "custom") setRateMode("custom");
+                        e.currentTarget.select();
+                      }}
+                      onChange={(e) => {
+                        if (rateMode !== "custom") setRateMode("custom");
+                        annualReturnField.setText(
+                          annualReturnField.normalizeText(e.target.value)
+                        );
+                      }}
+                      onBlur={() => {
+                        if (rateMode !== "custom") return;
+                        commitAnnualReturnFromText(annualReturnField.text);
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === "NumpadEnter") {
+                          e.preventDefault();
+                          if (rateMode !== "custom") setRateMode("custom");
+                          e.currentTarget.blur();
+                        }
+                      }}
+                      className={annualReturnInputClass}
+                      aria-label="共通年率（%）"
+                    />
+                    <div className="shrink-0 text-sm font-semibold text-slate-700">%</div>
+                    <div className="shrink-0">
+                      <StepperButtons
+                        disabled={rateMode !== "custom"}
+                        onDec={() =>
+                          annualReturnField.step(
+                            -0.1,
+                            Number.isFinite(customAnnualReturn) ? customAnnualReturn * 100 : 0
+                          )
+                        }
+                        onInc={() =>
+                          annualReturnField.step(
+                            0.1,
+                            Number.isFinite(customAnnualReturn) ? customAnnualReturn * 100 : 0
+                          )
+                        }
+                        decLabel="共通年率を0.1%減らす"
+                        incLabel="共通年率を0.1%増やす"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="border-t border-slate-200 px-4 py-3">
+              <div
+                role="radio"
+                tabIndex={0}
+                aria-checked={rateMode === "fund"}
+                onClick={() => setRateMode("fund")}
+                onKeyDown={(e) => {
+                  if (e.key === " " || e.key === "Enter") {
+                    e.preventDefault();
+                    setRateMode("fund");
+                  }
+                }}
+                className="w-full cursor-pointer rounded-xl text-left outline-none focus-visible:ring-2 focus-visible:ring-slate-200"
+              >
+                <div className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-1">
+                  <span
+                    aria-hidden="true"
+                    className={[
+                      radioBaseClass,
+                      rateMode === "fund" ? radioCheckedClass : radioUncheckedClass,
+                      "mt-0.5",
+                    ].join(" ")}
+                  />
+                  <div className="min-w-0">
+                    <div className="text-sm font-semibold text-slate-900">ファンド別</div>
+                    <div className="mt-1 text-xs leading-5 text-slate-600">
+                      各ファンドの過去実績の年率を使用
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <style jsx>{`
+          @media (max-width: 380px) {
+            .annual-rate-row {
+              grid-template-columns: auto minmax(0, 1fr);
+            }
+          }
+        `}</style>
       </div>
     </div>
   );
