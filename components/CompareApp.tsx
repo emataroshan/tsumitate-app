@@ -201,8 +201,8 @@ export default function CompareApp() {
         </div>
       </div>
 
-      {/* ✅ Summaryは唯一の入口（sticky） */}
-      <div className="sticky top-3 z-20">
+      {/* ✅ Summaryは唯一の入口 */}
+      <div>
         <button
           type="button"
           onClick={openInput}

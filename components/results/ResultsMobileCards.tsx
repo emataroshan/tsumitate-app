@@ -69,7 +69,7 @@ export default function ResultsMobileCards({
 
                     {isBest && (
                       <span className="rounded-full bg-white px-2 py-0.5 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-200">
-                        最も増える
+                        🥇 ベスト
                       </span>
                     )}
                   </div>
