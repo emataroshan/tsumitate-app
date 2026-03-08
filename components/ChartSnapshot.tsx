@@ -40,40 +40,54 @@ export default function ChartSnapshot({
   const summaryTarget = maxFundSnapshot;
 
   return (
-    <div className="mb-3 rounded-xl border bg-slate-50 p-3 text-sm">
+    <div className="mb-3 rounded-2xl border border-slate-200/80 bg-white/90 p-3 text-sm shadow-sm">
       <div className="min-w-0">
-        <div className="flex min-w-0 items-center gap-2">
-          <div className="min-w-0 truncate font-medium text-slate-900">
+        <div className="flex min-w-0 items-center justify-between gap-3">
+          <div className="min-w-0 truncate text-sm font-semibold text-slate-900">
             {activePointLabel}
           </div>
         </div>
-        <div className="mt-1 text-[11px] text-slate-500">
-          {canHover ? "ホバーで確認" : "なぞって確認"}
-        </div>
       </div>
 
-      <div className="mt-2 rounded-lg bg-white/70 px-3 py-2 ring-1 ring-slate-200">
-        <div className="text-sm leading-6 text-slate-700">
-          <span className="text-slate-500">元本</span>
-          <span className="ml-1 font-semibold text-slate-900">{fmtYen(activePrincipal)}</span>
-          {summaryTarget ? (
-            <>
-              <span className="mx-2 text-slate-300">/</span>
-              <span className="text-slate-500">最大</span>
-              <span className="ml-1 font-semibold text-slate-900">
-                {shortName(summaryTarget.name)}
-              </span>
-              <span className="ml-2 font-semibold tabular-nums text-slate-900">
+      <div className="mt-3 rounded-2xl bg-slate-50/80 px-3 py-3 ring-1 ring-slate-200/70">
+
+        {summaryTarget ? (
+          <div className="mt-2 flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <div className="flex min-w-0 items-center gap-2">
+                <span
+                  className="h-2.5 w-2.5 shrink-0 rounded-full"
+                  style={{ backgroundColor: summaryTarget.color }}
+                  aria-hidden
+                />
+                <div className="min-w-0 truncate text-sm font-semibold text-slate-900">
+                  {shortName(summaryTarget.name)}
+                </div>
+              </div>
+            </div>
+
+            <div className="text-right">
+              <div className="tabular-nums text-base font-semibold text-slate-900">
                 {fmtYen(summaryTarget.balance)}
-              </span>
-              <span className="ml-2 tabular-nums text-slate-700">
+              </div>
+              <div className="mt-1 tabular-nums text-xs text-slate-600">
                 {typeof summaryTarget.profit === "number"
                   ? `${summaryTarget.profit >= 0 ? "+" : ""}${Math.round(
                       summaryTarget.profit
                     ).toLocaleString()}円`
                   : "-"}
-              </span>
-            </>
+              </div>
+            </div>
+          </div>
+        ) : null}
+
+        <div className="mt-3 text-xs text-slate-600">
+          <span className="text-slate-500">元本</span>
+          <span className="ml-2 font-medium tabular-nums text-slate-900">
+            {fmtYen(activePrincipal)}
+          </span>
+          {summaryTarget ? (
+            <span className="ml-2 text-slate-400">・ 最大のみ表示</span>
           ) : null}
         </div>
       </div>
@@ -84,7 +98,7 @@ export default function ChartSnapshot({
             <button
               type="button"
               onClick={onToggleDetails}
-              className="rounded-lg bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 ring-1 ring-slate-200"
+              className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 ring-1 ring-slate-200"
             >
               {showDetails ? "詳細を閉じる" : "詳細を表示"}
             </button>
@@ -141,8 +155,8 @@ function Row({
   return (
     <div
       className={[
-        "flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 rounded-lg px-2 py-1",
-        isEmphasis ? "bg-white ring-1 ring-slate-200" : "",
+        "flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 rounded-xl px-2.5 py-2",
+        isEmphasis ? "bg-white ring-1 ring-slate-200" : "bg-slate-50/70",
       ].join(" ")}
     >
       <div className="flex min-w-0 items-center gap-2">
@@ -154,7 +168,7 @@ function Row({
         <div className="min-w-0 truncate font-medium text-slate-900">
           {shortName(row.name)}
           {badge ? (
-            <span className="ml-2 rounded-full bg-white px-2 py-0.5 text-xs font-semibold text-slate-600 ring-1 ring-slate-200">
+            <span className="ml-2 rounded-full bg-white px-2 py-0.5 text-[11px] font-semibold text-slate-600 ring-1 ring-slate-200">
               {badge}
             </span>
           ) : null}
