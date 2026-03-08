@@ -15,7 +15,6 @@ export default function ChartSnapshot({
   canHover,
   showDetails,
   onToggleDetails,
-  onClearPin,
   activePointLabel,
   maxFundName,
   maxFundIdAtFinal,
@@ -24,13 +23,11 @@ export default function ChartSnapshot({
   snapshot,
   maxFundSnapshot,
   hoveredFundId,
-  isPinned,
 }: {
   isCompact: boolean;
   canHover: boolean;
   showDetails: boolean;
   onToggleDetails: () => void;
-  onClearPin: () => void;
   activePointLabel: string;
   maxFundName: string;
   maxFundIdAtFinal: string | null;
@@ -39,7 +36,6 @@ export default function ChartSnapshot({
   snapshot: SnapshotRow[];
   maxFundSnapshot: SnapshotRow | null;
   hoveredFundId: string | null;
-  isPinned: boolean;
 }) {
   const summaryTarget = maxFundSnapshot;
 
@@ -50,29 +46,9 @@ export default function ChartSnapshot({
           <div className="min-w-0 truncate font-medium text-slate-900">
             {activePointLabel}
           </div>
-          {isPinned ? (
-            <div className="ml-auto shrink-0">
-              <button
-                type="button"
-                onClick={onClearPin}
-                className={[
-                  "rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-900 shadow-sm transition-colors",
-                  "hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-200",
-                ].join(" ")}
-              >
-                固定を解除
-              </button>
-            </div>
-          ) : null}
         </div>
         <div className="mt-1 text-[11px] text-slate-500">
-          {canHover
-            ? isPinned
-              ? "固定中"
-              : "ホバーで確認 / クリックで固定"
-            : isPinned
-              ? "固定中"
-              : "なぞって確認 / タップで固定"}
+          {canHover ? "ホバーで確認" : "なぞって確認"}
         </div>
       </div>
 

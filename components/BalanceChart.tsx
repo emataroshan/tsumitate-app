@@ -47,11 +47,6 @@ export default function BalanceChart({
     initialIndex: months, // 初期は最終月
   });
 
-  // ✅ 条件/レイアウトが変わったら固定は解除（意図せず残ると不親切）
-  useEffect(() => {
-    interaction.clearPin();
-  }, [customAnnualReturn, initial, isCompact, monthly, rateMode, selectedFunds, years, interaction.clearPin]);
-
   // ✅ years が変わったら「最終月」へ戻す（結論最短）
   useEffect(() => {
     interaction.setActiveIndex(months);
@@ -123,7 +118,6 @@ export default function BalanceChart({
         canHover={canHover}
         showDetails={showSnapshotDetails}
         onToggleDetails={() => setShowSnapshotDetails((v) => !v)}
-        onClearPin={interaction.clearPin}
         activePointLabel={activePointLabel}
         maxFundName={maxFundName}
         maxFundIdAtFinal={maxFundIdAtFinal}
@@ -132,14 +126,18 @@ export default function BalanceChart({
         snapshot={snapshot}
         maxFundSnapshot={maxFundSnapshot}
         hoveredFundId={interaction.hoveredFundId}
-        isPinned={interaction.isPinned}
       />
 
       <div
         ref={chartHostRef}
-        className="h-[260px] w-full max-w-full min-w-0 overflow-hidden overflow-x-hidden rounded-xl bg-white ring-1 ring-slate-200 md:h-[340px] touch-pan-y overscroll-x-contain select-none"
+        className="relative h-[260px] w-full max-w-full min-w-0 overflow-hidden overflow-x-hidden rounded-xl bg-white ring-1 ring-slate-200 md:h-[340px] touch-pan-y overscroll-x-contain select-none"
         style={{ WebkitTapHighlightColor: "transparent" } as any}
       >
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute left-0 right-0 top-0 z-10 h-3 bg-white"
+        />
+
         {ready ? (
           <BalanceComposedChart
             chartSize={chartSize}
@@ -147,7 +145,6 @@ export default function BalanceChart({
             data={data}
             xTicks={xTicks}
             activeIndex={interaction.activeIndex}
-            isPinned={interaction.isPinned}
             series={series}
             colorByFundId={colorByFundId}
             hoveredFundId={interaction.hoveredFundId}

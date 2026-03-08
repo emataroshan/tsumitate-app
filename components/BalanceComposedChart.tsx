@@ -25,7 +25,6 @@ export default function BalanceComposedChart({
     data,
     xTicks,
     activeIndex,
-    isPinned,
     series,
     colorByFundId,
     hoveredFundId,
@@ -39,7 +38,6 @@ export default function BalanceComposedChart({
     data: any[];
     xTicks: number[];
     activeIndex: number;
-    isPinned: boolean;
     series: Series[];
     colorByFundId: Record<string, string>;
     hoveredFundId: string | null;
@@ -48,10 +46,7 @@ export default function BalanceComposedChart({
     maxFundColor: string;
     handlers: {
         onMouseMove?: ((state: any) => void) | undefined;
-        onClick: (state: any) => void;
-        onTouchStart: (state: any) => void;
         onTouchMove: (state: any) => void;
-        onTouchEnd: () => void;
         onLineEnter: (id: string) => void;
         onLineLeave: () => void;
     };
@@ -63,8 +58,8 @@ export default function BalanceComposedChart({
     const parentW = Math.floor(chartSize.w);
     const viewportW =
         typeof window !== "undefined" ? Math.floor(document.documentElement.clientWidth) : parentW;
-    // 親幅から数px引いておく（1pxガードだと環境によって再発することがある）
-    const safeWidth = Math.max(0, Math.min(parentW - 2, viewportW - 2));
+    // 親幅は超えない。ただし内部余白で逃がすので、ここで削りすぎない
+    const safeWidth = Math.max(0, Math.min(parentW, viewportW));
 
     if (!(chartSize.w > 0 && chartSize.h > 0)) {
         return <div className="h-full w-full rounded-xl bg-gray-50" />;
@@ -79,17 +74,13 @@ export default function BalanceComposedChart({
             style={{ maxWidth: "100%", overflow: "hidden", touchAction: "pan-y" } as any}
             margin={{
                 top: 10,
-                right: 0,
-                bottom: 0,
-                left: isCompact ? 4 : 10,
+                right: isCompact ? 12 : 18,
+                bottom: 8,
+                left: isCompact ? 8 : 16,
             }}
-            // ✅ Recharts側が「関数であること」を前提に扱う箇所があるため
-            //    undefined を渡さず、常に関数を渡す（no-op込み）で安全化
+
             onMouseMove={(state: any) => handlers.onMouseMove?.(state)}
-            onClick={(state: any) => handlers.onClick(state)}
-            onTouchStart={(state: any) => handlers.onTouchStart(state)}
             onTouchMove={(state: any) => handlers.onTouchMove(state)}
-            onTouchEnd={() => handlers.onTouchEnd()}
         >
             {/* ✅ activeTooltipIndex を安定して取るために Tooltip を配置（表示はしない） */}
             <Tooltip content={() => null} cursor={false} />
@@ -112,11 +103,13 @@ export default function BalanceComposedChart({
                 ticks={xTicks}
                 tickFormatter={(m) => `${Math.round(m / 12)}年`}
                 interval={0}
+                padding={{ left: 0, right: 10 }}
             />
 
             <YAxis
                 tickFormatter={(v) => `${Math.round(v / 1_0000)}万`}
-                width={isCompact ? 48 : 70}
+                width={isCompact ? 56 : 76}
+                padding={{ top: 8, bottom: 0 }}
             />
 
             <Area
