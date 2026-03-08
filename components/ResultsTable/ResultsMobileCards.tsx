@@ -1,4 +1,4 @@
-// components/results/ResultsMobileCards.tsx
+// components/ResultsTable/ResultsMobileCards.tsx
 
 "use client";
 

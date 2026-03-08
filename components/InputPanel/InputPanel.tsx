@@ -1,4 +1,4 @@
-  // components/InputPanel.tsx
+  // components/InputPanel/InputPanel.tsx
 
   "use client";
 
@@ -6,7 +6,7 @@
   import { useRef } from "react";
   import { useMonthlyText } from "@/hooks/useMonthlyText";
   import { useCommittedNumberText } from "@/hooks/useCommittedNumberText";
-  import StepperInline from "@/components/input/StepperInline";
+  import StepperInline from "@/components/InputPanel/StepperInline";
 
   type Props = {
     monthly: number;

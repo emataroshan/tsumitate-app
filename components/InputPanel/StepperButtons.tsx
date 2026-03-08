@@ -1,4 +1,4 @@
-// components/input/StepperButtons.tsx
+// components/InputPanel/StepperButtons.tsx
 
 "use client";
 

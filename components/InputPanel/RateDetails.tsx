@@ -1,9 +1,9 @@
-// components/input/RateDetails.tsx
+// components/InputPanel/RateDetails.tsx
 
 "use client";
 
-import Tooltip from "@/components/input/Tooltip";
-import StepperButtons from "@/components/input/StepperButtons";
+import Tooltip from "@/components/InputPanel/Tooltip";
+import StepperButtons from "@/components/InputPanel/StepperButtons";
 
 export default function RateDetails({
   rateMode,

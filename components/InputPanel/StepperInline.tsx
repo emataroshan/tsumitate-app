@@ -1,4 +1,4 @@
-//components/input/StepperInline.tsx
+//components/InputPanel/StepperInline.tsx
 
 "use client";
 

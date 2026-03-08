@@ -1,4 +1,4 @@
-// components/ChartOverlaySnapshot.tsx
+// components/BalanceChart/ChartOverlaySnapshot.tsx
 
 "use client";
 

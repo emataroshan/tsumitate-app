@@ -1,4 +1,4 @@
-// components/ResultsTable.tsx
+// components/ResultsTable/ResultsTable.tsx
 
 "use client";
 
@@ -7,8 +7,8 @@ import { formatJPY, formatPercent } from "@/lib/format";
 import { simulate, compareNisaVsTaxable } from "@/lib/calc";
 import BestFundCard from "@/components/BestFundCard";
 import { useMemo } from "react";
-import ResultsMobileCards from "./results/ResultsMobileCards";
-import ResultsDesktopTable from "./results/ResultsDesktopTable";
+import ResultsMobileCards from "@/components/ResultsTable/ResultsMobileCards";
+import ResultsDesktopTable from "@/components/ResultsTable/ResultsDesktopTable";
 
 type Row = {
   fund: Fund;

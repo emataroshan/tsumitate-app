@@ -1,4 +1,4 @@
-// components/input/Tooltip.tsx
+// components/InputPanel/Tooltip.tsx
 
 "use client";
 
