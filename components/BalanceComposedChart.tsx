@@ -118,22 +118,9 @@ export default function BalanceComposedChart({
                 name="元本"
                 stackId="base"
                 strokeWidth={0}
+                fill="#0ea5e9"
                 fillOpacity={0.12}
             />
-
-            {profitFillKey && (
-                <Area
-                type="monotone"
-                dataKey={profitFillKey}
-                name={maxFundName ? `利益（最大：${shortName(maxFundName)}）` : "利益"}
-                stackId="base"
-                strokeWidth={0}
-                fill={maxFundColor}
-                stroke={maxFundColor}
-                fillOpacity={0.25}
-                isAnimationActive={false}
-                />
-            )}
 
             {series.map((s) => (
                 <Line
