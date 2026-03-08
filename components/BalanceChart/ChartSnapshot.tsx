@@ -1,4 +1,4 @@
-//components/ChartSnapshot.tsx
+//components/BalanceChart/ChartSnapshot.tsx
 
 "use client";
 
@@ -40,19 +40,18 @@ export default function ChartSnapshot({
   const summaryTarget = maxFundSnapshot;
 
   return (
-    <div className="mb-3 rounded-2xl border border-slate-200/80 bg-white/90 p-3 text-sm shadow-sm">
-      <div className="min-w-0">
-        <div className="flex min-w-0 items-center justify-between gap-3">
-          <div className="min-w-0 truncate text-sm font-semibold text-slate-900">
-            {activePointLabel}
-          </div>
-        </div>
+    <div className="mb-3 text-sm">
+
+      {/* 時点ラベル */}
+      <div className="mb-1 text-xs font-medium text-slate-500">
+        {activePointLabel}
       </div>
 
-      <div className="mt-3 rounded-2xl bg-slate-50/80 px-3 py-3 ring-1 ring-slate-200/70">
+      {/* summary */}
+      <div className="rounded-2xl bg-slate-50/60 px-3 py-3 ring-1 ring-slate-200/60">
 
         {summaryTarget ? (
-          <div className="mt-2 flex items-start justify-between gap-3">
+          <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
               <div className="flex min-w-0 items-center gap-2">
                 <span
@@ -67,7 +66,7 @@ export default function ChartSnapshot({
             </div>
 
             <div className="text-right">
-              <div className="tabular-nums text-base font-semibold text-slate-900">
+              <div className="tabular-nums text-lg font-semibold text-slate-900">
                 {fmtYen(summaryTarget.balance)}
               </div>
               <div className="mt-1 tabular-nums text-xs text-slate-600">
@@ -81,14 +80,17 @@ export default function ChartSnapshot({
           </div>
         ) : null}
 
-        <div className="mt-3 text-xs text-slate-600">
-          <span className="text-slate-500">元本</span>
-          <span className="ml-2 font-medium tabular-nums text-slate-900">
+        <div className="mt-3 flex items-center justify-between text-[11px] text-slate-500">
+          <span
+            className="rounded px-1.5 py-[1px] font-medium text-sky-700"
+            style={{ backgroundColor: "rgba(14,165,233,0.12)" }}
+          >
+            元本
+          </span>
+
+          <span className="tabular-nums font-medium text-slate-700">
             {fmtYen(activePrincipal)}
           </span>
-          {summaryTarget ? (
-            <span className="ml-2 text-slate-400">・ 最大のみ表示</span>
-          ) : null}
         </div>
       </div>
 

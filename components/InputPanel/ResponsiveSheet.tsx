@@ -1,4 +1,4 @@
-// components/input/ResponsiveSheet.tsx
+// components/InputPanel/ResponsiveSheet.tsx
 
 "use client";
 

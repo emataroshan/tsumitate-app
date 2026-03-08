@@ -1,4 +1,4 @@
-// components/results/ResultsDesktopTable.tsx
+// components/ResultsTable/ResultsDesktopTable.tsx
 
 "use client";
 

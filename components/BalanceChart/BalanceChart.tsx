@@ -1,4 +1,4 @@
-// components/BalanceChart.tsx
+// components/BalanceChart/BalanceChart.tsx
 
 "use client";
 
@@ -9,9 +9,10 @@ import { useBalanceChartViewModel } from "@/hooks/useBalanceChartViewModel";
 import { useElementSize } from "@/hooks/useElementSize";
 import { useChartInteraction } from "@/hooks/useChartInteraction";
 import { usePointerCapabilities } from "@/hooks/usePointerCapabilities";
-import ChartSnapshot from "@/components/ChartSnapshot";
-import BalanceComposedChart from "@/components/BalanceComposedChart";
-import ChartOverlaySnapshot from "@/components/ChartOverlaySnapshot";
+import ChartSnapshot from "@/components/BalanceChart/ChartSnapshot";
+import BalanceComposedChart from "@/components/BalanceChart/BalanceComposedChart";
+import ChartOverlaySnapshot from "@/components/BalanceChart/ChartOverlaySnapshot";
+import ChartTopRankLegend from "@/components/BalanceChart/ChartTopRankLegend";
 
 type Props = {
   selectedFunds: Fund[];
@@ -41,6 +42,8 @@ export default function BalanceChart({
   });
 
   const [overlayLeft, setOverlayLeft] = useState(96);
+  const [activeFundId, setActiveFundId] = useState<string | null>(null);
+  const [hoveredLegendFundId, setHoveredLegendFundId] = useState<string | null>(null);
   const { canHover } = usePointerCapabilities();
 
   // チャート描画の compact 判定と、Snapshot の表示方式は分ける
@@ -119,18 +122,33 @@ export default function BalanceChart({
     isCompact,
   });
 
+  useEffect(() => {
+    if (!maxFundIdAtFinal) return;
+    const stillExists = activeFundId
+      ? selectedFunds.some((fund) => fund.id === activeFundId)
+      : false;
+
+    if (!stillExists) {
+      setActiveFundId(maxFundIdAtFinal);
+    }
+  }, [activeFundId, maxFundIdAtFinal, selectedFunds]);
+
+  const displayFundId = interaction.hoveredFundId ?? activeFundId ?? maxFundIdAtFinal;
+
   const {
     activePointLabel,
     activePrincipal,
     fmtYen,
     snapshot,
-    maxFundSnapshot,
+    selectedSnapshot,
+    topRankedFunds,
   } = useBalanceChartViewModel({
     series,
     data,
     colorByFundId,
     activeIndex: interaction.activeIndex,
     maxFundIdAtFinal,
+    selectedFundId: displayFundId,
   });
 
   // ---- ここから描画（return は最後に統一） ----
@@ -167,7 +185,7 @@ export default function BalanceChart({
           activePrincipal={activePrincipal}
           fmtYen={fmtYen}
           snapshot={snapshot}
-          maxFundSnapshot={maxFundSnapshot}
+          maxFundSnapshot={selectedSnapshot}
           hoveredFundId={interaction.hoveredFundId}
         />
       ) : null}
@@ -193,7 +211,7 @@ export default function BalanceChart({
               activePointLabel={activePointLabel}
               activePrincipal={activePrincipal}
               fmtYen={fmtYen}
-              summaryTarget={maxFundSnapshot}
+              summaryTarget={selectedSnapshot}
               hoveredFundId={interaction.hoveredFundId}
             />
           </div>
@@ -207,6 +225,7 @@ export default function BalanceChart({
             xTicks={xTicks}
             activeIndex={interaction.activeIndex}
             series={series}
+            activeFundId={activeFundId ?? maxFundIdAtFinal}
             colorByFundId={colorByFundId}
             hoveredFundId={interaction.hoveredFundId}
             profitFillKey={profitFillKey}
@@ -218,6 +237,17 @@ export default function BalanceChart({
           <div className="h-full w-full rounded-xl bg-gray-50" />
         )}
       </div>
+      
+      {topRankedFunds.length > 0 ? (
+        <ChartTopRankLegend
+          items={topRankedFunds}
+          activeFundId={activeFundId ?? maxFundIdAtFinal}
+          hoveredFundId={hoveredLegendFundId}
+          onItemEnter={(fundId) => setHoveredLegendFundId(fundId)}
+          onItemLeave={() => setHoveredLegendFundId(null)}
+          onItemClick={(fundId) => setActiveFundId(fundId)}
+        />
+      ) : null}
     </div>
   );
 }

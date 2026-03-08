@@ -1,4 +1,4 @@
-//components/BalanceComposedChart.tsx
+//components/BalanceChart/BalanceComposedChart.tsx
 
 "use client";
 
@@ -26,6 +26,7 @@ export default function BalanceComposedChart({
     xTicks,
     activeIndex,
     series,
+    activeFundId,
     colorByFundId,
     hoveredFundId,
     profitFillKey,
@@ -39,6 +40,7 @@ export default function BalanceComposedChart({
     xTicks: number[];
     activeIndex: number;
     series: Series[];
+    activeFundId: string | null;
     colorByFundId: Record<string, string>;
     hoveredFundId: string | null;
     profitFillKey: string | null;
@@ -60,6 +62,8 @@ export default function BalanceComposedChart({
         typeof window !== "undefined" ? Math.floor(document.documentElement.clientWidth) : parentW;
     // 親幅は超えない。ただし内部余白で逃がすので、ここで削りすぎない
     const safeWidth = Math.max(0, Math.min(parentW, viewportW));
+
+    const emphasizedFundId = hoveredFundId ?? activeFundId;
 
     if (!(chartSize.w > 0 && chartSize.h > 0)) {
         return <div className="h-full w-full rounded-xl bg-gray-50" />;
@@ -129,9 +133,9 @@ export default function BalanceComposedChart({
                 dataKey={s.fund.id}
                 name={shortName(s.fund.name)}
                 dot={false}
-                strokeWidth={hoveredFundId ? (hoveredFundId === s.fund.id ? 3 : 2) : 2}
+                strokeWidth={emphasizedFundId === s.fund.id ? 3 : 2}
                 stroke={colorByFundId[s.fund.id]}
-                strokeOpacity={hoveredFundId ? (hoveredFundId === s.fund.id ? 1 : 0.25) : 1}
+                strokeOpacity={emphasizedFundId ? (emphasizedFundId === s.fund.id ? 1 : 0.28) : 1}
                 onMouseEnter={() => {
                     if (isCompact) return;
                     handlers.onLineEnter(s.fund.id);

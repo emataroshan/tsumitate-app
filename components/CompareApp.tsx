@@ -3,14 +3,14 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import InputPanel from "@/components/InputPanel";
+import InputPanel from "@/components/InputPanel/InputPanel";
 import FundPicker from "@/components/FundPicker";
-import ResultsTable from "@/components/ResultsTable";
+import ResultsTable from "@/components/ResultsTable/ResultsTable";
 import { funds as allFunds } from "@/data/funds";
-import BalanceChart from "@/components/BalanceChart";
+import BalanceChart from "@/components/BalanceChart/BalanceChart";
 import BestFundCard from "@/components/BestFundCard";
 import { simulate, compareNisaVsTaxable } from "@/lib/calc";
-import ResponsiveSheet from "@/components/input/ResponsiveSheet";
+import ResponsiveSheet from "@/components/InputPanel/ResponsiveSheet";
 import { formatJPY } from "@/lib/format";
 
 export default function CompareApp() {
