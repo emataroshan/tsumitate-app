@@ -111,9 +111,12 @@ export default function BalanceComposedChart({
             />
 
             <YAxis
-                tickFormatter={(v) => `${Math.round(v / 1_0000)}万`}
-                width={isCompact ? 56 : 76}
-                padding={{ top: 8, bottom: 0 }}
+                tickFormatter={(v) => {
+                    if (v === 0) return "0";
+                    return `${Math.round(v / 1_0000)}万`;
+                }}
+                width={isCompact ? 64 : 80}
+                padding={{ top: 10, bottom: 0 }}
             />
 
             <Area
