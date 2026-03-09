@@ -2,7 +2,7 @@
 
 "use client";
 
-import { formatJPY, formatPercent } from "@/lib/format";
+import { formatYen, formatPercent } from "@/lib/format";
 import { Fragment, useState } from "react";
 
 export default function ResultsDesktopTable({
@@ -84,19 +84,19 @@ export default function ResultsDesktopTable({
                   </td>
 
                   <td className="px-3 py-2 font-semibold tabular-nums text-slate-900">
-                    {formatJPY(r.finalValue)}
+                    {formatYen(r.finalValue)}
                   </td>
 
                   <td className="px-3 py-2 tabular-nums text-slate-800">
-                    {isBest ? "—" : formatJPY(diff)}
+                    {isBest ? "—" : formatYen(diff)}
                   </td>
 
                   <td className="px-3 py-2 tabular-nums text-slate-900">
-                    {formatJPY(r.profit)}
+                    {formatYen(r.profit)}
                   </td>
 
                   <td className="px-3 py-2 font-semibold tabular-nums text-emerald-700">
-                    {formatJPY(r.nisaBenefit)}
+                    {formatYen(r.nisaBenefit)}
                   </td>
                 </tr>
 

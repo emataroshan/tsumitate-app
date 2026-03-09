@@ -2,7 +2,7 @@
 
 "use client";
 
-import { formatJPY, formatPercent } from "@/lib/format";
+import { formatYen, formatPercent } from "@/lib/format";
 
 export default function ResultsMobileCards({
   sorted,
@@ -82,7 +82,7 @@ export default function ResultsMobileCards({
                     </div>
 
                     <div className="text-2xl font-extrabold tabular-nums">
-                      {formatJPY(r.finalValue)}
+                      {formatYen(r.finalValue)}
                     </div>
                   </div>
 
@@ -90,7 +90,7 @@ export default function ResultsMobileCards({
                   <div className="mt-1 flex flex-wrap items-baseline gap-x-4 gap-y-1 text-sm">
                     {!isBest ? (
                       <span className="tabular-nums text-slate-700">
-                        1位との差 {formatJPY(diffToBest)}
+                        1位との差 {formatYen(diffToBest)}
                       </span>
                     ) : (
                       <span className="text-slate-500">1位との差 —</span>
@@ -102,7 +102,7 @@ export default function ResultsMobileCards({
                         profitIsPositive ? "text-slate-900" : "text-rose-700",
                       ].join(" ")}
                     >
-                      増えた額 {formatJPY(r.profit)}
+                      増えた額 {formatYen(r.profit)}
                     </span>
                   </div>
 
@@ -118,7 +118,7 @@ export default function ResultsMobileCards({
                           : "bg-slate-50 text-slate-600 ring-slate-200",
                       ].join(" ")}
                     >
-                      NISAの節税額 {formatJPY(r.nisaBenefit)}
+                      NISAの節税額 {formatYen(r.nisaBenefit)}
                     </span>
 
                   </div>

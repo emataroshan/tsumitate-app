@@ -71,9 +71,7 @@ export default function ChartSnapshot({
               </div>
               <div className="mt-1 tabular-nums text-xs text-slate-600">
                 {typeof summaryTarget.profit === "number"
-                  ? `${summaryTarget.profit >= 0 ? "+" : ""}${Math.round(
-                      summaryTarget.profit
-                    ).toLocaleString()}円`
+                  ? `${summaryTarget.profit >= 0 ? "+" : ""}${fmtYen(summaryTarget.profit)}`
                   : "-"}
               </div>
             </div>
@@ -180,7 +178,7 @@ function Row({
         <div className="tabular-nums text-slate-900">{fmtYen(row.balance)}</div>
         <div className="tabular-nums text-slate-700">
           {typeof row.profit === "number"
-            ? `${row.profit >= 0 ? "+" : ""}${Math.round(row.profit).toLocaleString()}円`
+            ? `${row.profit >= 0 ? "+" : ""}${fmtYen(row.profit)}`
             : "-"}
         </div>
       </div>
