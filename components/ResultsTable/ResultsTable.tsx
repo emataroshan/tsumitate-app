@@ -3,9 +3,8 @@
 "use client";
 
 import { Fund } from "@/lib/types";
-import { formatJPY, formatPercent } from "@/lib/format";
+import { formatPercent } from "@/lib/format";
 import { simulate, compareNisaVsTaxable } from "@/lib/calc";
-import BestFundCard from "@/components/BestFundCard";
 import { useMemo } from "react";
 import ResultsMobileCards from "@/components/ResultsTable/ResultsMobileCards";
 import ResultsDesktopTable from "@/components/ResultsTable/ResultsDesktopTable";
