@@ -278,50 +278,44 @@ export default function CompareApp() {
         </div>
       </ResponsiveSheet>
 
-      {/* 上段：比較の因果が見える（左=ファンド / 右=条件+結論+グラフ） */}
-      <div className="grid min-w-0 grid-cols-1 gap-4 xl:grid-cols-[minmax(440px,520px)_minmax(0,1fr)] xl:items-start">
-        {/* 左（PCでsticky） */}
-        <div className="order-1 min-w-0 xl:order-1">
-          <div className="xl:sticky xl:top-4">
-            <FundPicker
-              funds={allFunds}
-              selectedIds={selectedIds}
-              onToggle={toggle}
-              maxSelect={8}
-              defaultSelectionNote="※ 例として人気の2本を初期選択しています（いつでも変更できます）"
-              onClearAll={clearAll}
-              onResetExample={resetExample}
+      {/* ファンド一覧は独立セクションとして上に配置 */}
+      <FundPicker
+        funds={allFunds}
+        selectedIds={selectedIds}
+        onToggle={toggle}
+        maxSelect={8}
+        defaultSelectionNote="※ 例として人気の2本を初期選択しています（いつでも変更できます）"
+        onClearAll={clearAll}
+        onResetExample={resetExample}
+      />
+
+      {/* 結果エリア：広い画面では ベストカード | グラフ、狭い画面では縦積み */}
+      <div className="grid min-w-0 grid-cols-1 gap-4 lg:grid-cols-[minmax(320px,420px)_minmax(0,1fr)] lg:items-start">
+        <div className="min-w-0">
+          {best && (
+            <BestFundCard
+              fund={best.fund}
+              finalValue={best.finalValue}
+              principal={best.principal}
+              profit={best.profit}
+              benefit={best.benefit}
+              years={years}
+              rateMode={rateMode}
+              expenseRatio={best.fund.expense_ratio}
+              feeDrag={best.feeDrag}
             />
-          </div>
+          )}
         </div>
 
-        {/* 右（結果＋グラフ） */}
-        <div className="order-2 min-w-0 xl:order-2">
-          <div className="grid gap-4">
-            {/* ★結論カード：推移グラフの直前に配置 */}
-            {best && (
-              <BestFundCard
-                fund={best.fund}
-                finalValue={best.finalValue}
-                principal={best.principal}
-                profit={best.profit}
-                benefit={best.benefit}
-                years={years}
-                rateMode={rateMode}
-                expenseRatio={best.fund.expense_ratio}
-                feeDrag={best.feeDrag}
-              />
-            )}
-
-            <BalanceChart
-              selectedFunds={selectedFunds}
-              monthly={monthly}
-              years={years}
-              initial={initial}
-              rateMode={rateMode}
-              customAnnualReturn={customAnnualReturn}
-            />
-          </div>
+        <div className="min-w-0">
+          <BalanceChart
+            selectedFunds={selectedFunds}
+            monthly={monthly}
+            years={years}
+            initial={initial}
+            rateMode={rateMode}
+            customAnnualReturn={customAnnualReturn}
+          />
         </div>
       </div>
 

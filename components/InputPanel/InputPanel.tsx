@@ -452,7 +452,7 @@
                         ファンド別
                       </div>
                       <div className="mt-1 text-xs leading-5 text-slate-600">
-                        各ファンドの過去実績の年率を使用して比較します
+                        各ファンドの過去5年のリターン年率で比較します
                       </div>
                     </div>
                   </div>
