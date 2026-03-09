@@ -154,7 +154,7 @@ export default function BalanceChart({
   // ---- ここから描画（return は最後に統一） ----
   if (!hasSelection) {
     return (
-      <div className="rounded-2xl border bg-white p-4 shadow-sm">
+      <div className="mx-auto w-full max-w-3xl rounded-2xl border bg-white p-4 shadow-sm lg:max-w-none">
         <div className="text-lg font-semibold">資産推移（グラフ）</div>
         <div className="mt-2 text-sm text-gray-600">ファンドを選ぶとグラフが表示されます。</div>
       </div>
@@ -162,7 +162,7 @@ export default function BalanceChart({
   }
 
   return (
-    <div className="max-w-full overflow-x-hidden rounded-2xl border bg-white p-4 shadow-sm">
+    <div className="mx-auto w-full max-w-3xl overflow-x-hidden rounded-2xl border bg-white p-4 shadow-sm lg:max-w-none">
       <div className="mb-2">
         <div className="text-lg font-semibold">資産推移（グラフ）</div>
         <div className="text-sm text-gray-600">

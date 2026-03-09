@@ -97,13 +97,13 @@ export default function ResultsTable({
   const totalLabel = `${years}年後の総資産額`;
 
   return (
-    <div className="rounded-2xl border bg-white p-4 shadow-sm">
+    <div className="mx-auto w-full max-w-3xl rounded-2xl border bg-white p-4 shadow-sm lg:max-w-none">
       <div className="mb-3">
         <div className="text-lg font-semibold">比較結果</div>
         <div className="text-sm text-slate-600">条件を変えるとリアルタイムに更新</div>
         <div className="mt-1 text-xs text-slate-500">
           ※「NISAの節税額」は、同じ運用結果を課税口座で売却した場合（利益に税率{formatPercent(taxRate, 2)}）に
-+          発生する税金を回避できる目安です。
+          発生する税金を回避できる目安です。
         </div>
       </div>
 
