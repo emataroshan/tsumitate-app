@@ -97,7 +97,7 @@ export default function ResultsTable({
   const totalLabel = `${years}年後の総資産額`;
 
   return (
-    <div className="mx-auto w-full max-w-3xl rounded-2xl border bg-white p-4 shadow-sm lg:max-w-none">
+    <div className="mx-auto w-full max-w-3xl rounded-2xl border bg-white p-4 shadow-sm">
       <div className="mb-3">
         <div className="text-lg font-semibold">比較結果</div>
         <div className="text-sm text-slate-600">条件を変えるとリアルタイムに更新</div>
