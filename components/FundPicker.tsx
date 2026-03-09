@@ -80,7 +80,7 @@ export default function FundPicker({
   const selectedCount = selectedIds.length;
 
   return (
-    <div className="rounded-2xl border bg-white p-4 shadow-sm overflow-hidden">
+    <div className="mx-auto w-full max-w-3xl overflow-hidden rounded-2xl border bg-white p-4 shadow-sm">
       <div className="mb-3 grid gap-3 min-w-0">
         <div className="min-w-0 flex items-start justify-between gap-3">
           <div className="min-w-0">

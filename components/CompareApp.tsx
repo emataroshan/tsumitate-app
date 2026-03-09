@@ -192,63 +192,61 @@ export default function CompareApp() {
 
   return (
     <div className="grid gap-4">
-      <div className="rounded-2xl border bg-white p-4 shadow-sm">
-        <div className="text-2xl font-bold text-slate-900">
-          管理費用込みで比較できる積立投資シミュレーター
-        </div>
-        <div className="mt-1 text-sm text-slate-600">
-          ファンドごとの将来資産と、NISAで払わずに済む税金の目安を比較できます
-        </div>
+      <div className="pb-2 pt-3 text-center sm:pb-4 sm:pt-4">
+        <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+          管理費用まで考慮した積立投資シミュレーター
+        </h1>
+        <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-slate-600">
+          ファンドごとの将来資産を、管理費用込みで比較できます
+        </p>
       </div>
 
       {/* ✅ Summaryは唯一の入口 */}
-      <div>
+      <div className="mx-auto w-full max-w-3xl">
         <button
           type="button"
           onClick={openInput}
           className={[
-            "w-full rounded-2xl border bg-white/90 px-3 py-2 text-left shadow-sm backdrop-blur",
-            "transition-colors hover:bg-white",
+            "group flex w-full items-center justify-between rounded-2xl border bg-slate-50 px-5 py-4 text-left shadow-sm",
+            "cursor-pointer transition hover:bg-slate-100 hover:shadow-md",
             "focus:outline-none focus:ring-2 focus:ring-slate-200",
           ].join(" ")}
           aria-haspopup="dialog"
           aria-expanded={inputOpen}
+          aria-label="現在の条件を編集"
         >
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex flex-wrap items-center gap-2 text-sm">
-              <span className="rounded-full bg-slate-100/70 px-3 py-1 font-semibold text-slate-700">
-                積立月額 {monthly}円
-              </span>
+          <div className="min-w-0 text-sm text-slate-700">
+            <span className="font-medium">積立月額</span>{" "}
+            <span className="font-semibold text-slate-900">{monthly.toLocaleString()}円</span>
+            <span className="mx-2 text-slate-400">/</span>
 
-              <span className="rounded-full bg-slate-100/70 px-3 py-1 font-semibold text-slate-700">
-                期間{years}年
-              </span>
+            <span className="font-medium">期間</span>{" "}
+            <span className="font-semibold text-slate-900">{years}年</span>
 
-              {initial > 0 && (
-                <span className="rounded-full bg-slate-100/70 px-3 py-1 font-semibold text-slate-700">
-                  初期投資 {formatYenLite(initial)}
+            {initial > 0 && (
+              <>
+                <span className="mx-2 text-slate-400">/</span>
+                <span className="font-medium">初期投資</span>{" "}
+                <span className="font-semibold text-slate-900">{formatYenLite(initial)}</span>
+              </>
+            )}
+
+            <span className="mx-2 text-slate-400">/</span>
+
+            {rateMode === "custom" ? (
+              <>
+                <span className="font-medium">年率</span>{" "}
+                <span className="font-semibold text-slate-900">
+                  {(customAnnualReturn * 100).toFixed(1)}%
                 </span>
-              )}
+              </>
+            ) : (
+              <span className="font-semibold text-slate-900">年率（ファンド別）</span>
+            )}
+          </div>
 
-              {rateMode === "custom" ? (
-                <span className="rounded-full bg-slate-100/70 px-3 py-1 font-semibold text-slate-700">
-                  年率 {(customAnnualReturn * 100).toFixed(1)}%
-                </span>
-              ) : (
-                <span className="rounded-full bg-slate-100/70 px-3 py-1 font-semibold text-slate-700">
-                  年率 ファンド別
-                </span>
-              )}
-            </div>
-
-            <div
-              className={[
-                "shrink-0 rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-900 shadow-sm transition-colors",
-                "hover:bg-slate-50",
-              ].join(" ")}
-            >
-              変更
-            </div>
+          <div className="shrink-0 text-xs text-slate-500">
+            ※タップで編集
           </div>
         </button>
       </div>
