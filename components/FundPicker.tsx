@@ -159,7 +159,7 @@ export default function FundPicker({
                     const selected = true;
                     const disabled = false;
                     return (
-                      <li key={f.id} className="p-3">
+                      <li key={f.id} className="bg-emerald-50/30 p-3">
                         <div className="flex items-start gap-3">
                           <label className="mt-1 inline-flex items-center">
                             <input
