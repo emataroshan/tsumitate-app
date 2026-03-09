@@ -32,6 +32,8 @@ export default function BestFundCard({
   const expenseRatioPct = (expenseRatio * 100).toFixed(3);
   const hasDetails = feeDrag > 0 || benefit > 0;
 
+  const yen = (v: number) => formatJPY(v).replace("￥", "") + "円";
+
   return (
     <div className="mx-auto w-full max-w-3xl rounded-2xl border-2 border-emerald-500 bg-emerald-50 p-4 shadow-sm lg:max-w-none">
       <div className="min-w-0">
@@ -52,7 +54,7 @@ export default function BestFundCard({
       <div className="mt-4">
         <div className="text-sm text-emerald-900">{years}年後の資産総額</div>
         <div className="text-4xl font-extrabold text-emerald-700 tracking-tight">
-          {formatJPY(finalValue)}
+          {yen(finalValue)}
         </div>
       </div>
 
@@ -61,7 +63,7 @@ export default function BestFundCard({
         <div>
           <div className="text-xs text-slate-600">積立元本</div>
           <div className="mt-0.5 font-semibold tabular-nums text-slate-900">
-            {formatJPY(principal)}
+            {yen(principal)}
           </div>
         </div>
         <div>
@@ -72,7 +74,7 @@ export default function BestFundCard({
             }`}
           >
             {profitIsPositive ? "+" : ""}
-            {formatJPY(profit)}
+            {yen(profit)}
           </div>
         </div>
       </div>
@@ -95,7 +97,7 @@ export default function BestFundCard({
                     </div>
                   </div>
                   <div className="mt-0.5 font-semibold tabular-nums text-slate-900">
-                    −{formatJPY(feeDrag)}
+                    −{yen(feeDrag)}
                   </div>
                 </div>
               )}
@@ -104,7 +106,7 @@ export default function BestFundCard({
                 <div>
                   <div className="text-xs text-slate-600">NISAの節税額（目安）</div>
                   <div className="mt-0.5 font-semibold tabular-nums text-slate-900">
-                    {formatJPY(benefit)}
+                    {yen(benefit)}
                   </div>
                 </div>
               )}
