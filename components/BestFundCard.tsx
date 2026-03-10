@@ -36,7 +36,7 @@ export default function BestFundCard({
     <div className="mx-auto w-full max-w-3xl rounded-2xl border-2 border-emerald-500 bg-emerald-50 p-4 shadow-sm lg:max-w-none">
       <div className="min-w-0">
         <div className="text-sm font-medium text-emerald-800">
-          この条件で最も増えるファンド
+          この条件のベストファンド
         </div>
         <div className="mt-0.5 flex flex-wrap items-center gap-2">
           <div className="min-w-0 text-lg font-semibold text-emerald-950 break-words">
@@ -59,12 +59,6 @@ export default function BestFundCard({
       {/* 補助：元本と損益（安心材料＋増えた実感） */}
       <div className="mt-3 grid grid-cols-2 gap-2 rounded-xl bg-white/70 p-3 ring-1 ring-emerald-200">
         <div>
-          <div className="text-xs text-slate-600">積立元本</div>
-          <div className="mt-0.5 font-semibold tabular-nums text-slate-900">
-            {formatYen(principal)}
-          </div>
-        </div>
-        <div>
           <div className="text-xs text-slate-600">増えた額</div>
           <div
             className={`mt-0.5 font-semibold tabular-nums ${
@@ -73,6 +67,12 @@ export default function BestFundCard({
           >
             {profitIsPositive ? "+" : ""}
             {formatYen(profit)}
+          </div>
+        </div>
+        <div>
+          <div className="text-xs text-slate-600">積立元本</div>
+          <div className="mt-0.5 font-semibold tabular-nums text-slate-900">
+            {formatYen(principal)}
           </div>
         </div>
       </div>

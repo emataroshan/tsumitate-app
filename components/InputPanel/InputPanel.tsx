@@ -449,7 +449,7 @@
                           rateMode === "fund" ? "text-slate-900" : "text-slate-400",
                         ].join(" ")}
                       >
-                        ファンド別
+                        ファンド別リターン
                       </div>
                       <div className="mt-1 text-xs leading-5 text-slate-600">
                         各ファンドの過去5年のリターン年率で比較します

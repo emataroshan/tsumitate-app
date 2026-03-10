@@ -190,7 +190,7 @@ export default function FundPicker({
                                   </div>
                                 </div>
                                 <div className="rounded-lg bg-slate-50 px-2 py-1">
-                                  <div className="text-slate-500">参考年率</div>
+                                  <div className="text-slate-500">過去5年リターン</div>
                                   <div className="font-semibold tabular-nums text-slate-900">
                                     {formatPercent(f.ref_return, 2)}
                                   </div>
@@ -249,7 +249,7 @@ export default function FundPicker({
                                 </div>
                               </div>
                               <div className="rounded-lg bg-slate-50 px-2 py-1">
-                                <div className="text-slate-500">参考年率</div>
+                                <div className="text-slate-500">過去5年リターン</div>
                                 <div className="font-semibold tabular-nums text-slate-900">
                                   {formatPercent(f.ref_return, 2)}
                                 </div>
@@ -288,7 +288,7 @@ export default function FundPicker({
               <th className="px-3 py-2">選択</th>
               <th className="px-3 py-2">ファンド</th>
               <th className="px-3 py-2">管理費用(年率)</th>
-              <th className="px-3 py-2">参考年率</th>
+              <th className="px-3 py-2">過去5年リターン</th>
             </tr>
           </thead>
           <tbody>
