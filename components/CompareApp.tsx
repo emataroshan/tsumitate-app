@@ -201,6 +201,17 @@ export default function CompareApp() {
         </p>
       </div>
 
+      {/* ファンド一覧は独立セクションとして上に配置 */}
+      <FundPicker
+        funds={allFunds}
+        selectedIds={selectedIds}
+        onToggle={toggle}
+        maxSelect={8}
+        defaultSelectionNote="※ 例として人気の2本を初期選択しています（いつでも変更できます）"
+        onClearAll={clearAll}
+        onResetExample={resetExample}
+      />
+
       {/* ✅ Summaryは唯一の入口 */}
       <div className="mx-auto w-full max-w-3xl">
         <button
@@ -275,17 +286,6 @@ export default function CompareApp() {
           />
         </div>
       </ResponsiveSheet>
-
-      {/* ファンド一覧は独立セクションとして上に配置 */}
-      <FundPicker
-        funds={allFunds}
-        selectedIds={selectedIds}
-        onToggle={toggle}
-        maxSelect={8}
-        defaultSelectionNote="※ 例として人気の2本を初期選択しています（いつでも変更できます）"
-        onClearAll={clearAll}
-        onResetExample={resetExample}
-      />
 
       {/* 結果エリア：広い画面では ベストカード | グラフ、狭い画面では縦積み */}
       <div className="grid min-w-0 grid-cols-1 gap-4 lg:grid-cols-[minmax(320px,420px)_minmax(0,1fr)] lg:items-start">
