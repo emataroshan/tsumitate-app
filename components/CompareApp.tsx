@@ -6,12 +6,13 @@ import { useMemo, useState } from "react";
 import InputPanel from "@/components/InputPanel/InputPanel";
 import FundPicker from "@/components/FundPicker";
 import ResultsTable from "@/components/ResultsTable/ResultsTable";
-import { funds as allFunds } from "@/data/funds";
+import { FUNDS as allFunds } from "@/data/funds";
 import BalanceChart from "@/components/BalanceChart/BalanceChart";
 import BestFundCard from "@/components/BestFundCard";
 import { simulate, compareNisaVsTaxable } from "@/lib/calc";
 import ResponsiveSheet from "@/components/InputPanel/ResponsiveSheet";
 import { formatJPY } from "@/lib/format";
+import { getFundReferenceReturn } from "@/lib/fund";
 
 export default function CompareApp() {
   const [monthly, setMonthly] = useState<number>(30000);
@@ -59,14 +60,15 @@ export default function CompareApp() {
       | null = null;
 
     for (const f of selectedFunds) {
-      const annualReturn = rateMode === "custom" ? customAnnualReturn : f.ref_return;
+      const annualReturn =
+        rateMode === "custom" ? customAnnualReturn : getFundReferenceReturn(f);
 
       const res = simulate({
         monthly,
         years,
         initial,
         annualReturn,
-        expenseRatio: f.expense_ratio,
+        expenseRatio: f.expenseRatio,
       });
 
       // 管理費用の影響（概算）：同条件で expenseRatio=0 と比較
@@ -85,7 +87,7 @@ export default function CompareApp() {
           years,
           initial,
           annualReturn,
-          expenseRatio: f.expense_ratio,
+          expenseRatio: f.expenseRatio,
         },
         taxRate
       );
@@ -97,7 +99,7 @@ export default function CompareApp() {
         profit: res.profit,
         benefit: comp.nisaBenefit,
         annualReturn,
-        effectiveAnnualReturn: annualReturn - f.expense_ratio,
+        effectiveAnnualReturn: annualReturn - f.expenseRatio,
         feeDrag,
       };
 
@@ -299,7 +301,7 @@ export default function CompareApp() {
               benefit={best.benefit}
               years={years}
               rateMode={rateMode}
-              expenseRatio={best.fund.expense_ratio}
+              expenseRatio={best.fund.expenseRatio}
               feeDrag={best.feeDrag}
             />
           )}

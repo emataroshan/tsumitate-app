@@ -5,6 +5,7 @@
 import { Fund } from "@/lib/types";
 import { formatPercent } from "@/lib/format";
 import { useMemo, useState } from "react";
+import { getFundReferenceReturn } from "@/lib/fund";
 
 type Props = {
   funds: Fund[];
@@ -61,7 +62,7 @@ export default function FundPicker({
   const filtered = useMemo(() => {
     const qqs = expandQuery(q.trim());
     return funds.filter((f) => {
-      const hay = normalize(`${f.name} ${(f.provider ?? "")}`);
+      const hay = normalize(`${f.name} ${(f.providerId ?? "")}`);
       const okQ = qqs[0] === "" || qqs.some((qq) => hay.includes(qq));
       return okQ;
     });
@@ -186,13 +187,13 @@ export default function FundPicker({
                                 <div className="rounded-lg bg-slate-50 px-2 py-1">
                                   <div className="text-slate-500">管理費用</div>
                                   <div className="font-semibold tabular-nums text-slate-900">
-                                    {formatPercent(f.expense_ratio, 5)}
+                                    {formatPercent(f.expenseRatio, 5)}
                                   </div>
                                 </div>
                                 <div className="rounded-lg bg-slate-50 px-2 py-1">
                                   <div className="text-slate-500">過去5年リターン</div>
                                   <div className="font-semibold tabular-nums text-slate-900">
-                                    {formatPercent(f.ref_return, 2)}
+                                    {formatPercent(getFundReferenceReturn(f), 2)}
                                   </div>
                                 </div>
                               </div>
@@ -245,13 +246,13 @@ export default function FundPicker({
                               <div className="rounded-lg bg-slate-50 px-2 py-1">
                                 <div className="text-slate-500">管理費用</div>
                                 <div className="font-semibold tabular-nums text-slate-900">
-                                  {formatPercent(f.expense_ratio, 5)}
+                                  {formatPercent(f.expenseRatio, 5)}
                                 </div>
                               </div>
                               <div className="rounded-lg bg-slate-50 px-2 py-1">
                                 <div className="text-slate-500">過去5年リターン</div>
                                 <div className="font-semibold tabular-nums text-slate-900">
-                                  {formatPercent(f.ref_return, 2)}
+                                  {formatPercent(getFundReferenceReturn(f), 2)}
                                 </div>
                               </div>
                             </div>
@@ -317,8 +318,8 @@ export default function FundPicker({
                       {f.name}
                     </div>
                   </td>
-                  <td className="px-3 py-2 text-slate-800">{formatPercent(f.expense_ratio, 5)}</td>
-                  <td className="px-3 py-2 text-slate-800">{formatPercent(f.ref_return, 2)}</td>
+                  <td className="px-3 py-2 text-slate-800">{formatPercent(f.expenseRatio, 5)}</td>
+                  <td className="px-3 py-2 text-slate-800">{formatPercent(getFundReferenceReturn(f), 2)}</td>
                 </tr>
               );
             })}
@@ -349,8 +350,8 @@ export default function FundPicker({
                       {f.name}
                     </div>
                   </td>
-                  <td className="px-3 py-2 text-slate-800">{formatPercent(f.expense_ratio, 5)}</td>
-                  <td className="px-3 py-2 text-slate-800">{formatPercent(f.ref_return, 2)}</td>
+                  <td className="px-3 py-2 text-slate-800">{formatPercent(f.expenseRatio, 5)}</td>
+                  <td className="px-3 py-2 text-slate-800">{formatPercent(getFundReferenceReturn(f), 2)}</td>
                 </tr>
               );
             })}

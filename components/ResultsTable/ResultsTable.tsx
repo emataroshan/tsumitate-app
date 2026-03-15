@@ -8,6 +8,7 @@ import { simulate, compareNisaVsTaxable } from "@/lib/calc";
 import { useMemo } from "react";
 import ResultsMobileCards from "@/components/ResultsTable/ResultsMobileCards";
 import ResultsDesktopTable from "@/components/ResultsTable/ResultsDesktopTable";
+import { getFundReferenceReturn } from "@/lib/fund";
 
 type Row = {
   fund: Fund;
@@ -48,7 +49,8 @@ export default function ResultsTable({
 }: Props) {
   const rows: Row[] = useMemo(() => {
     return selectedFunds.map((f) => {
-      const annualReturn = rateMode === "custom" ? customAnnualReturn : f.ref_return;
+      const annualReturn =
+        rateMode === "custom" ? customAnnualReturn : getFundReferenceReturn(f);
 
       // 既存：NISA想定の結果
       const result = simulate({
@@ -56,7 +58,7 @@ export default function ResultsTable({
         years,
         initial,
         annualReturn,
-        expenseRatio: f.expense_ratio,
+        expenseRatio: f.expenseRatio,
       });
 
       // v1.1：課税口座（売却時課税の近似）と比較
@@ -66,7 +68,7 @@ export default function ResultsTable({
           years,
           initial,
           annualReturn,
-          expenseRatio: f.expense_ratio,
+          expenseRatio: f.expenseRatio,
         },
         taxRate,
       );
@@ -74,7 +76,7 @@ export default function ResultsTable({
       return {
         fund: f,
         annualReturn,
-        expenseRatio: f.expense_ratio,
+        expenseRatio: f.expenseRatio,
 
         finalValue: result.finalValue,
         principal: result.principal,

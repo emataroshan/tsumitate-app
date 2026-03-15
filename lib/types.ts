@@ -1,12 +1,36 @@
 // lib/types.ts
 
+export type FundConfig = {
+  id: string;
+  name: string;
+  providerId: string;
+  expenseRatio: number;
+  tags: string[];
+};
+
+
 export type Fund = {
   id: string;
   name: string;
-  provider?: string;
-  tags?: string[];
-  expense_ratio: number; // 例: 0.0005775 (=0.05775%)
-  ref_return: number; // 例: 0.10 (=10%/年) 各ファンドの参考年率（初期値）
+  providerId: string;
+  tags: string[];
+  expenseRatio: number; // 例: 0.0005775 (=0.05775%)
+  refReturn: {
+    oneYear?: number;
+    threeYear?: number;
+    fiveYear?: number;
+    sinceInception?: number;
+  };
+  asOf: string | null;
+};
+
+// netAssets は provider ごとの差異を吸収したうえで「億円」に統一する
+export type NormalizedNavRow = {
+  date: string;
+  nav: number;
+  adjustedNav: number;
+  dividend: number;
+  netAssets?: number;
 };
 
 /** 課税口座の税率（日本の上場株式等の譲渡益・配当の代表値） */
