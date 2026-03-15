@@ -5,6 +5,7 @@
 import { useMemo } from "react";
 import { Fund } from "@/lib/types";
 import { simulateSeries } from "@/lib/calc";
+import { getFundReferenceReturn } from "@/lib/fund";
 
 type Series = {
   fund: Fund;
@@ -43,13 +44,14 @@ export function useBalanceChartData({
     if (selectedFunds.length === 0) return [];
     return selectedFunds
       .map((f) => {
-        const annualReturn = rateMode === "custom" ? customAnnualReturn : f.ref_return;
+        const annualReturn =
+          rateMode === "custom" ? customAnnualReturn : getFundReferenceReturn(f);
         const s = simulateSeries({
           monthly,
           years,
           initial,
           annualReturn,
-          expenseRatio: f.expense_ratio,
+          expenseRatio: f.expenseRatio,
         });
         return { fund: f, points: s.points };
       })
