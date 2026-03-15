@@ -6,13 +6,20 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:parse": "tsx tools/test-parse.ts",
+    "build:fund-config": "tsx tools/build-fund-config.ts",
+    "build:funds": "tsx tools/build-funds.ts",
+    "build:data": "npm run build:fund-config && npm run build:funds",
+    "build:data:strict": "npm run build:fund-config && tsx tools/build-funds.ts --strict"
   },
   "dependencies": {
+    "iconv-lite": "^0.7.2",
     "next": "16.1.6",
     "react": "19.2.3",
     "react-dom": "19.2.3",
-    "recharts": "^3.7.0"
+    "recharts": "^3.7.0",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
@@ -22,6 +29,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
     "tailwindcss": "^4",
+    "tsx": "^4.19.0",
     "typescript": "^5"
   }
 }
