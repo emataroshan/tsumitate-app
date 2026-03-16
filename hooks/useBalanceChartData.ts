@@ -3,9 +3,20 @@
 "use client";
 
 import { useMemo } from "react";
+import { FUND_ANALYTICS_BY_ID } from "@/data/fund-analytics";
 import { Fund } from "@/lib/types";
 import { simulateSeries } from "@/lib/calc";
-import { getFundReferenceReturn } from "@/lib/fund";
+
+function getReferenceAnnualReturn(fundId: string): number | null {
+  const analytics = FUND_ANALYTICS_BY_ID[fundId];
+  return (
+    analytics?.annualizedReturn5y ??
+    analytics?.annualizedReturn3y ??
+    analytics?.annualizedReturn1y ??
+    analytics?.annualizedReturnSinceInception ??
+    null
+  );
+}
 
 type Series = {
   fund: Fund;
@@ -45,7 +56,9 @@ export function useBalanceChartData({
     return selectedFunds
       .map((f) => {
         const annualReturn =
-          rateMode === "custom" ? customAnnualReturn : getFundReferenceReturn(f);
+          rateMode === "custom"
+            ? customAnnualReturn
+            : (getReferenceAnnualReturn(f.id) ?? 0);
         const s = simulateSeries({
           monthly,
           years,

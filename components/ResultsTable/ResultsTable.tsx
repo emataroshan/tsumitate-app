@@ -2,13 +2,24 @@
 
 "use client";
 
+import { FUND_ANALYTICS_BY_ID } from "@/data/fund-analytics";
 import { Fund } from "@/lib/types";
 import { formatPercent } from "@/lib/format";
 import { simulate, compareNisaVsTaxable } from "@/lib/calc";
 import { useMemo } from "react";
 import ResultsMobileCards from "@/components/ResultsTable/ResultsMobileCards";
 import ResultsDesktopTable from "@/components/ResultsTable/ResultsDesktopTable";
-import { getFundReferenceReturn } from "@/lib/fund";
+
+function getReferenceAnnualReturn(fundId: string): number | null {
+  const analytics = FUND_ANALYTICS_BY_ID[fundId];
+  return (
+    analytics?.annualizedReturn5y ??
+    analytics?.annualizedReturn3y ??
+    analytics?.annualizedReturn1y ??
+    analytics?.annualizedReturnSinceInception ??
+    null
+  );
+}
 
 type Row = {
   fund: Fund;
@@ -50,7 +61,9 @@ export default function ResultsTable({
   const rows: Row[] = useMemo(() => {
     return selectedFunds.map((f) => {
       const annualReturn =
-        rateMode === "custom" ? customAnnualReturn : getFundReferenceReturn(f);
+        rateMode === "custom"
+          ? customAnnualReturn
+          : (getReferenceAnnualReturn(f.id) ?? 0);
 
       // 既存：NISA想定の結果
       const result = simulate({

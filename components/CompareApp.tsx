@@ -3,16 +3,30 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import type { Fund } from "@/lib/types";
 import InputPanel from "@/components/InputPanel/InputPanel";
 import FundPicker from "@/components/FundPicker";
 import ResultsTable from "@/components/ResultsTable/ResultsTable";
-import { FUNDS as allFunds } from "@/data/funds";
+import { FUND_CONFIG as fundConfig } from "@/data/fund-config";
+import { FUND_ANALYTICS_BY_ID } from "@/data/fund-analytics";
 import BalanceChart from "@/components/BalanceChart/BalanceChart";
 import BestFundCard from "@/components/BestFundCard";
 import { simulate, compareNisaVsTaxable } from "@/lib/calc";
 import ResponsiveSheet from "@/components/InputPanel/ResponsiveSheet";
 import { formatJPY } from "@/lib/format";
-import { getFundReferenceReturn } from "@/lib/fund";
+
+const allFunds = fundConfig as unknown as Fund[];
+
+function getReferenceAnnualReturn(fundId: string): number | null {
+  const analytics = FUND_ANALYTICS_BY_ID[fundId];
+  return (
+    analytics?.annualizedReturn5y ??
+    analytics?.annualizedReturn3y ??
+    analytics?.annualizedReturn1y ??
+    analytics?.annualizedReturnSinceInception ??
+    null
+  );
+}
 
 export default function CompareApp() {
   const [monthly, setMonthly] = useState<number>(30000);
@@ -30,7 +44,10 @@ export default function CompareApp() {
 
   const [inputOpen, setInputOpen] = useState(false);
   const DEFAULT_SELECTED_IDS = useMemo(
-    () => ["emaxis-slim-全世界株式ｵｰﾙ-ｶﾝﾄﾘｰ", "emaxis-slim-米国株式sandp500"],
+    () => [
+      "mufg_emaxis_slim_all_country",
+      "mufg_emaxis_slim_sp500",
+    ],
     []
   );
   const [selectedIds, setSelectedIds] = useState<string[]>(DEFAULT_SELECTED_IDS);
@@ -61,7 +78,9 @@ export default function CompareApp() {
 
     for (const f of selectedFunds) {
       const annualReturn =
-        rateMode === "custom" ? customAnnualReturn : getFundReferenceReturn(f);
+        rateMode === "custom"
+          ? customAnnualReturn
+          : (getReferenceAnnualReturn(f.id) ?? 0);
 
       const res = simulate({
         monthly,

@@ -9,9 +9,9 @@
     "lint": "eslint",
     "test:parse": "tsx tools/test-parse.ts",
     "build:fund-config": "tsx tools/build-fund-config.ts",
-    "build:funds": "tsx tools/build-funds.ts",
-    "build:data": "npm run build:fund-config && npm run build:funds",
-    "build:data:strict": "npm run build:fund-config && tsx tools/build-funds.ts --strict"
+    "build:fund-analytics": "tsx tools/build-fund-analytics.ts",
+    "build:data": "npm run build:fund-config && npm run build:fund-analytics",
+    "build:data:strict": "npm run build:fund-config && tsx tools/build-fund-analytics.ts --strict"
   },
   "dependencies": {
     "iconv-lite": "^0.7.2",
