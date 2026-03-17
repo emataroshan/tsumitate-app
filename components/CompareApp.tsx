@@ -412,14 +412,23 @@ export default function CompareApp() {
   function handleShareOnX() {
     if (!best) return;
 
+    function formatYenForShare(v: number) {
+      return new Intl.NumberFormat("ja-JP", {
+        maximumFractionDigits: 0,
+      }).format(v) + "円";
+    }
+
     const text = [
-      "つみたて比較アプリでシミュレーションしました",
+      `毎月${formatYenForShare(monthly)}`,
+      `${years}年積立`,
       "",
-      `毎月 ${formatYenLite(monthly)}`,
-      `${years}年`,
-      `結果 ${formatYenLite(best.finalValue)}`,
-      `利益 ${best.profit >= 0 ? "+" : ""}${formatYenLite(best.profit)}`,
-      `ベスト ${best.fund.name}`,
+      "↓",
+      "",
+      `${formatYenForShare(best.finalValue)}`,
+      "",
+      `利益 ${best.profit >= 0 ? "+" : ""}${formatYenForShare(best.profit)}`,
+      "",
+      "👇無料シミュレーション",
     ].join("\n");
 
     const shareUrlValue = buildShareUrl({
