@@ -6,8 +6,33 @@ import Link from "next/link";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "積立ファンド比較",
-  description: "手数料込みで将来資産を比較するツール（v1）",
+  metadataBase: new URL("https://tsumitate-app.vercel.app"),
+  title: "つみたて比較アプリ",
+  description: "管理費用まで考慮した積立投資シミュレーター。条件を共有URLでそのまま再現できます。",
+  openGraph: {
+    title: "つみたて比較アプリ",
+    description:
+      "管理費用まで考慮した積立投資シミュレーター。条件を共有URLでそのまま再現できます。",
+    url: "https://tsumitate-app.vercel.app",
+    siteName: "つみたて比較アプリ",
+    locale: "ja_JP",
+    type: "website",
+    images: [
+      {
+        url: "/opengraph-image",
+        width: 1200,
+        height: 630,
+        alt: "つみたて比較アプリ",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "つみたて比較アプリ",
+    description:
+      "管理費用まで考慮した積立投資シミュレーター。条件を共有URLでそのまま再現できます。",
+    images: ["/opengraph-image"],
+  },
 };
 
 // ✅ スマホの viewport を正しく扱う（matchMedia / CSS breakpoint 判定の前提）
