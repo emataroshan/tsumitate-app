@@ -33,8 +33,9 @@ export default function BestFundCard({
   const hasDetails = feeDrag > 0 || benefit > 0;
 
   return (
-    <div className="mx-auto w-full max-w-3xl rounded-2xl border-2 border-emerald-500 bg-emerald-50 p-4 shadow-sm lg:max-w-none">
+    <div className="mx-auto box-border w-full max-w-3xl overflow-hidden rounded-2xl border-2 border-emerald-500 bg-emerald-50 p-4 shadow-sm lg:max-w-none">
       <div className="min-w-0">
+        <div className="text-[11px] font-semibold tracking-wide text-emerald-700">つみたて比較アプリ</div>
         <div className="text-sm font-medium text-emerald-800">
           この条件のベストファンド
         </div>
