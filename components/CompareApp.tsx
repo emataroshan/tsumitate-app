@@ -418,6 +418,15 @@ export default function CompareApp() {
       }).format(v) + "円";
     }
 
+    const shareUrlValue = buildShareUrl({
+      monthly,
+      years,
+      initial,
+      rateMode,
+      customAnnualReturn,
+      selectedIds,
+    });
+
     const text = [
       `毎月${formatYenForShare(monthly)}`,
       `${years}年積立`,
@@ -428,17 +437,9 @@ export default function CompareApp() {
       "",
       `利益 ${best.profit >= 0 ? "+" : ""}${formatYenForShare(best.profit)}`,
       "",
-      "👇無料シミュレーション",
+      "👇 無料でシミュレーションする",
+      "",
     ].join("\n");
-
-    const shareUrlValue = buildShareUrl({
-      monthly,
-      years,
-      initial,
-      rateMode,
-      customAnnualReturn,
-      selectedIds,
-    });
 
     const shareUrl = new URL("https://twitter.com/intent/tweet");
     shareUrl.searchParams.set("text", text);
