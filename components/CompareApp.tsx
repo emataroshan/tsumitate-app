@@ -2,8 +2,9 @@
 
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { Fund } from "@/lib/types";
+import { toPng } from "html-to-image";
 import InputPanel from "@/components/InputPanel/InputPanel";
 import FundPicker from "@/components/FundPicker";
 import ResultsTable from "@/components/ResultsTable/ResultsTable";
@@ -28,6 +29,50 @@ function getReferenceAnnualReturn(fundId: string): number | null {
   );
 }
 
+function parsePositiveInt(value: string | null): number | null {
+  if (!value) return null;
+  const n = Number(value);
+  return Number.isFinite(n) && n >= 0 ? Math.floor(n) : null;
+}
+
+function parseRate(value: string | null): number | null {
+  if (!value) return null;
+  const n = Number(value);
+  return Number.isFinite(n) && n >= 0 && n <= 1 ? n : null;
+}
+
+function buildShareUrl(params: {
+  monthly: number;
+  years: number;
+  initial: number;
+  rateMode: "fund" | "custom";
+  customAnnualReturn: number;
+  selectedIds: string[];
+}) {
+  const url = new URL(window.location.href);
+  const search = new URLSearchParams();
+
+  search.set("monthly", String(params.monthly));
+  search.set("years", String(params.years));
+
+  if (params.initial > 0) {
+    search.set("initial", String(params.initial));
+  }
+
+  search.set("rateMode", params.rateMode);
+
+  if (params.rateMode === "custom") {
+    search.set("rate", String(params.customAnnualReturn));
+  }
+
+  if (params.selectedIds.length > 0) {
+    search.set("funds", params.selectedIds.join(","));
+  }
+
+  url.search = search.toString();
+  return url.toString();
+}
+
 export default function CompareApp() {
   const [monthly, setMonthly] = useState<number>(30000);
   const [years, setYears] = useState<number>(20);
@@ -37,10 +82,10 @@ export default function CompareApp() {
   // 想定年率（小数、例：0.07 = 7%）
   const [customAnnualReturn, setCustomAnnualReturn] = useState<number>(0.05);
   const [monthlyDraft, setMonthlyDraft] = useState<number>(monthly);
- const [yearsDraft, setYearsDraft] = useState<number>(years);
- const [initialDraft, setInitialDraft] = useState<number>(initial);
- const [customReturnDraft, setCustomReturnDraft] = useState<number>(customAnnualReturn);
- const [rateModeDraft, setRateModeDraft] = useState<"fund" | "custom">(rateMode);
+  const [yearsDraft, setYearsDraft] = useState<number>(years);
+  const [initialDraft, setInitialDraft] = useState<number>(initial);
+  const [customReturnDraft, setCustomReturnDraft] = useState<number>(customAnnualReturn);
+  const [rateModeDraft, setRateModeDraft] = useState<"fund" | "custom">(rateMode);
 
   const [inputOpen, setInputOpen] = useState(false);
   const DEFAULT_SELECTED_IDS = useMemo(
@@ -51,6 +96,11 @@ export default function CompareApp() {
     []
   );
   const [selectedIds, setSelectedIds] = useState<string[]>(DEFAULT_SELECTED_IDS);
+  const bestCardCaptureRef = useRef<HTMLDivElement | null>(null);
+  const [isSavingImage, setIsSavingImage] = useState(false);
+  const [isImageSaved, setIsImageSaved] = useState(false);
+  const [isLinkCopied, setIsLinkCopied] = useState(false);
+  const hasInitializedFromUrlRef = useRef(false);
 
   const selectedFunds = useMemo(
     () => allFunds.filter((f) => selectedIds.includes(f.id)),
@@ -211,6 +261,187 @@ export default function CompareApp() {
     rateMode,
   ]);
 
+  async function handleSaveBestCardImage() {
+    if (!bestCardCaptureRef.current || !best) return;
+
+    try {
+      setIsSavingImage(true);
+      const node = bestCardCaptureRef.current;
+      const rect = node.getBoundingClientRect();
+      const width = Math.ceil(rect.width);
+      const height = Math.ceil(rect.height);
+
+      const dataUrl = await toPng(node, {
+        width,
+        height,
+        pixelRatio: 2,
+        cacheBust: true,
+        backgroundColor: "#ffffff",
+        style: {
+          boxSizing: "border-box",
+          width: `${width}px`,
+          minWidth: `${width}px`,
+          maxWidth: `${width}px`,
+          height: `${height}px`,
+          overflow: "hidden",
+        },
+        filter: (domNode) => {
+          if (!(domNode instanceof HTMLElement)) return true;
+          return domNode.dataset?.captureExclude !== "true";
+        },
+      });
+
+      const link = document.createElement("a");
+      link.href = dataUrl;
+      link.download = `tsumitate-best-${monthly}-${years}.png`;
+      setIsImageSaved(true);
+      link.click();
+    } catch (error) {
+      console.error("画像保存に失敗しました", error);
+      window.alert("画像の保存に失敗しました。時間をおいて再度お試しください。");
+    } finally {
+      setIsSavingImage(false);
+    }
+  }
+
+  useEffect(() => {
+    if (hasInitializedFromUrlRef.current) return;
+
+    const search = new URLSearchParams(window.location.search);
+
+    const monthlyParam = parsePositiveInt(search.get("monthly"));
+    const yearsParam = parsePositiveInt(search.get("years"));
+    const initialParam = parsePositiveInt(search.get("initial"));
+    const rateModeParam = search.get("rateMode");
+    const rateParam = parseRate(search.get("rate"));
+    const fundsParam = search.get("funds");
+
+    if (monthlyParam !== null) {
+      setMonthly(monthlyParam);
+      setMonthlyDraft(monthlyParam);
+    }
+
+    if (yearsParam !== null && yearsParam > 0) {
+      setYears(yearsParam);
+      setYearsDraft(yearsParam);
+    }
+
+    if (initialParam !== null) {
+      setInitial(initialParam);
+      setInitialDraft(initialParam);
+    }
+
+    if (rateModeParam === "fund" || rateModeParam === "custom") {
+      setRateMode(rateModeParam);
+      setRateModeDraft(rateModeParam);
+    }
+
+    if (rateParam !== null) {
+      setCustomAnnualReturn(rateParam);
+      setCustomReturnDraft(rateParam);
+    }
+
+    if (fundsParam) {
+      const validIds = fundsParam
+        .split(",")
+        .map((id) => id.trim())
+        .filter((id) => allFunds.some((f) => f.id === id));
+
+      if (validIds.length > 0) {
+        setSelectedIds(validIds);
+      }
+    }
+
+    hasInitializedFromUrlRef.current = true;
+  }, []);
+
+  useEffect(() => {
+    if (!hasInitializedFromUrlRef.current) return;
+
+    const nextUrl = buildShareUrl({
+      monthly,
+      years,
+      initial,
+      rateMode,
+      customAnnualReturn,
+      selectedIds,
+    });
+
+    window.history.replaceState(null, "", nextUrl);
+  }, [monthly, years, initial, rateMode, customAnnualReturn, selectedIds]);
+
+  useEffect(() => {
+    if (!isLinkCopied) return;
+
+    const timer = window.setTimeout(() => {
+      setIsLinkCopied(false);
+    }, 1600);
+
+    return () => window.clearTimeout(timer);
+  }, [isLinkCopied]);
+
+  useEffect(() => {
+    if (!isImageSaved) return;
+
+    const timer = window.setTimeout(() => {
+      setIsImageSaved(false);
+    }, 1600);
+
+    return () => window.clearTimeout(timer);
+  }, [isImageSaved]);
+
+  async function handleCopyLink() {
+    try {
+      const shareUrl = buildShareUrl({
+        monthly,
+        years,
+        initial,
+        rateMode,
+        customAnnualReturn,
+        selectedIds,
+      });
+
+      await navigator.clipboard.writeText(shareUrl);
+      setIsLinkCopied(true);
+    } catch (error) {
+      console.error("リンクコピーに失敗しました", error);
+      window.alert("リンクのコピーに失敗しました。");
+    }
+  }
+
+  function handleShareOnX() {
+    if (!best) return;
+
+    const text = [
+      "つみたて比較アプリでシミュレーションしました",
+      "",
+      `毎月 ${formatYenLite(monthly)}`,
+      `${years}年`,
+      `結果 ${formatYenLite(best.finalValue)}`,
+      `利益 ${best.profit >= 0 ? "+" : ""}${formatYenLite(best.profit)}`,
+      `ベスト ${best.fund.name}`,
+    ].join("\n");
+
+    const shareUrlValue = buildShareUrl({
+      monthly,
+      years,
+      initial,
+      rateMode,
+      customAnnualReturn,
+      selectedIds,
+    });
+
+    const shareUrl = new URL("https://twitter.com/intent/tweet");
+    shareUrl.searchParams.set("text", text);
+    shareUrl.searchParams.set("url", shareUrlValue);
+
+    window.open(
+      shareUrl.toString(),
+      "_blank",
+      "noopener,noreferrer,width=600,height=700"
+    );
+  }
+
   return (
     <div className="grid gap-4">
       <div className="pb-2 pt-3 text-center sm:pb-4 sm:pt-4">
@@ -312,17 +543,67 @@ export default function CompareApp() {
       <div className="grid min-w-0 grid-cols-1 gap-4 lg:grid-cols-[minmax(320px,420px)_minmax(0,1fr)] lg:items-start">
         <div className="min-w-0">
           {best && (
-            <BestFundCard
-              fund={best.fund}
-              finalValue={best.finalValue}
-              principal={best.principal}
-              profit={best.profit}
-              benefit={best.benefit}
-              years={years}
-              rateMode={rateMode}
-              expenseRatio={best.fund.expenseRatio}
-              feeDrag={best.feeDrag}
-            />
+            <div className="mx-auto w-full max-w-3xl lg:max-w-none">
+              <div ref={bestCardCaptureRef} className="w-full">
+                <BestFundCard
+                  fund={best.fund}
+                  finalValue={best.finalValue}
+                  principal={best.principal}
+                  profit={best.profit}
+                  benefit={best.benefit}
+                  years={years}
+                  rateMode={rateMode}
+                  expenseRatio={best.fund.expenseRatio}
+                  feeDrag={best.feeDrag}
+                />
+              </div>
+
+              <div className="mt-4 text-sm font-semibold text-slate-700">
+                結果をシェア
+              </div>
+
+              <div className="mt-3 flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={handleSaveBestCardImage}
+                  disabled={isSavingImage || isImageSaved}
+                  className={[
+                    "inline-flex items-center justify-center rounded-xl border px-4 py-2 text-sm font-semibold shadow-sm transition",
+                    isImageSaved
+                      ? "border-emerald-300 bg-emerald-50 text-emerald-700"
+                      : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50",
+                    "disabled:cursor-not-allowed disabled:opacity-60",
+                  ].join(" ")}
+                >
+                  {isSavingImage ? "画像作成中" : isImageSaved ? "✓ 保存済み" : "画像を保存"}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleShareOnX}
+                  className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50"
+                >
+                  Xで共有
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleCopyLink}
+                  className={[
+                    "inline-flex items-center justify-center rounded-xl border px-4 py-2 text-sm font-semibold shadow-sm transition",
+                    isLinkCopied
+                      ? "border-emerald-300 bg-emerald-50 text-emerald-700"
+                      : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50",
+                  ].join(" ")}
+                >
+                  {isLinkCopied ? "✓ コピー済み" : "リンクをコピー"}
+                </button>
+              </div>
+
+              <p className="mt-2 text-xs leading-5 text-slate-500">
+                画像を保存すると、このカードをSNSで共有できます。
+              </p>
+            </div>
           )}
         </div>
 
