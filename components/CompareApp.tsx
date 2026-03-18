@@ -29,6 +29,12 @@ function getReferenceAnnualReturn(fundId: string): number | null {
   );
 }
 
+function formatYearMonthJa(dateStr: string): string | null {
+  const d = new Date(dateStr);
+  if (Number.isNaN(d.getTime())) return null;
+  return `${d.getFullYear()}年${d.getMonth() + 1}月`;
+}
+
 function parsePositiveInt(value: string | null): number | null {
   if (!value) return null;
   const n = Number(value);
@@ -106,6 +112,17 @@ export default function CompareApp() {
     () => allFunds.filter((f) => selectedIds.includes(f.id)),
     [selectedIds]
   );
+
+  const fundDataUpdatedLabel = useMemo(() => {
+    const asOfList = Object.values(FUND_ANALYTICS_BY_ID)
+      .map((item) => item.asOf)
+      .filter((v): v is string => typeof v === "string" && v.length > 0);
+
+    if (asOfList.length === 0) return null;
+
+    const latest = asOfList.reduce((max, cur) => (cur > max ? cur : max));
+    return formatYearMonthJa(latest);
+  }, []);
 
   // BestFundCard用：この条件で「資産が最も増える」ファンドを計算
   // ついでに NISA の節税（目安）もバッジ用に算出
@@ -469,6 +486,7 @@ export default function CompareApp() {
         selectedIds={selectedIds}
         onToggle={toggle}
         maxSelect={8}
+        dataUpdatedLabel={fundDataUpdatedLabel}
         defaultSelectionNote="※ 例として人気の2本を初期選択しています（いつでも変更できます）"
         onClearAll={clearAll}
         onResetExample={resetExample}

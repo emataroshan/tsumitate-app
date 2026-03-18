@@ -21,6 +21,7 @@ type Props = {
   selectedIds: string[];
   onToggle: (id: string) => void;
   maxSelect?: number;
+  dataUpdatedLabel?: string | null;
   defaultSelectionNote?: string;
   onClearAll?: () => void;
   onResetExample?: () => void;
@@ -31,6 +32,7 @@ export default function FundPicker({
   selectedIds,
   onToggle,
   maxSelect = 8,
+  dataUpdatedLabel,
   defaultSelectionNote,
   onClearAll,
   onResetExample,
@@ -93,6 +95,11 @@ export default function FundPicker({
             <div className="text-sm text-slate-600">
               最大 {maxSelect} 本まで（今：{selectedCount} 本）
             </div>
+            {dataUpdatedLabel && (
+              <div className="mt-1 text-xs text-slate-500">
+                データ更新日：{dataUpdatedLabel}
+              </div>
+            )}
             {defaultSelectionNote && (
               <div className="mt-1 text-xs text-slate-500">{defaultSelectionNote}</div>
             )}
@@ -104,7 +111,7 @@ export default function FundPicker({
             className="shrink-0 rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-900 shadow-sm transition-colors hover:bg-slate-50"
             aria-expanded={!collapsed}
           >
-            {collapsed ? "選び直す" : "選択ファンドのみ表示"}
+            {collapsed ? "ファンド選択" : "選択ファンドのみ表示"}
           </button>
         </div>
 
@@ -126,9 +133,9 @@ export default function FundPicker({
                     <button
                       type="button"
                       onClick={onResetExample}
-                      className="rounded-xl bg-slate-900 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-800"
+                      className="rounded-xl bg-white px-3 py-2 text-sm font-semibold text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50"
                     >
-                      例に戻す
+                      人気２本
                     </button>
                   )}
                 </div>
