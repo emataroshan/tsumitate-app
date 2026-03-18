@@ -61,7 +61,7 @@ export default function RootLayout({
 
           <footer className="border-t bg-white px-4 py-6 text-center text-xs text-slate-500">
             <div>
-              本ツールは過去の実績等をもとにしたシミュレーションであり、将来の成果を保証するものではありません。
+              本ツールは過去の実績などを参考にしたシミュレーションであり、将来の成果を保証するものではありません。
             </div>
             <div className="mt-2">
               <Link href="/disclaimer" className="underline hover:text-slate-700">
