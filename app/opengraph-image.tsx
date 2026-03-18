@@ -1,3 +1,5 @@
+// app/opengraph-image.tsx
+
 import { ImageResponse } from "next/og";
 import { FUND_CONFIG } from "@/data/fund-config";
 import { FUND_ANALYTICS_BY_ID } from "@/data/fund-analytics";
@@ -45,12 +47,12 @@ function formatYen(v: number) {
   );
 }
 
-export default async function Image({
+export default function Image({
   searchParams,
 }: {
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
+  searchParams?: Record<string, string | string[] | undefined>;
 }) {
-  const params = await searchParams;
+  const params = searchParams ?? {};
 
   const getSingle = (value: string | string[] | undefined) =>
     Array.isArray(value) ? value[0] : value;
@@ -189,7 +191,7 @@ export default async function Image({
                   fontWeight: 700,
                 }}
               >
-                毎月{formatYen(monthly)}
+                {`毎月${formatYen(monthly)}`}
               </div>
               <div style={{ fontSize: 24, color: "#64748b" }}>・</div>
               <div
@@ -198,7 +200,7 @@ export default async function Image({
                   fontWeight: 700,
                 }}
               >
-                {years}年積立
+                {`${years}年積立`}
               </div>
               {initial > 0 ? (
                 <>
@@ -209,7 +211,7 @@ export default async function Image({
                       fontWeight: 700,
                     }}
                   >
-                    初期{formatYen(initial)}
+                    {`初期${formatYen(initial)}`}
                   </div>
                 </>
               ) : null}
@@ -243,7 +245,7 @@ export default async function Image({
                   marginBottom: "12px",
                 }}
               >
-                {years}年後の資産総額
+                {`${years}年後の資産総額`}
               </div>
               <div
                 style={{
@@ -264,7 +266,7 @@ export default async function Image({
                   marginTop: "18px",
                 }}
               >
-                利益 {profitText}
+                {`利益 ${profitText}`}
               </div>
             </div>
 
@@ -280,7 +282,9 @@ export default async function Image({
                 padding: "28px 32px",
               }}
             >
-              <div>
+              <div
+                style={{ display: "flex", flexDirection: "column" }}
+              >
                 <div
                   style={{
                     fontSize: 22,

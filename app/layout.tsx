@@ -5,8 +5,13 @@ import type { Viewport } from "next";
 import Link from "next/link";
 import "./globals.css";
 
+const metadataBase =
+  process.env.NODE_ENV === "development"
+    ? new URL("http://localhost:3000")
+    : new URL("https://tsumitate-app.vercel.app");
+
 export const metadata: Metadata = {
-  metadataBase: new URL("https://tsumitate-app.vercel.app"),
+  metadataBase,
   title: "つみたて比較アプリ",
   description: "管理費用まで考慮した積立投資シミュレーター。条件を共有URLでそのまま再現できます。",
   openGraph: {
@@ -19,7 +24,7 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "/opengraph-image",
+        url: "/api/og",
         width: 1200,
         height: 630,
         alt: "つみたて比較アプリ",
@@ -31,7 +36,7 @@ export const metadata: Metadata = {
     title: "つみたて比較アプリ",
     description:
       "管理費用まで考慮した積立投資シミュレーター。条件を共有URLでそのまま再現できます。",
-    images: ["/opengraph-image"],
+    images: ["/api/og"],
   },
 };
 
