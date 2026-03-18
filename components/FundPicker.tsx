@@ -194,7 +194,7 @@ export default function FundPicker({
 
                               <div className="mt-2 grid grid-cols-2 gap-2 text-xs">
                                 <div className="rounded-lg bg-slate-50 px-2 py-1">
-                                  <div className="text-slate-500">管理費用</div>
+                                  <div className="text-slate-500">手数料</div>
                                   <div className="font-semibold tabular-nums text-slate-900">
                                     {formatPercent(f.expenseRatio, 5)}
                                   </div>
@@ -257,7 +257,7 @@ export default function FundPicker({
 
                               <div className="mt-2 grid grid-cols-2 gap-2 text-xs">
                                 <div className="rounded-lg bg-slate-50 px-2 py-1">
-                                  <div className="text-slate-500">管理費用</div>
+                                  <div className="text-slate-500">手数料</div>
                                   <div className="font-semibold tabular-nums text-slate-900">
                                     {formatPercent(f.expenseRatio, 5)}
                                   </div>
@@ -302,7 +302,7 @@ export default function FundPicker({
             <tr className="text-left text-slate-700">
               <th className="px-3 py-2">選択</th>
               <th className="px-3 py-2">ファンド</th>
-              <th className="px-3 py-2">管理費用(年率)</th>
+              <th className="px-3 py-2">手数料(年率)</th>
               <th className="px-3 py-2">過去5年年率</th>
             </tr>
           </thead>

@@ -92,7 +92,7 @@ export default function BestFundCard({
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <div className="text-xs text-slate-600">💸手数料で減る金額（概算）</div>
                     <div className="rounded-full bg-white px-2 py-0.5 text-[11px] font-medium text-slate-700 ring-1 ring-emerald-200">
-                      管理費用 {expenseRatioPct}%/年
+                      手数料 {expenseRatioPct}%/年
                     </div>
                   </div>
                   <div className="mt-0.5 font-semibold tabular-nums text-slate-900">

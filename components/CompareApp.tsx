@@ -473,10 +473,14 @@ export default function CompareApp() {
     <div className="grid gap-4">
       <div className="pb-2 pt-3 text-center sm:pb-4 sm:pt-4">
         <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
-          管理費用まで考慮した積立投資シミュレーター
+          積立投資の未来がわかる
         </h1>
         <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-slate-600">
-          ファンドごとの将来資産を、管理費用込みで比較できます
+          ファンドごとの将来資産を、
+          <span className="font-semibold text-emerald-600">
+            手数料込み
+          </span>
+          で比較できます
         </p>
       </div>
 
