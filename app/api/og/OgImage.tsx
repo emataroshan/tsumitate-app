@@ -10,6 +10,16 @@ function formatYen(v: number) {
   );
 }
 
+function formatMonthlyLabel(value: number) {
+  if (value >= 10000) {
+    const man = Math.floor(value / 10000);
+    const sen = (value % 10000) / 1000;
+    if (sen === 0) return `${man}万円`;
+    return `${man}万${sen}千円`;
+  }
+  return `${new Intl.NumberFormat("ja-JP").format(value)}円`;
+}
+
 export default function OgImage({
   monthly,
   years,
@@ -25,6 +35,8 @@ export default function OgImage({
   profitText: string;
   fundName: string;
 }) {
+  const monthlyLabel = formatMonthlyLabel(monthly); 
+  
   return (
     <div
       style={{
@@ -43,143 +55,61 @@ export default function OgImage({
           display: "flex",
           flex: 1,
           borderRadius: "32px",
-          border: "3px solid #10b981",
+          border: "2px solid #a7f3d0",
           background: "#ecfdf5",
           boxShadow: "0 10px 30px rgba(15,23,42,0.08)",
-          padding: "40px",
+          padding: "26px 40px",
           flexDirection: "column",
-          justifyContent: "space-between",
+          justifyContent: "flex-start",
         }}
       >
-        <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
           <div
             style={{
-              fontSize: 24,
-              fontWeight: 700,
-              color: "#047857",
-              letterSpacing: "0.03em",
-            }}
-          >
-            つみたて比較アプリ
-          </div>
-
-          <div
-            style={{
-              fontSize: 28,
-              fontWeight: 600,
-              color: "#065f46",
-            }}
-          >
-            手数料まで考慮した積立投資シミュレーター
-          </div>
-
-          <div
-            style={{
-              display: "flex",
-              gap: "12px",
-              alignItems: "center",
-              marginTop: "8px",
-              flexWrap: "wrap",
-            }}
-          >
-            <div style={{ fontSize: 28, fontWeight: 700 }}>
-              {`毎月${formatYen(monthly)}`}
-            </div>
-            <div style={{ fontSize: 24, color: "#64748b" }}>・</div>
-            <div style={{ fontSize: 28, fontWeight: 700 }}>
-              {`${years}年積立`}
-            </div>
-            {initial > 0 ? (
-              <>
-                <div style={{ fontSize: 24, color: "#64748b" }}>・</div>
-                <div style={{ fontSize: 28, fontWeight: 700 }}>
-                  {`初期${formatYen(initial)}`}
-                </div>
-              </>
-            ) : null}
-          </div>
-        </div>
-
-        <div
-          style={{
-            display: "flex",
-            gap: "28px",
-            alignItems: "stretch",
-            marginTop: "28px",
-          }}
-        >
-          <div
-            style={{
-              flex: 1.2,
               display: "flex",
               flexDirection: "column",
-              justifyContent: "center",
-              borderRadius: "24px",
-              background: "#ffffff",
-              border: "1px solid #bbf7d0",
-              padding: "28px 32px",
+              alignItems: "flex-start",
+              gap: "16px",
+              minWidth: 0,
             }}
           >
+            
             <div
               style={{
-                fontSize: 24,
-                color: "#065f46",
-                marginBottom: "12px",
+                display: "flex",
+                alignItems: "center",
+                gap: "14px",
+                minWidth: 0,
               }}
             >
-              {`${years}年後の資産総額`}
-            </div>
-            <div
-              style={{
-                fontSize: 72,
-                lineHeight: 1.05,
-                fontWeight: 800,
-                color: "#059669",
-                letterSpacing: "-0.03em",
-              }}
-            >
-              {finalValueText}
-            </div>
-            <div
-              style={{
-                fontSize: 30,
-                fontWeight: 700,
-                color: "#0f172a",
-                marginTop: "18px",
-              }}
-            >
-              {`利益 ${profitText}`}
-            </div>
-          </div>
-
-          <div
-            style={{
-              flex: 1,
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "space-between",
-              borderRadius: "24px",
-              background: "rgba(255,255,255,0.75)",
-              border: "1px solid #bbf7d0",
-              padding: "28px 32px",
-            }}
-          >
-            <div style={{ display: "flex", flexDirection: "column" }}>
               <div
                 style={{
-                  fontSize: 22,
-                  color: "#065f46",
-                  marginBottom: "12px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  borderRadius: "999px",
+                  background: "#059669",
+                  color: "#ffffff",
+                  padding: "10px 18px",
+                  fontSize: 20,
+                  fontWeight: 800,
+                  letterSpacing: "0.12em",
+                  boxShadow: "0 4px 12px rgba(5,150,105,0.22)",
+                  whiteSpace: "nowrap",
                 }}
               >
-                🏆 この条件のベストファンド
+                🏆 BEST
               </div>
+
               <div
                 style={{
-                  fontSize: 34,
-                  lineHeight: 1.35,
+                  fontSize: 26,
+                  lineHeight: 1.3,
                   fontWeight: 700,
                   color: "#022c22",
+                  display: "flex",
+                  minWidth: 0,
+                  flexWrap: "wrap",
                 }}
               >
                 {fundName}
@@ -188,11 +118,101 @@ export default function OgImage({
 
             <div
               style={{
-                fontSize: 22,
-                color: "#475569",
+                fontSize: 28,
+                fontWeight: 700,
+                color: "#065f46",
               }}
             >
-              同じ条件で今すぐシミュレーション
+              {`${years}年後（毎月${monthlyLabel}）`}
+            </div>
+
+            <div
+              style={{
+                fontSize: 90,
+                lineHeight: 1.02,
+                fontWeight: 900,
+                color: "#047857",
+                letterSpacing: "-0.04em",
+                marginTop: "6px",
+              }}
+            >
+              {finalValueText}
+            </div>
+
+            <div
+              style={{
+                marginTop: "26px",
+                display: "flex",
+                flexDirection: "column",
+                gap: "8px",
+              }}
+            >
+              <div
+                style={{
+                  fontSize: 28,
+                  fontWeight: 600,
+                  color: "#475569",
+                }}
+              >
+                貯金より
+              </div>
+              <div
+                style={{
+                  fontSize: 54,
+                  lineHeight: 1.08,
+                  fontWeight: 800,
+                  color: "#059669",
+                  letterSpacing: "-0.03em",
+                }}
+              >
+                {`${profitText}増`}
+              </div>
+            </div>
+
+            <div
+              style={{
+                marginTop: "22px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                borderTop: "1px solid #bbf7d0",
+                paddingTop: "18px",
+                width: "100%",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  flexWrap: "wrap",
+                  fontSize: 26,
+                  color: "#334155",
+                }}
+              >
+                <span>
+                  <span style={{ color: "#64748b" }}>手数料まで考慮した</span>
+                  <span style={{ fontWeight: 700, color: "#047857" }}>シミュレーション</span>
+                </span>
+              </div>
+
+              <div
+                style={{
+                  fontSize: 22,
+                  fontWeight: 700,
+                  color: "#ffffff",
+                  background: "#059669",
+                  padding: "10px 16px",
+                  borderRadius: "999px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  boxShadow: "0 4px 12px rgba(5,150,105,0.25)",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                今すぐ試す →
+              </div>
             </div>
           </div>
         </div>

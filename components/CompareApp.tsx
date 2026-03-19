@@ -130,18 +130,17 @@ export default function CompareApp() {
     if (selectedFunds.length === 0) return null;
 
     const taxRate = 0.20315;
-    let bestRow:
-      | {
-          fund: (typeof selectedFunds)[number];
-          finalValue: number;
-          principal: number;
-          profit: number;
-          benefit: number;
-          annualReturn: number;
-          effectiveAnnualReturn: number;
-          feeDrag: number;
-        }
-      | null = null;
+    const rows: {
+      fund: (typeof selectedFunds)[number];
+      finalValue: number;
+      principal: number;
+      profit: number;
+      benefit: number;
+      annualReturn: number;
+      effectiveAnnualReturn: number;
+      feeDrag: number;
+    }[] = [];
+
 
     for (const f of selectedFunds) {
       const annualReturn =
@@ -190,12 +189,23 @@ export default function CompareApp() {
       };
 
       // 「最終評価額」が最大のファンドを best とする（元本が共通なので profit 最大とほぼ同義）
-      if (!bestRow || row.finalValue > bestRow.finalValue) {
-        bestRow = row;
-      }
+      rows.push(row);
     }
 
-    return bestRow;
+    if (rows.length === 0) return null;
+
+    const sorted = [...rows].sort((a, b) => b.finalValue - a.finalValue);
+
+    const bestRow = sorted[0];
+    const secondRow = sorted[1];
+
+    const secondDiff =
+      secondRow ? bestRow.finalValue - secondRow.finalValue : null;
+
+    return {
+      ...bestRow,
+      secondDiff,
+    };
   }, [selectedFunds, monthly, years, initial, rateMode, customAnnualReturn]);
 
   function toggle(id: string) {
@@ -584,6 +594,9 @@ export default function CompareApp() {
                   profit={best.profit}
                   benefit={best.benefit}
                   years={years}
+                  monthly={monthly}
+                  annualRatePercent={best.annualReturn * 100}
+                  secondDiff={best.secondDiff}
                   rateMode={rateMode}
                   expenseRatio={best.fund.expenseRatio}
                   feeDrag={best.feeDrag}
