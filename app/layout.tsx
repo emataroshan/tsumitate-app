@@ -13,11 +13,11 @@ const metadataBase =
 export const metadata: Metadata = {
   metadataBase,
   title: "つみたて比較アプリ",
-  description: "管理費用まで考慮した積立投資シミュレーター。条件を共有URLでそのまま再現できます。",
+  description: "手数料まで考慮した積立投資シミュレーター。条件を共有URLでそのまま再現できます。",
   openGraph: {
     title: "つみたて比較アプリ",
     description:
-      "管理費用まで考慮した積立投資シミュレーター。条件を共有URLでそのまま再現できます。",
+      "手数料まで考慮した積立投資シミュレーター。条件を共有URLでそのまま再現できます。",
     url: "https://tsumitate-app.vercel.app",
     siteName: "つみたて比較アプリ",
     locale: "ja_JP",
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "つみたて比較アプリ",
     description:
-      "管理費用まで考慮した積立投資シミュレーター。条件を共有URLでそのまま再現できます。",
+      "手数料まで考慮した積立投資シミュレーター。条件を共有URLでそのまま再現できます。",
     images: ["/api/og"],
   },
 };

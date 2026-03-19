@@ -126,7 +126,7 @@ export default function ResultsMobileCards({
                   {/* detail label */}
 
                   <div className="mt-2 text-xs font-semibold text-slate-700">
-                    詳細（管理費用・使用年率）
+                    詳細（手数料・使用年率）
                   </div>
 
                 </div>
@@ -145,7 +145,7 @@ export default function ResultsMobileCards({
               />
 
               <Row
-                label="管理費用"
+                label="手数料"
                 value={formatPercent(r.expenseRatio, 5)}
               />
 

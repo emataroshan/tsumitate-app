@@ -14,7 +14,7 @@ type Props = {
   years: number;
   rateMode: "fund" | "custom";
   expenseRatio: number; // 小数 (例: 0.000814)
-  feeDrag: number; // 管理費用が最終評価額に与える差分（概算）
+  feeDrag: number; // 手数料が最終評価額に与える差分（概算）
 };
 
 export default function BestFundCard({
