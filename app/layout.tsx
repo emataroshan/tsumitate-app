@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "/api/og",
+        url: "/api/og?v=20260319-1",
         width: 1200,
         height: 630,
         alt: "つみたて比較アプリ",
@@ -36,7 +36,7 @@ export const metadata: Metadata = {
     title: "つみたて比較アプリ",
     description:
       "手数料まで考慮した積立投資シミュレーター。条件を共有URLでそのまま再現できます。",
-    images: ["/api/og"],
+    images: ["/api/og?v=20260319-1"],
   },
 };
 
