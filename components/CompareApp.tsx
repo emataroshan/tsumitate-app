@@ -157,7 +157,7 @@ export default function CompareApp() {
         expenseRatio: f.expenseRatio,
       });
 
-      // 管理費用の影響（概算）：同条件で expenseRatio=0 と比較
+      // 手数料の影響（概算）：同条件で expenseRatio=0 と比較
       const resNoFee = simulate({
         monthly,
         years,

@@ -173,7 +173,7 @@ export default function Image({
                 color: "#065f46",
               }}
             >
-              管理費用まで考慮した積立投資シミュレーター
+              手数料まで考慮した積立投資シミュレーター
             </div>
 
             <div

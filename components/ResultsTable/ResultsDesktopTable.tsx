@@ -79,7 +79,7 @@ export default function ResultsDesktopTable({
                       onClick={() => setOpenId((prev) => (prev === r.fund.id ? null : r.fund.id))}
                       aria-expanded={isOpen}
                     >
-                      {isOpen ? "詳細を閉じる" : "詳細（管理費用・使用年率）"}
+                      {isOpen ? "詳細を閉じる" : "詳細（手数料・使用年率）"}
                     </button>
                   </td>
 
@@ -111,7 +111,7 @@ export default function ResultsDesktopTable({
                           </div>
                         </div>
                         <div className="flex items-baseline justify-between gap-3">
-                          <div className="text-xs text-slate-600">管理費用</div>
+                          <div className="text-xs text-slate-600">手数料</div>
                           <div className="text-sm tabular-nums text-slate-900">
                             {formatPercent(r.expenseRatio, 5)}
                           </div>
