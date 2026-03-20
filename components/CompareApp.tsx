@@ -12,6 +12,7 @@ import { FUND_CONFIG as fundConfig } from "@/data/fund-config";
 import { FUND_ANALYTICS_BY_ID } from "@/data/fund-analytics";
 import BalanceChart from "@/components/BalanceChart/BalanceChart";
 import BestFundCard from "@/components/BestFundCard";
+import BestFundCardLite from "@/components/BestFundCardLite";
 import { simulate, compareNisaVsTaxable } from "@/lib/calc";
 import ResponsiveSheet from "@/components/InputPanel/ResponsiveSheet";
 import { formatJPY } from "@/lib/format";
@@ -493,6 +494,19 @@ export default function CompareApp() {
           で比較できます
         </p>
       </div>
+
+      {best && (
+        <BestFundCardLite
+          fund={best.fund}
+          finalValue={best.finalValue}
+          years={years}
+          monthly={monthly}
+          initial={initial}
+          rateMode={rateMode}
+          customAnnualReturn={customAnnualReturn}
+          onOpenInput={openInput}
+        />
+      )}
 
       {/* ファンド一覧は独立セクションとして上に配置 */}
       <FundPicker
