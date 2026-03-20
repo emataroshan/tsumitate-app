@@ -53,12 +53,12 @@ export default function BestFundCard({
 
   return (
     <div className="mx-auto box-border w-full max-w-3xl overflow-hidden rounded-[28px] border border-emerald-200 bg-emerald-50/70 p-5 shadow-[0_8px_30px_rgba(16,185,129,0.08)] lg:max-w-none sm:p-6">
-      <div className="min-w-0">
-        <div className="flex flex-wrap items-start gap-2">
-          <span className="shrink-0 inline-flex items-center gap-1 rounded-full bg-emerald-600 px-3 py-1 text-[11px] font-semibold tracking-[0.12em] text-white shadow-sm">
+      <div className="min-w-0 text-center">
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-600 px-3 py-1 text-[11px] font-semibold tracking-[0.12em] text-white shadow-sm">
             🏆 BEST
           </span>
-          <div className="min-w-0 flex-1">
+          <div className="min-w-0">
             <div className="break-words text-[18px] font-medium leading-tight text-emerald-950 sm:text-[20px]">
               {fund.name}
             </div>
@@ -66,7 +66,7 @@ export default function BestFundCard({
         </div>
       </div>
 
-      <div className="mt-6">
+      <div className="mt-6 text-center">
         <div className="text-[15px] font-medium text-emerald-900">
           毎月{monthlyLabel} × {years}年
         </div>
@@ -75,7 +75,7 @@ export default function BestFundCard({
         </div>
       </div>
 
-      <div className="mt-6">
+      <div className="mt-6 text-center">
         <div className="text-sm font-medium text-slate-600">貯金より</div>
         <div
           className={`mt-1 text-[28px] font-semibold tracking-[-0.03em] tabular-nums ${
