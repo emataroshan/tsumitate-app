@@ -35,8 +35,8 @@ export default function OgImage({
   profitText: string;
   fundName: string;
 }) {
-  const monthlyLabel = formatMonthlyLabel(monthly); 
-  
+  const monthlyLabel = formatMonthlyLabel(monthly);
+
   return (
     <div
       style={{
@@ -45,9 +45,10 @@ export default function OgImage({
         display: "flex",
         background: "#f8fafc",
         color: "#0f172a",
-        padding: "40px",
+        padding: "32px 40px",
         fontFamily:
           '"Segoe UI","Hiragino Sans","Yu Gothic UI","Yu Gothic",Meiryo,sans-serif',
+        boxSizing: "border-box",
       }}
     >
       <div
@@ -58,28 +59,44 @@ export default function OgImage({
           border: "2px solid #a7f3d0",
           background: "#ecfdf5",
           boxShadow: "0 10px 30px rgba(15,23,42,0.08)",
-          padding: "26px 40px",
+          padding: "22px 40px 24px",
           flexDirection: "column",
-          justifyContent: "flex-start",
+          alignItems: "center",
+          justifyContent: "center",
+          boxSizing: "border-box",
         }}
       >
-        <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "10px",
+            width: "100%",
+            alignItems: "center",
+            textAlign: "center",
+          }}
+        >
           <div
             style={{
               display: "flex",
               flexDirection: "column",
-              alignItems: "flex-start",
-              gap: "16px",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "12px",
               minWidth: 0,
+              width: "100%",
+              textAlign: "center",
             }}
           >
-            
             <div
               style={{
                 display: "flex",
+                flexDirection: "column",
                 alignItems: "center",
-                gap: "14px",
+                justifyContent: "center",
+                gap: "12px",
                 minWidth: 0,
+                textAlign: "center",
               }}
             >
               <div
@@ -90,7 +107,7 @@ export default function OgImage({
                   borderRadius: "999px",
                   background: "#059669",
                   color: "#ffffff",
-                  padding: "10px 18px",
+                  padding: "9px 18px",
                   fontSize: 20,
                   fontWeight: 800,
                   letterSpacing: "0.12em",
@@ -103,13 +120,16 @@ export default function OgImage({
 
               <div
                 style={{
-                  fontSize: 26,
+                  fontSize: 21,
                   lineHeight: 1.3,
                   fontWeight: 700,
                   color: "#022c22",
                   display: "flex",
                   minWidth: 0,
                   flexWrap: "wrap",
+                  justifyContent: "center",
+                  textAlign: "center",
+                  maxWidth: "920px",
                 }}
               >
                 {fundName}
@@ -118,7 +138,7 @@ export default function OgImage({
 
             <div
               style={{
-                fontSize: 28,
+                fontSize: 27,
                 fontWeight: 700,
                 color: "#065f46",
               }}
@@ -128,12 +148,12 @@ export default function OgImage({
 
             <div
               style={{
-                fontSize: 90,
-                lineHeight: 1.02,
+                fontSize: 92,
+                lineHeight: 1,
                 fontWeight: 900,
                 color: "#047857",
                 letterSpacing: "-0.04em",
-                marginTop: "6px",
+                marginTop: "0px",
               }}
             >
               {finalValueText}
@@ -141,15 +161,17 @@ export default function OgImage({
 
             <div
               style={{
-                marginTop: "26px",
+                marginTop: "12px",
                 display: "flex",
                 flexDirection: "column",
-                gap: "8px",
+                gap: "6px",
+                alignItems: "center",
+                textAlign: "center",
               }}
             >
               <div
                 style={{
-                  fontSize: 28,
+                  fontSize: 26,
                   fontWeight: 600,
                   color: "#475569",
                 }}
@@ -158,8 +180,8 @@ export default function OgImage({
               </div>
               <div
                 style={{
-                  fontSize: 54,
-                  lineHeight: 1.08,
+                  fontSize: 50,
+                  lineHeight: 1.06,
                   fontWeight: 800,
                   color: "#059669",
                   letterSpacing: "-0.03em",
@@ -171,12 +193,14 @@ export default function OgImage({
 
             <div
               style={{
-                marginTop: "22px",
+                marginTop: "14px",
                 display: "flex",
+                flexDirection: "column",
                 alignItems: "center",
-                justifyContent: "space-between",
+                justifyContent: "center",
+                gap: "12px",
                 borderTop: "1px solid #bbf7d0",
-                paddingTop: "18px",
+                paddingTop: "14px",
                 width: "100%",
               }}
             >
@@ -184,25 +208,29 @@ export default function OgImage({
                 style={{
                   display: "flex",
                   alignItems: "center",
+                  justifyContent: "center",
                   gap: "6px",
                   flexWrap: "wrap",
-                  fontSize: 26,
+                  fontSize: 24,
                   color: "#334155",
+                  textAlign: "center",
                 }}
               >
                 <span>
                   <span style={{ color: "#64748b" }}>手数料まで考慮した</span>
-                  <span style={{ fontWeight: 700, color: "#047857" }}>シミュレーション</span>
+                  <span style={{ fontWeight: 700, color: "#047857" }}>
+                    シミュレーション
+                  </span>
                 </span>
               </div>
 
               <div
                 style={{
-                  fontSize: 22,
+                  fontSize: 20,
                   fontWeight: 700,
                   color: "#ffffff",
                   background: "#059669",
-                  padding: "10px 16px",
+                  padding: "9px 16px",
                   borderRadius: "999px",
                   display: "flex",
                   alignItems: "center",
