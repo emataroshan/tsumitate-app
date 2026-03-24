@@ -8,7 +8,7 @@ export const FUND_CONFIG: FundConfig[] = [
     "id": "mufg_emaxis_slim_all_country",
     "name": "eMAXIS Slim 全世界株式(ｵｰﾙ･ｶﾝﾄﾘｰ)",
     "providerId": "mufg",
-    "expenseRatio": 0.0005775,
+    "expenseRatio": 0,
     "tags": [
       "人気",
       "株式-為替ヘッジなし",
@@ -20,7 +20,7 @@ export const FUND_CONFIG: FundConfig[] = [
     "id": "mufg_emaxis_slim_sp500",
     "name": "eMAXIS Slim 米国株式(S&P500)",
     "providerId": "mufg",
-    "expenseRatio": 0.000814,
+    "expenseRatio": 0,
     "tags": [
       "人気",
       "株式-為替ヘッジなし",
@@ -64,7 +64,7 @@ export const FUND_CONFIG: FundConfig[] = [
     "id": "daiwa_ifree_fang_plus",
     "name": "iFreeNEXT FANG+ｲﾝﾃﾞｯｸｽ",
     "providerId": "daiwa",
-    "expenseRatio": 0.007755,
+    "expenseRatio": 0,
     "tags": [
       "米国",
       "株式-為替ヘッジなし"
@@ -74,7 +74,7 @@ export const FUND_CONFIG: FundConfig[] = [
     "id": "mufg_emaxis_slim_topix",
     "name": "eMAXIS Slim 国内株式(TOPIX)",
     "providerId": "mufg",
-    "expenseRatio": 0.00143,
+    "expenseRatio": 0,
     "tags": [
       "国内",
       "株式"
@@ -94,7 +94,7 @@ export const FUND_CONFIG: FundConfig[] = [
     "id": "mufg_emaxis_slim_all_country_ex_japan",
     "name": "eMAXIS Slim 全世界株式(除く日本)",
     "providerId": "mufg",
-    "expenseRatio": 0.0005775,
+    "expenseRatio": 0,
     "tags": [
       "先進国・新興国（広域）",
       "株式-為替ヘッジなし"
@@ -104,7 +104,7 @@ export const FUND_CONFIG: FundConfig[] = [
     "id": "mufg_emaxis_slim_dev_ex_japan",
     "name": "eMAXIS Slim 先進国株式ｲﾝﾃﾞｯｸｽ(除く日本)",
     "providerId": "mufg",
-    "expenseRatio": 0.0009889,
+    "expenseRatio": 0,
     "tags": [
       "先進国（広域）",
       "株式-為替ヘッジなし"
@@ -124,7 +124,7 @@ export const FUND_CONFIG: FundConfig[] = [
     "id": "mufg_emaxis_slim_nikkei225",
     "name": "eMAXIS Slim 国内株式(日経平均)",
     "providerId": "mufg",
-    "expenseRatio": 0.00143,
+    "expenseRatio": 0,
     "tags": [
       "国内",
       "株式"
@@ -134,7 +134,7 @@ export const FUND_CONFIG: FundConfig[] = [
     "id": "amone_tawara_nikkei225",
     "name": "たわらﾉｰﾛｰﾄﾞ 日経225",
     "providerId": "amone",
-    "expenseRatio": 0.00143,
+    "expenseRatio": 0,
     "tags": [
       "国内",
       "株式"
@@ -144,7 +144,7 @@ export const FUND_CONFIG: FundConfig[] = [
     "id": "amone_tawara_dev",
     "name": "たわらﾉｰﾛｰﾄﾞ先進国株式",
     "providerId": "amone",
-    "expenseRatio": 0.0009889,
+    "expenseRatio": 0,
     "tags": [
       "先進国（広域）",
       "株式-為替ヘッジなし"
@@ -154,7 +154,7 @@ export const FUND_CONFIG: FundConfig[] = [
     "id": "mufg_emaxis_slim_emerging",
     "name": "eMAXIS Slim 新興国株式ｲﾝﾃﾞｯｸｽ",
     "providerId": "mufg",
-    "expenseRatio": 0.001518,
+    "expenseRatio": 0,
     "tags": [
       "新興国（広域）",
       "株式-為替ヘッジなし"
@@ -164,7 +164,7 @@ export const FUND_CONFIG: FundConfig[] = [
     "id": "daiwa_ifree_sp500",
     "name": "iFreeS&P500ｲﾝﾃﾞｯｸｽ",
     "providerId": "daiwa",
-    "expenseRatio": 0.00198,
+    "expenseRatio": 0,
     "tags": [
       "米国",
       "株式-為替ヘッジなし"
@@ -186,7 +186,7 @@ export const FUND_CONFIG: FundConfig[] = [
     "id": "capital_world_equity_dc",
     "name": "ｷｬﾋﾟﾀﾙ世界株式ﾌｧﾝﾄﾞ(DC年金つみたて専用)",
     "providerId": "capital",
-    "expenseRatio": 0.01085,
+    "expenseRatio": 0,
     "tags": [
       "先進国（広域）",
       "株式-為替ヘッジなし"
@@ -196,7 +196,7 @@ export const FUND_CONFIG: FundConfig[] = [
     "id": "mufg_emaxis_slim_balance_8",
     "name": "eMAXIS Slimﾊﾞﾗﾝｽ(8資産均等型)",
     "providerId": "mufg",
-    "expenseRatio": 0.00143,
+    "expenseRatio": 0,
     "tags": [
       "バランス",
       "固定配分",
@@ -208,7 +208,7 @@ export const FUND_CONFIG: FundConfig[] = [
     "id": "resona_smarti_sp500",
     "name": "Smart-i S&P500ｲﾝﾃﾞｯｸｽ",
     "providerId": "resona",
-    "expenseRatio": 0.00242,
+    "expenseRatio": 0,
     "tags": [
       "北米",
       "株式-為替ヘッジなし"
@@ -218,7 +218,7 @@ export const FUND_CONFIG: FundConfig[] = [
     "id": "smt_my_smt_sp500",
     "name": "My SMT S&P500ｲﾝﾃﾞｯｸｽ(ﾉｰﾛｰﾄﾞ)",
     "providerId": "smt",
-    "expenseRatio": 0.000968,
+    "expenseRatio": 0,
     "tags": [
       "米国",
       "株式-為替ヘッジなし"
@@ -228,7 +228,7 @@ export const FUND_CONFIG: FundConfig[] = [
     "id": "mufg_tsumitate_topix",
     "name": "つみたて日本株式(TOPIX)",
     "providerId": "mufg",
-    "expenseRatio": 0.00198,
+    "expenseRatio": 0,
     "tags": [
       "国内",
       "株式"
@@ -238,7 +238,7 @@ export const FUND_CONFIG: FundConfig[] = [
     "id": "sbi_total_world",
     "name": "SBI･全世界株式ｲﾝﾃﾞｯｸｽ･ﾌｧﾝﾄﾞ",
     "providerId": "sbi",
-    "expenseRatio": 0.001022,
+    "expenseRatio": 0,
     "tags": [
       "先進国・新興国（広域）",
       "株式-為替ヘッジなし"
@@ -248,7 +248,7 @@ export const FUND_CONFIG: FundConfig[] = [
     "id": "smds_dc_tsumitate_japan",
     "name": "三井住友･DCつみたてNISA･日本株ｲﾝﾃﾞｯｸｽﾌｧﾝﾄﾞ",
     "providerId": "smds",
-    "expenseRatio": 0.00176,
+    "expenseRatio": 0,
     "tags": [
       "国内",
       "株式"
@@ -258,7 +258,7 @@ export const FUND_CONFIG: FundConfig[] = [
     "id": "mufg_high_dividend_nikkei",
     "name": "日経平均高配当利回り株ﾌｧﾝﾄﾞ",
     "providerId": "mufg",
-    "expenseRatio": 0.00693,
+    "expenseRatio": 0,
     "tags": [
       "国内",
       "株式"
@@ -268,7 +268,7 @@ export const FUND_CONFIG: FundConfig[] = [
     "id": "mufg_tsumitate_balance_8",
     "name": "つみたて8資産均等ﾊﾞﾗﾝｽ",
     "providerId": "mufg",
-    "expenseRatio": 0.00242,
+    "expenseRatio": 0,
     "tags": [
       "バランス型"
     ]
@@ -277,7 +277,7 @@ export const FUND_CONFIG: FundConfig[] = [
     "id": "mufg_tsumitate_nikkei",
     "name": "つみたて日本株式(日経平均)",
     "providerId": "mufg",
-    "expenseRatio": 0.00198,
+    "expenseRatio": 0,
     "tags": [
       "国内",
       "株式"
@@ -297,7 +297,7 @@ export const FUND_CONFIG: FundConfig[] = [
     "id": "mufg_emaxis_slim_global_3region",
     "name": "eMAXIS Slim 全世界株式(3地域均等型)",
     "providerId": "mufg",
-    "expenseRatio": 0.0005775,
+    "expenseRatio": 0,
     "tags": [
       "先進国・新興国（広域）",
       "株式-為替ヘッジなし"

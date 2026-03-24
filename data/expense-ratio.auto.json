@@ -1,0 +1,98 @@
+[
+  {
+    "id": "rakuten_plus_all_country",
+    "status": "ok",
+    "expenseRatio": 0.000561,
+    "sourceUrl": "https://www.rakuten-toushin.co.jp/fund/nav/riracwi/pdf/riracwi_P.pdf",
+    "fetchedAt": "2026-03-24T03:55:43.640Z",
+    "fetchMethod": "rakuten_pdf",
+    "message": "楽天PDFから管理費用を抽出",
+    "patternName": "rakuten_trust_fee_total_sentence",
+    "matchedLabel": "信託報酬の総額は",
+    "matchedText": "信託報酬の総額は、計算期間を通じて毎日、投資信託\n財産の純資産総額に年0.0561%（税抜0.051%）の\n率を乗じて得た額とします。\n※\u0007ファンドの運用管理費用（信託報酬）は日々計上され、毎計算\n期間の最初の6ヵ月終了日および毎計算期末または信託\n終 了 時 に 、投 資 信 託 財 産 中 か ら 支 弁 し ま す 。\n運用管理費用（信託報酬）＝\u0007\n運用期間中の基準価額×信託報酬率\n運用管理"
+  },
+  {
+    "id": "rakuten_plus_sp500",
+    "status": "ok",
+    "expenseRatio": 0.00077,
+    "sourceUrl": "https://www.rakuten-toushin.co.jp/fund/nav/rirsp500/pdf/rirsp500_P.pdf",
+    "fetchedAt": "2026-03-24T03:55:44.714Z",
+    "fetchMethod": "rakuten_pdf",
+    "message": "楽天PDFから管理費用を抽出",
+    "patternName": "rakuten_trust_fee_total_sentence",
+    "matchedLabel": "信託報酬の総額は",
+    "matchedText": "信託報酬の総額は、計算期間を通じて毎日、投資信託\n財産の純資産総額に年0.077%（税抜0.07%）の率を\n乗じて得た額とします。\n※\u0007ファンドの運用管理費用（信託報酬）は日々計上され、毎計算\n期間の最初の6ヵ月終了日および毎計算期末または信託\n終 了 時 に 、投 資 信 託 財 産 中 か ら 支 弁 し ま す 。\n運用管理費用（信託報酬）＝\u0007\n運用期間中の基準価額×信託報酬率\n運用管理費用"
+  },
+  {
+    "id": "rakuten_total_us",
+    "status": "ok",
+    "expenseRatio": 0.00162,
+    "sourceUrl": "https://www.rakuten-toushin.co.jp/fund/nav/rivue/pdf/rivue_P.pdf",
+    "fetchedAt": "2026-03-24T03:55:45.079Z",
+    "fetchMethod": "rakuten_pdf",
+    "message": "楽天PDFから管理費用を抽出",
+    "patternName": "rakuten_actual_cost_block",
+    "matchedLabel": "実質的に負担する運用管理費用",
+    "matchedText": "実質的に負担する\n運用管理費用\n＊2\n年0.162%（税込）程度"
+  },
+  {
+    "id": "rakuten_total_world",
+    "status": "ok",
+    "expenseRatio": 0.00179,
+    "sourceUrl": "https://www.rakuten-toushin.co.jp/fund/nav/rivge/pdf/rivge_P.pdf",
+    "fetchedAt": "2026-03-24T03:55:45.854Z",
+    "fetchMethod": "rakuten_pdf",
+    "message": "楽天PDFから管理費用を抽出",
+    "patternName": "rakuten_actual_cost_block",
+    "matchedLabel": "実質的に負担する運用管理費用",
+    "matchedText": "実質的に負担する\n運用管理費用\n＊2\n年0.179%（税込）程度"
+  },
+  {
+    "id": "rakuten_plus_nikkei225",
+    "status": "ok",
+    "expenseRatio": 0.00132,
+    "sourceUrl": "https://www.rakuten-toushin.co.jp/fund/nav/rirn225/pdf/rirn225_P.pdf",
+    "fetchedAt": "2026-03-24T03:55:46.252Z",
+    "fetchMethod": "rakuten_pdf",
+    "message": "楽天PDFから管理費用を抽出",
+    "patternName": "rakuten_trust_fee_total_sentence",
+    "matchedLabel": "信託報酬の総額は",
+    "matchedText": "信託報酬の総額は、計算期間を通じて毎日、投資信託\n財産の純資産総額に年0.132%（税抜0.12%）の率を\n乗じて得た額とします。\n※ ファンドの運用管理費用（信託報酬）は日々計上され、毎計算\n期間の最初の6ヵ月終了日および毎計算期末または信託\n終 了 時 に 、投 資 信 託 財 産 中 か ら 支 弁 し ま す 。\n運用管理費用（信託報酬）＝ \n運用期間中の基準価額×信託報酬率\n運用管理費用"
+  },
+  {
+    "id": "rakuten_asset_building_aggressive",
+    "status": "ok",
+    "expenseRatio": 0.004915,
+    "sourceUrl": "https://www.rakuten-toushin.co.jp/fund/nav/riabf/pdf/riabf_P.pdf",
+    "fetchedAt": "2026-03-24T03:55:46.758Z",
+    "fetchMethod": "rakuten_pdf",
+    "message": "楽天PDFから管理費用を抽出",
+    "patternName": "rakuten_actual_cost_block",
+    "matchedLabel": "実質的に負担する運用管理費用",
+    "matchedText": "実質的に負担する運用管理\u0007\n費用\n＊2\n年0.4915%（税込）程度"
+  },
+  {
+    "id": "rakuten_world_ex_us",
+    "status": "ok",
+    "expenseRatio": 0.00182,
+    "sourceUrl": "https://www.rakuten-toushin.co.jp/fund/nav/rivgexu/pdf/rivgexu_P.pdf",
+    "fetchedAt": "2026-03-24T03:55:47.343Z",
+    "fetchMethod": "rakuten_pdf",
+    "message": "楽天PDFから管理費用を抽出",
+    "patternName": "rakuten_actual_cost_block",
+    "matchedLabel": "実質的に負担する運用管理費用",
+    "matchedText": "実質的に負担する運用管理費用\n＊2\n年0.182%（税込）程度"
+  },
+  {
+    "id": "rakuten_asset_building_balanced",
+    "status": "ok",
+    "expenseRatio": 0.004915,
+    "sourceUrl": "https://www.rakuten-toushin.co.jp/fund/nav/riabf/pdf/riabf_P.pdf",
+    "fetchedAt": "2026-03-24T03:55:47.726Z",
+    "fetchMethod": "rakuten_pdf",
+    "message": "楽天PDFから管理費用を抽出",
+    "patternName": "rakuten_actual_cost_block",
+    "matchedLabel": "実質的に負担する運用管理費用",
+    "matchedText": "実質的に負担する運用管理\u0007\n費用\n＊2\n年0.4915%（税込）程度"
+  }
+]
