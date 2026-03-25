@@ -298,23 +298,6 @@ export async function fetchResonaExpenseRatioFromHtml(
       };
     }
 
-    console.log("===== RESONA PDF URL START =====");
-    console.log(pdfLink.pdfUrl);
-    console.log("===== RESONA PDF URL END =====");
-
-    console.log("===== RESONA PDF TEXT START =====");
-    console.log(normalizedPdfText);
-    console.log("===== RESONA PDF TEXT END =====");
-
-    const feeIdx = normalizedPdfText.indexOf("運用管理費用");
-    if (feeIdx >= 0) {
-      console.log("===== RESONA PDF FEE BLOCK START =====");
-      console.log(normalizedPdfText.slice(Math.max(0, feeIdx - 200), feeIdx + 1200));
-      console.log("===== RESONA PDF FEE BLOCK END =====");
-    } else {
-      console.log("===== RESONA PDF FEE BLOCK NOT FOUND =====");
-    }
-
     const extracted = extractResonaPdfExpenseRatio(normalizedPdfText);
 
     if (!extracted || Number.isNaN(extracted.expenseRatio)) {

@@ -25,6 +25,7 @@ type ExpenseRatioOverride = {
 type EnabledExpenseTarget = {
   id: string;
   expenseSourceType: string;
+  expenseEnabled: boolean;
 };
 
 function isValidNumber(value: unknown): value is number {
@@ -52,7 +53,7 @@ function parseBooleanCell(value: unknown): boolean {
   return ["true", "1", "yes", "y"].includes(normalized);
 }
 
-function loadEnabledTargets(filePath: string): EnabledExpenseTarget[] {
+function loadExpenseTargets(filePath: string): EnabledExpenseTarget[] {
   const workbook = XLSX.readFile(filePath);
   const sheet = workbook.Sheets["funds"];
 
@@ -63,10 +64,10 @@ function loadEnabledTargets(filePath: string): EnabledExpenseTarget[] {
   const rows = XLSX.utils.sheet_to_json<RawRow>(sheet, { defval: "" });
 
   return rows
-    .filter((row) => parseBooleanCell(row["expense_enabled"]))
     .map((row) => ({
       id: getCell(row, ["id", "id/filename"]),
       expenseSourceType: getCell(row, ["expense_source_type"]).toLowerCase(),
+      expenseEnabled: parseBooleanCell(row["expense_enabled"]),
     }))
     .filter((row) => Boolean(row.id));
 }
@@ -77,7 +78,7 @@ function main() {
   const autoPath = path.join(root, "data", "expense-ratio.auto.json");
   const outputPath = path.join(root, "data", "expense-ratio.ts");
 
-  const enabledTargets = loadEnabledTargets(masterPath);
+  const enabledTargets = loadExpenseTargets(masterPath);
 
   const autoRecords = JSON.parse(
     fs.readFileSync(autoPath, "utf-8"),
@@ -96,6 +97,7 @@ function main() {
   for (const target of enabledTargets) {
     const id = target.id;
     const expenseSourceType = target.expenseSourceType;
+    const expenseEnabled = target.expenseEnabled;
     const record = byId.get(String(id).trim());
     const override = (EXPENSE_RATIO_OVERRIDES as Record<string, ExpenseRatioOverride | undefined>)[id];
 
@@ -108,19 +110,8 @@ function main() {
       ? override.value
       : autoExpenseRatio;
 
-    console.log("checking:", {
-      id,
-      expenseSourceType,
-      found: !!record,
-      status: record?.status,
-      autoExpenseRatio,
-      overrideExpenseRatio: override?.value ?? null,
-      finalExpenseRatio,
-      overrideReason: override?.reason ?? null,
-    });
-
-    // manual 指定のファンドは override 必須
-    if (expenseSourceType === "manual") {
+    // FALSE = 手動補完
+    if (!expenseEnabled) {
       if (!isValidNumber(override?.value)) {
         missing.push(id);
         continue;
@@ -132,7 +123,7 @@ function main() {
       continue;
     }
 
-    // manual 以外は override > auto > error
+    // TRUE = 自動取得（必要なら override で上書き可）
     if (!isValidNumber(finalExpenseRatio)) {
       missing.push(id);
       continue;
@@ -155,8 +146,8 @@ function main() {
       const record = byId.get(String(id).trim());
       const override = (EXPENSE_RATIO_OVERRIDES as Record<string, ExpenseRatioOverride | undefined>)[id];
 
-      if (target?.expenseSourceType === "manual") {
-        console.error(`- ${id} | expense_source_type=manual なのに override 未設定`);
+      if (target && !target.expenseEnabled) {
+        console.error(`- ${id} | expense_enabled=FALSE なのに override 未設定`);
         continue;
       }
 
@@ -178,9 +169,6 @@ function main() {
         console.error(`    patternName: ${record.patternName}`);
       }
     }
-
-    console.log("lines:", lines);
-    console.log("missing:", missing);
 
     console.log(
       `成功: ${successCount}件 / 対象: ${enabledTargets.length}件 (manual: ${manualCount}件, auto: ${autoCount}件)`,
