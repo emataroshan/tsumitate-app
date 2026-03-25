@@ -3,7 +3,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import * as XLSX from "xlsx";
-import { fetchRakutenExpenseRatioFromPdf } from "@/lib/expense/providers/rakuten";
+import { fetchExpenseRatio } from "@/lib/expense/providers";
 import type {
   AutoExpenseRatioRecord,
   ExpenseFetchMethod,
@@ -30,8 +30,16 @@ function getCell(row: RawRow, candidates: string[]): string {
   return "";
 }
 
-function parseBoolean(value: string): boolean {
-  return ["true", "1", "yes", "y"].includes(value.toLowerCase());
+function parseBoolean(value: unknown): boolean {
+  if (typeof value === "boolean") return value;
+  if (typeof value === "number") return value === 1;
+
+  const normalized = String(value)
+    .replace(/\u3000/g, " ")
+    .replace(/\s+/g, "")
+    .toLowerCase();
+
+  return ["true", "1", "yes", "y"].includes(normalized);
 }
 
 function loadFundMasterRows(filePath: string): FundMasterRow[] {
@@ -82,48 +90,35 @@ async function main() {
       continue;
     }
 
-    if (row.expense_fetch_method === "rakuten_pdf") {
-      const result = await fetchRakutenExpenseRatioFromPdf(
-        row.expense_source_url,
-      );
+    const result = await fetchExpenseRatio(
+      row.expense_fetch_method,
+      row.expense_source_url,
+    );
 
-      if (result.ok) {
-        records.push({
-          id: row.id,
-          status: "ok",
-          expenseRatio: result.expenseRatio,
-          sourceUrl: result.sourceUrl,
-          fetchedAt: result.fetchedAt,
-          fetchMethod: row.expense_fetch_method,
-          message: result.note,
-          patternName: result.match?.patternName,
-          matchedLabel: result.match?.matchedLabel,
-          matchedText: result.match?.matchedText,
-        });
-      } else {
-        records.push({
-          id: row.id,
-          status: "error",
-          expenseRatio: null,
-          sourceUrl: result.sourceUrl,
-          fetchedAt: result.fetchedAt,
-          fetchMethod: row.expense_fetch_method,
-          message: result.error,
-        });
-      }
-
-      continue;
+    if (result.ok) {
+      records.push({
+        id: row.id,
+        status: "ok",
+        expenseRatio: result.expenseRatio,
+        sourceUrl: result.sourceUrl,
+        fetchedAt: result.fetchedAt,
+        fetchMethod: row.expense_fetch_method,
+        message: result.note,
+        patternName: result.match?.patternName,
+        matchedLabel: result.match?.matchedLabel,
+        matchedText: result.match?.matchedText,
+      });
+    } else {
+      records.push({
+        id: row.id,
+        status: "error",
+        expenseRatio: null,
+        sourceUrl: result.sourceUrl,
+        fetchedAt: result.fetchedAt,
+        fetchMethod: row.expense_fetch_method,
+        message: result.error,
+      });
     }
-
-    records.push({
-      id: row.id,
-      status: "error",
-      expenseRatio: null,
-      sourceUrl: row.expense_source_url,
-      fetchedAt: new Date().toISOString(),
-      fetchMethod: row.expense_fetch_method,
-      message: `未対応の expense_fetch_method です: ${row.expense_fetch_method}`,
-    });
   }
 
   fs.writeFileSync(outputPath, JSON.stringify(records, null, 2), "utf-8");

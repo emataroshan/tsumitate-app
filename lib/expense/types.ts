@@ -3,8 +3,11 @@
 export type ExpenseSourceType = "pdf" | "html" | "csv" | "manual";
 
 export type ExpenseFetchMethod =
+  | "mufg_pdf"
   | "rakuten_pdf"
   | "rakuten_html"
+  | "sbi_html"
+  | "smt_pdf"
   | "manual";
 
 export type ExpenseMatchMeta = {
