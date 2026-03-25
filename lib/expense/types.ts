@@ -3,9 +3,12 @@
 export type ExpenseSourceType = "pdf" | "html" | "csv" | "manual";
 
 export type ExpenseFetchMethod =
+  | "amone_pdf"
+  | "capital_html"
   | "mufg_pdf"
   | "rakuten_pdf"
   | "rakuten_html"
+  | "resona_html"
   | "sbi_html"
   | "smds_pdf"
   | "smt_pdf"

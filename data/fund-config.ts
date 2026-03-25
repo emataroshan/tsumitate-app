@@ -64,7 +64,7 @@ export const FUND_CONFIG: FundConfig[] = [
     "id": "daiwa_ifree_fang_plus",
     "name": "iFreeNEXT FANG+ｲﾝﾃﾞｯｸｽ",
     "providerId": "daiwa",
-    "expenseRatio": 0,
+    "expenseRatio": 0.007755,
     "tags": [
       "米国",
       "株式-為替ヘッジなし"
@@ -134,7 +134,7 @@ export const FUND_CONFIG: FundConfig[] = [
     "id": "amone_tawara_nikkei225",
     "name": "たわらﾉｰﾛｰﾄﾞ 日経225",
     "providerId": "amone",
-    "expenseRatio": 0,
+    "expenseRatio": 0.00143,
     "tags": [
       "国内",
       "株式"
@@ -144,7 +144,7 @@ export const FUND_CONFIG: FundConfig[] = [
     "id": "amone_tawara_dev",
     "name": "たわらﾉｰﾛｰﾄﾞ先進国株式",
     "providerId": "amone",
-    "expenseRatio": 0,
+    "expenseRatio": 0.0009889,
     "tags": [
       "先進国（広域）",
       "株式-為替ヘッジなし"
@@ -164,7 +164,7 @@ export const FUND_CONFIG: FundConfig[] = [
     "id": "daiwa_ifree_sp500",
     "name": "iFreeS&P500ｲﾝﾃﾞｯｸｽ",
     "providerId": "daiwa",
-    "expenseRatio": 0,
+    "expenseRatio": 0.00198,
     "tags": [
       "米国",
       "株式-為替ヘッジなし"
@@ -186,7 +186,7 @@ export const FUND_CONFIG: FundConfig[] = [
     "id": "capital_world_equity_dc",
     "name": "ｷｬﾋﾟﾀﾙ世界株式ﾌｧﾝﾄﾞ(DC年金つみたて専用)",
     "providerId": "capital",
-    "expenseRatio": 0,
+    "expenseRatio": 0.0098,
     "tags": [
       "先進国（広域）",
       "株式-為替ヘッジなし"
@@ -208,7 +208,7 @@ export const FUND_CONFIG: FundConfig[] = [
     "id": "resona_smarti_sp500",
     "name": "Smart-i S&P500ｲﾝﾃﾞｯｸｽ",
     "providerId": "resona",
-    "expenseRatio": 0,
+    "expenseRatio": 0.00242,
     "tags": [
       "北米",
       "株式-為替ヘッジなし"

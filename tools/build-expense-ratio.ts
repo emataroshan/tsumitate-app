@@ -3,6 +3,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import * as XLSX from "xlsx";
+import { EXPENSE_RATIO_OVERRIDES } from "@/data/expense-ratio.overrides";
 
 type RawRow = Record<string, unknown>;
 
@@ -14,6 +15,21 @@ type AutoExpenseRatioRecord = {
   matchedLabel?: string;
   patternName?: string;
 };
+
+type ExpenseRatioOverride = {
+  value: number;
+  reason?: string;
+  sourceUrl?: string;
+};
+
+type EnabledExpenseTarget = {
+  id: string;
+  expenseSourceType: string;
+};
+
+function isValidNumber(value: unknown): value is number {
+  return typeof value === "number" && Number.isFinite(value);
+}
 
 function getCell(row: RawRow, candidates: string[]): string {
   for (const key of candidates) {
@@ -36,7 +52,7 @@ function parseBooleanCell(value: unknown): boolean {
   return ["true", "1", "yes", "y"].includes(normalized);
 }
 
-function loadEnabledIds(filePath: string): string[] {
+function loadEnabledTargets(filePath: string): EnabledExpenseTarget[] {
   const workbook = XLSX.readFile(filePath);
   const sheet = workbook.Sheets["funds"];
 
@@ -48,8 +64,11 @@ function loadEnabledIds(filePath: string): string[] {
 
   return rows
     .filter((row) => parseBooleanCell(row["expense_enabled"]))
-    .map((row) => getCell(row, ["id", "id/filename"]))
-    .filter(Boolean);
+    .map((row) => ({
+      id: getCell(row, ["id", "id/filename"]),
+      expenseSourceType: getCell(row, ["expense_source_type"]).toLowerCase(),
+    }))
+    .filter((row) => Boolean(row.id));
 }
 
 function main() {
@@ -58,7 +77,7 @@ function main() {
   const autoPath = path.join(root, "data", "expense-ratio.auto.json");
   const outputPath = path.join(root, "data", "expense-ratio.ts");
 
-  const enabledIds = loadEnabledIds(masterPath);
+  const enabledTargets = loadEnabledTargets(masterPath);
 
   const autoRecords = JSON.parse(
     fs.readFileSync(autoPath, "utf-8"),
@@ -68,38 +87,104 @@ function main() {
     autoRecords.map((record) => [String(record.id).trim(), record]),
   );
 
-  console.log("enabledIds:", enabledIds);
-  console.log("autoRecordIds:", autoRecords.map((r) => r.id));
-
   const missing: string[] = [];
   const lines: string[] = [];
+  let successCount = 0;
+  let manualCount = 0;
+  let autoCount = 0;
 
-  for (const id of enabledIds) {
+  for (const target of enabledTargets) {
+    const id = target.id;
+    const expenseSourceType = target.expenseSourceType;
     const record = byId.get(String(id).trim());
+    const override = (EXPENSE_RATIO_OVERRIDES as Record<string, ExpenseRatioOverride | undefined>)[id];
+
+    const autoExpenseRatio =
+      record?.status === "ok" && isValidNumber(record.expenseRatio)
+        ? record.expenseRatio
+        : null;
+
+    const finalExpenseRatio = isValidNumber(override?.value)
+      ? override.value
+      : autoExpenseRatio;
 
     console.log("checking:", {
       id,
+      expenseSourceType,
       found: !!record,
       status: record?.status,
-      expenseRatio: record?.expenseRatio,
+      autoExpenseRatio,
+      overrideExpenseRatio: override?.value ?? null,
+      finalExpenseRatio,
+      overrideReason: override?.reason ?? null,
     });
 
-    if (!record || record.status !== "ok" || record.expenseRatio == null) {
+    // manual 指定のファンドは override 必須
+    if (expenseSourceType === "manual") {
+      if (!isValidNumber(override?.value)) {
+        missing.push(id);
+        continue;
+      }
+
+      lines.push(`  ${JSON.stringify(id)}: ${override.value},`);
+      successCount++;
+      manualCount++;
+      continue;
+    }
+
+    // manual 以外は override > auto > error
+    if (!isValidNumber(finalExpenseRatio)) {
       missing.push(id);
       continue;
     }
 
-    lines.push(`  ${JSON.stringify(id)}: ${record.expenseRatio},`);
+    lines.push(`  ${JSON.stringify(id)}: ${finalExpenseRatio},`);
+    successCount++;
+
+    if (isValidNumber(override?.value)) {
+      manualCount++; // overrideで上書きしたケース
+    } else {
+      autoCount++;
+    }
   }
 
   if (missing.length > 0) {
     console.error("管理費用を確定できなかったファンドがあります:");
     for (const id of missing) {
-      console.error(`- ${id}`);
+      const target = enabledTargets.find((t) => t.id === id);
+      const record = byId.get(String(id).trim());
+      const override = (EXPENSE_RATIO_OVERRIDES as Record<string, ExpenseRatioOverride | undefined>)[id];
+
+      if (target?.expenseSourceType === "manual") {
+        console.error(`- ${id} | expense_source_type=manual なのに override 未設定`);
+        continue;
+      }
+
+      console.error(
+        `- ${id} | expense_source_type=${
+          target?.expenseSourceType ?? "unknown"
+        } | autoStatus=${record?.status ?? "missing"} | autoValue=${
+          record?.expenseRatio ?? "null"
+        } | overrideValue=${override?.value ?? "null"}`,
+      );
+
+      if (record?.message) {
+        console.error(`    autoMessage: ${record.message}`);
+      }
+      if (record?.matchedLabel) {
+        console.error(`    matchedLabel: ${record.matchedLabel}`);
+      }
+      if (record?.patternName) {
+        console.error(`    patternName: ${record.patternName}`);
+      }
     }
 
     console.log("lines:", lines);
     console.log("missing:", missing);
+
+    console.log(
+      `成功: ${successCount}件 / 対象: ${enabledTargets.length}件 (manual: ${manualCount}件, auto: ${autoCount}件)`,
+    );
 
     process.exit(1);
   }
@@ -110,6 +195,10 @@ function main() {
 
   fs.writeFileSync(outputPath, content, "utf-8");
   console.log(`expense-ratio.ts を出力しました: ${outputPath}`);
+
+  console.log(
+    `成功: ${successCount}件 / 対象: ${enabledTargets.length}件 (manual: ${manualCount}件, auto: ${autoCount}件)`,
+  );
 }
 
 main();

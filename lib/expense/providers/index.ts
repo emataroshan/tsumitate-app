@@ -1,8 +1,11 @@
 // lib/expense/providers/index.ts
 
 import type { ExpenseFetchResult, ExpenseFetchMethod } from "@/lib/expense/types";
+import { fetchAmoneExpenseRatioFromPdf } from "./amone";
+import { fetchCapitalExpenseRatioFromHtml } from "./capital";
 import { fetchMufgExpenseRatioFromPdf } from "./mufg";
 import { fetchRakutenExpenseRatioFromPdf } from "./rakuten";
+import { fetchResonaExpenseRatioFromHtml } from "./resona";
 import { fetchSbiExpenseRatioFromHtml } from "./sbi";
 import { fetchSmdsExpenseRatioFromPdf } from "./smds";
 import { fetchSmtExpenseRatioFromPdf } from "./smt";
@@ -12,11 +15,20 @@ export async function fetchExpenseRatio(
   sourceUrl: string,
 ): Promise<ExpenseFetchResult> {
   switch (method) {
+    case "amone_pdf":
+      return fetchAmoneExpenseRatioFromPdf(sourceUrl);
+
+    case "capital_html":
+      return fetchCapitalExpenseRatioFromHtml(sourceUrl);
+
     case "mufg_pdf":
       return fetchMufgExpenseRatioFromPdf(sourceUrl);
  
     case "rakuten_pdf":
       return fetchRakutenExpenseRatioFromPdf(sourceUrl);
+
+    case "resona_html":
+      return fetchResonaExpenseRatioFromHtml(sourceUrl);
 
     case "sbi_html":
       return fetchSbiExpenseRatioFromHtml(sourceUrl);
