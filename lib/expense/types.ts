@@ -7,6 +7,7 @@ export type ExpenseFetchMethod =
   | "rakuten_pdf"
   | "rakuten_html"
   | "sbi_html"
+  | "smds_pdf"
   | "smt_pdf"
   | "manual";
 

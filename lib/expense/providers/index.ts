@@ -4,6 +4,7 @@ import type { ExpenseFetchResult, ExpenseFetchMethod } from "@/lib/expense/types
 import { fetchMufgExpenseRatioFromPdf } from "./mufg";
 import { fetchRakutenExpenseRatioFromPdf } from "./rakuten";
 import { fetchSbiExpenseRatioFromHtml } from "./sbi";
+import { fetchSmdsExpenseRatioFromPdf } from "./smds";
 import { fetchSmtExpenseRatioFromPdf } from "./smt";
 
 export async function fetchExpenseRatio(
@@ -19,6 +20,9 @@ export async function fetchExpenseRatio(
 
     case "sbi_html":
       return fetchSbiExpenseRatioFromHtml(sourceUrl);
+
+    case "smds_pdf":
+      return fetchSmdsExpenseRatioFromPdf(sourceUrl);
 
     case "smt_pdf":
       return fetchSmtExpenseRatioFromPdf(sourceUrl);

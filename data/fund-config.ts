@@ -218,7 +218,7 @@ export const FUND_CONFIG: FundConfig[] = [
     "id": "smt_my_smt_sp500",
     "name": "My SMT S&P500ｲﾝﾃﾞｯｸｽ(ﾉｰﾛｰﾄﾞ)",
     "providerId": "smt",
-    "expenseRatio": 0,
+    "expenseRatio": 0.000968,
     "tags": [
       "米国",
       "株式-為替ヘッジなし"
@@ -248,7 +248,7 @@ export const FUND_CONFIG: FundConfig[] = [
     "id": "smds_dc_tsumitate_japan",
     "name": "三井住友･DCつみたてNISA･日本株ｲﾝﾃﾞｯｸｽﾌｧﾝﾄﾞ",
     "providerId": "smds",
-    "expenseRatio": 0,
+    "expenseRatio": 0.00176,
     "tags": [
       "国内",
       "株式"
