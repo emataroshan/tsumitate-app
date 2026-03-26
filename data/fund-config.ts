@@ -186,7 +186,7 @@ export const FUND_CONFIG: FundConfig[] = [
     "id": "capital_world_equity_dc",
     "name": "ｷｬﾋﾟﾀﾙ世界株式ﾌｧﾝﾄﾞ(DC年金つみたて専用)",
     "providerId": "capital",
-    "expenseRatio": 0.01085,
+    "expenseRatio": 0.0098,
     "tags": [
       "先進国（広域）",
       "株式-為替ヘッジなし"

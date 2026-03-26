@@ -8,15 +8,19 @@
     "start": "next start",
     "lint": "eslint",
     "test:parse": "tsx tools/test-parse.ts",
+    "fetch:expense-ratios": "tsx tools/fetch-expense-ratios.ts",
+    "build:expense-ratio": "tsx tools/build-expense-ratio.ts",
     "build:fund-config": "tsx tools/build-fund-config.ts",
     "build:fund-analytics": "tsx tools/build-fund-analytics.ts",
-    "build:data": "npm run build:fund-config && npm run build:fund-analytics",
-    "build:data:strict": "npm run build:fund-config && tsx tools/build-fund-analytics.ts --strict"
+    "build:data": "npm run fetch:expense-ratios && npm run build:expense-ratio && npm run build:fund-config && npm run build:fund-analytics",
+    "build:data:strict": "npm run fetch:expense-ratios && npm run build:expense-ratio && npm run build:fund-config && tsx tools/build-fund-analytics.ts --strict"
   },
   "dependencies": {
     "html-to-image": "^1.11.13",
     "iconv-lite": "^0.7.2",
     "next": "16.1.6",
+    "pdf-parse": "npm:@cedrugs/pdf-parse@^1.0.0",
+    "pdfjs-dist": "^5.5.207",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "recharts": "^3.7.0",

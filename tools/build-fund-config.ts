@@ -4,6 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 import * as XLSX from "xlsx";
 import type { FundConfig } from "../lib/types";
+import { EXPENSE_RATIOS } from "../data/expense-ratio";
 
 type RawRow = Record<string, unknown>;
 
@@ -19,13 +20,12 @@ function toStringValue(value: unknown): string {
   return String(value).trim();
 }
 
-function toNumberValue(value: unknown): number {
-  if (value == null || value === "") return 0;
-  if (typeof value === "number") return value;
+function parseBooleanCell(value: unknown): boolean {
+  if (typeof value === "boolean") return value;
+  if (typeof value === "number") return value === 1;
 
-  const cleaned = String(value).replace(/,/g, "").trim();
-  const n = Number(cleaned);
-  return Number.isFinite(n) ? n : 0;
+  const normalized = String(value ?? "").trim().toLowerCase();
+  return ["true", "1", "yes", "y"].includes(normalized);
 }
 
 function parseTags(value: unknown): string[] {
@@ -45,29 +45,42 @@ function assertRequired(value: string, label: string, rowIndex: number): string 
   return value;
 }
 
-function buildFundConfigFromRow(row: RawRow, rowIndex: number): FundConfig | null {
+function buildFundConfigFromRow(
+  row: RawRow,
+  rowIndex: number,
+): FundConfig | null {
   const id = toStringValue(
-    getCell(row, ["id/filename", "filename_id", "ファイル名（id）"])
+    getCell(row, ["id/filename", "filename_id", "ファイル名（id）"]),
   );
   const name = toStringValue(getCell(row, ["name"]));
   const providerId = toStringValue(getCell(row, ["provider_id"]));
-  const expenseRatio = toNumberValue(getCell(row, ["expense_ratio", "管理費用"]));
   const tags = parseTags(getCell(row, ["tags", "tag", "タグ"]));
   const acquired = toStringValue(getCell(row, ["取得"]));
+  const expenseEnabled = parseBooleanCell(getCell(row, ["expense_enabled"]));
 
-  // id が空の行はスキップ
   if (!id && !name && !providerId) return null;
 
-  // 取得列があり、未取得のものを除外したい場合
   if (acquired && acquired !== "✅") {
     return null;
   }
 
+  const safeId = assertRequired(id, "id/filename", rowIndex);
+  const safeName = assertRequired(name, "name", rowIndex);
+  const safeProviderId = assertRequired(providerId, "provider_id", rowIndex);
+
+  const expenseRatio = EXPENSE_RATIOS[safeId];
+
+  if (expenseEnabled && typeof expenseRatio !== "number") {
+    throw new Error(
+      `Row ${rowIndex}: expense_enabled=true なのに EXPENSE_RATIOS に存在しません: ${safeId}`,
+    );
+  }
+
   return {
-    id: assertRequired(id, "id/filename", rowIndex),
-    name: assertRequired(name, "name", rowIndex),
-    providerId: assertRequired(providerId, "provider_id", rowIndex),
-    expenseRatio,
+    id: safeId,
+    name: safeName,
+    providerId: safeProviderId,
+    expenseRatio: expenseRatio ?? 0,
     tags,
   };
 }
@@ -90,17 +103,18 @@ function main() {
   }
 
   const workbook = XLSX.readFile(inputPath);
-  const sheetName = workbook.SheetNames[0];
-  const sheet = workbook.Sheets[sheetName];
+  const sheet = workbook.Sheets["funds"];
 
-  const rows = XLSX.utils.sheet_to_json<RawRow>(sheet, {
-    defval: "",
-  });
+  if (!sheet) {
+    throw new Error(`'funds' シートが見つかりません: ${inputPath}`);
+  }
+
+  const rows = XLSX.utils.sheet_to_json<RawRow>(sheet, { defval: "" });
 
   const configs: FundConfig[] = [];
 
   rows.forEach((row, index) => {
-    const config = buildFundConfigFromRow(row, index + 2); // Excel上の行番号イメージ
+    const config = buildFundConfigFromRow(row, index + 2);
     if (config) configs.push(config);
   });
 
@@ -118,7 +132,6 @@ function main() {
   console.log("=== build-fund-config ===");
   console.log(`Output: ${outputPath}`);
   console.log(`Funds : ${configs.length}`);
-
 }
 
 main();
